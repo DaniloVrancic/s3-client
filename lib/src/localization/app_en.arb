@@ -1,0 +1,6 @@
+{
+  "appTitle": "s3_client",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}
