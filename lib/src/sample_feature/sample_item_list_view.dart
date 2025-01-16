@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../settings/settings_view.dart';
-import 'sample_item.dart';
+import '../models/sample_item.dart';
 import 'sample_item_details_view.dart';
 
 /// Displays a list of SampleItems.
