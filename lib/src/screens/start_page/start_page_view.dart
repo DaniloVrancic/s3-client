@@ -18,6 +18,7 @@ class StartPageWidget extends StatelessWidget {
               )
             ),
             Center(
+              
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -25,8 +26,10 @@ class StartPageWidget extends StatelessWidget {
                   Center(
                     child: ClipOval(
                     child: Container(
+                      
                       width: 180,
                       height: 180,
+                      
                       padding: const EdgeInsets.all(15),
                       color: const Color.fromARGB(255, 174, 109, 223),
                       alignment: Alignment.center,
@@ -50,30 +53,54 @@ class StartPageWidget extends StatelessWidget {
                     ),
                     ),
                   ),
-                  const SizedBox(height: 30,),
+                  const SizedBox(height: 4,),
                   Container(
-                    color: const Color.fromARGB(180, 0, 0, 0),
+                    
                     child : const Text("Your trusted S3 storage manager!",
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 25,
-                      color: Colors.white70,
+                      fontSize: 20,
+                      color: Colors.black,
                       fontWeight: FontWeight.w600
                     ),
                     ),
                   ),
                  const SizedBox(height: 30,),
-                 ElevatedButton(
-                  onPressed: (){}, 
-                  style: ButtonStyle(
-                    shape: WidgetStateProperty<OutlinedBorder>(
-                      OutlinedBorder
-                    ),
-                  ),
-                  child: const Text("Login")),
-                 ElevatedButton(
-                  onPressed: (){}, 
-                  child: const Text("Register")),
+                 Padding(
+                  padding: const EdgeInsets.all(20),
+                   child: 
+                     ElevatedButton(
+                      onPressed: (){}, 
+                      style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Color.fromARGB(255, 95, 56, 126),),
+                        padding: WidgetStatePropertyAll(EdgeInsets.only(top: 15, bottom: 15))
+                      ),
+                      child: const Text("Login", 
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                        color: Colors.white
+                      ),)),
+                   
+                 ),
+                 const SizedBox(height: 30),
+                 Padding(
+                  padding: const EdgeInsets.all(20),
+                   child: 
+                     ElevatedButton(
+                      onPressed: (){},
+                      style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.black),
+                        padding: WidgetStatePropertyAll(EdgeInsets.only(top: 15, bottom: 15)),
+                      ),
+                      
+                      child: const Text("Register", 
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
+                        color: Colors.white
+                      ),)),
+                 ),
                 ],
               ),
             )
