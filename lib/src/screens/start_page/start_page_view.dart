@@ -8,6 +8,8 @@ class StartPageWidget extends StatelessWidget {
     return Scaffold(
       
       body: Container(
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
           gradient: LinearGradient(transform: GradientRotation(4.05),colors: [
             Color.fromARGB(255, 211, 112, 84),
