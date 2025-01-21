@@ -7,7 +7,7 @@ class LoginPageWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.only(top: 50.0),
+        padding: const EdgeInsets.only(top: 50.0),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: const BoxDecoration(
@@ -92,10 +92,30 @@ class LoginPageWidget extends StatelessWidget {
                           child: Text("LOG IN",
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 24.0,
+                            fontSize: 20.0,
                             fontWeight: FontWeight.bold
                           )),),
-                      )
+                      ),
+                      const SizedBox(height: 20.0,),
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                        Column(children: [
+                          Text("Don't have account",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500
+                          ),
+                            ),
+                          Text("SIGN UP",
+                          style: TextStyle(
+                            color: Colors.lightBlue, 
+                          fontSize: 14.0, 
+                          fontWeight: FontWeight.bold
+                          ),)
+                        ],)
+                      ],)
                   ],
                 ),
               ),
