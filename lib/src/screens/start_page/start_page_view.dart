@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:s3_client/src/screens/login_screen/login_page.dart';
+import 'package:s3_client/src/screens/register_screen/register_page.dart';
 
 class StartPageWidget extends StatelessWidget {
   const StartPageWidget({super.key});
@@ -67,7 +69,10 @@ class StartPageWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                    child: 
                      ElevatedButton(
-                      onPressed: (){}, 
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageWidget()));
+
+                      }, 
                       style: const ButtonStyle(
                         backgroundColor: WidgetStatePropertyAll(Color.fromARGB(255, 255, 255, 255),),
                         padding: WidgetStatePropertyAll(EdgeInsets.only(top: 15, bottom: 15))
@@ -85,7 +90,10 @@ class StartPageWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                    child: 
                      ElevatedButton(
-                      onPressed: (){},
+                      onPressed: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPageWidget()));
+                        
+                      },
                       style: ElevatedButton.styleFrom(
                         elevation: 0,
                         backgroundColor: Colors.transparent,

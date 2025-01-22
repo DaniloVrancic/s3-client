@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:s3_client/src/screens/register_screen/register_page.dart';
 
 class LoginPageWidget extends StatelessWidget {
   const LoginPageWidget({super.key});
@@ -63,11 +64,11 @@ class LoginPageWidget extends StatelessWidget {
                         prefixIcon: Icon(Icons.password)),
                     ),
                     const SizedBox(height: 12.0,),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                       
-                      const Text(
+                      Text(
                         "Forgot Password?",
                         style: TextStyle(
                         color: Colors.lightBlue, 
@@ -96,24 +97,31 @@ class LoginPageWidget extends StatelessWidget {
                             fontWeight: FontWeight.bold
                           )),),
                       ),
-                      const SizedBox(height: 20.0,),
-                      const Row(
+                      SizedBox(height: MediaQuery.of(context).size.height / 7,),
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                        Column(children: [
-                          Text("Don't have account",
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                          const Text("Don't have account",
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500
                           ),
                             ),
-                          Text("SIGN UP",
-                          style: TextStyle(
-                            color: Colors.lightBlue, 
-                          fontSize: 14.0, 
-                          fontWeight: FontWeight.bold
-                          ),)
+                          GestureDetector(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPageWidget()));
+                            },
+                            child: const Text("SIGN UP",
+                            style: TextStyle(
+                              color: Colors.lightBlue, 
+                            fontSize: 14.0, 
+                            fontWeight: FontWeight.bold
+                            ),),
+                          )
                         ],)
                       ],)
                   ],
