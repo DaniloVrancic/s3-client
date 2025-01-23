@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -17,7 +18,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Home"),),
+      appBar: AppBar(
+        title: const Text("Home"),
+        actions: [
+          IconButton(onPressed: () =>
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=> SearchPageWidget())
+                ),
+              
+              icon: const Icon(Icons.search)),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {
           ScaffoldMessenger.of(context).showSnackBar(
