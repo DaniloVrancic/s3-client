@@ -9,10 +9,25 @@ class HomePageWidget extends StatefulWidget {
 }
 
 class _HomePageWidgetState extends State<HomePageWidget> {
+
+  void requestFileUpload() {
+    
+    return;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Home"),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => {
+          ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File successfully uploaded')),
+          )
+        },
+        tooltip: "Upload File",
+        backgroundColor: Color.fromARGB(150, 210, 100, 10),
+        child: const Icon(Icons.add)
+      ),
       
       drawer: Drawer(
         child: ListView(
