@@ -12,14 +12,19 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Home"),),
+      appBar: AppBar(title: const Text("Home"),),
+      
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.orange,
+                gradient: LinearGradient(colors: [
+            Color.fromARGB(255, 228, 58, 11),
+            Color.fromARGB(255, 23, 22, 22)
+          ])
               ),
               child: Text("Menu",
               style: TextStyle(
@@ -38,7 +43,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 );
               },
             ),
-            ListTile()
+            ListTile(
+
+            )
           ],
         )
       ),
