@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
+import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -71,7 +72,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               },
             ),
             ListTile(
-
+                leading: Icon(Icons.upload_file),
+              title: Text("Upload File"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=> UploadFilePage())
+                );
+              },
             )
           ],
         )
