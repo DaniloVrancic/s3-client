@@ -191,7 +191,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
                             ),
                           GestureDetector(
                             onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => LoginPageWidget()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageWidget()));
                             },
                             child: const Text("SIGN IN",
                             style: TextStyle(
