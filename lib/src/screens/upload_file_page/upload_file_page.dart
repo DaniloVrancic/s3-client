@@ -63,6 +63,11 @@ class _UploadFilePageState extends State<UploadFilePage> {
                     itemBuilder: (context, index) {
                       return FileItem(
                         file: selectedFiles[index],
+                        border: Border.all(
+                          color: const Color.fromARGB(125, 226, 158, 11),
+                          width: 1.25,
+                          ),
+                        borderRadius: BorderRadius.circular(20.0),
                         onRemove: () {
                           setState(() {
                             selectedFiles.removeAt(index);

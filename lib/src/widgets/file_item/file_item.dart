@@ -5,8 +5,17 @@ import 'package:flutter/material.dart';
 class FileItem extends StatelessWidget {
   final PlatformFile file;
   final VoidCallback onRemove;
+  final Border border;
+  final BorderRadius borderRadius;
 
-  const FileItem({super.key, required this.file, required this.onRemove});
+  const FileItem({
+    super.key, 
+    required this.file, 
+    required this.onRemove, 
+    this.border = const Border.fromBorderSide(BorderSide.none),
+    this.borderRadius = const BorderRadius.all(Radius.zero)
+    });
+    
 
   void _showFileDetails(BuildContext context) {
     showDialog(
@@ -19,7 +28,7 @@ class FileItem extends StatelessWidget {
             children: [
               Text("File Path: ${file.path ?? 'N/A'}"),
               const SizedBox(height: 10.0,),
-              Text("File Size: ${file.size} bytes"),
+              Text("Size: ${(file.size) > 1000 ? "${file.size.toDouble()/1000.00}kB" : "${file.size} bytes"}"),
               const SizedBox(height: 10.0,),
               Text("File Extension: ${file.extension ?? 'N/A'}"),
             ],
@@ -63,7 +72,12 @@ class FileItem extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => _showFileDetails(context),
-      child: Column(
+      child: Container(
+        decoration: BoxDecoration(
+          border: border,
+          borderRadius: borderRadius
+        ),
+        child: Column(
         children: [
           preview,
           const SizedBox(height: 8.0),
@@ -75,6 +89,9 @@ class FileItem extends StatelessWidget {
           ),
         ],
       ),
+      )
+      
+      
     );
   }
 }
