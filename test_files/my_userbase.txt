@@ -1,0 +1,5 @@
+admin@admin.com, admin, admin
+root@admin.com, root, root
+user1@example.com, username1, password1
+user2@example.com, username2, password2
+user3@example.com, username3, password3
