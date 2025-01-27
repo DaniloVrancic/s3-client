@@ -17,10 +17,31 @@ class _UploadFilePageState extends State<UploadFilePage> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Center(
-          child: Row(children: [
-            ElevatedButton(onPressed: (){}, child: const Text("Select a File")),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+            ElevatedButton(onPressed: (){},
+            style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Color.fromARGB(255, 250, 150, 20),),
+                        textStyle: WidgetStatePropertyAll(TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.0,
+                        color: Colors.black
+                      ),),
+                        padding: WidgetStatePropertyAll(EdgeInsets.only(top: 24.0, bottom: 24.0, left: 30.0, right: 30.0))
+                      ), 
+            child: const Text("Select a File")),
             const SizedBox(width: 20.0,),
-            ElevatedButton(onPressed: (){}, child: const Text("Upload File"))
+            ElevatedButton(onPressed: (){}, 
+            style: const ButtonStyle(
+                        textStyle: WidgetStatePropertyAll(TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16.0,
+                        
+                      ),),
+                        padding: WidgetStatePropertyAll(EdgeInsets.only(top: 24.0, bottom: 24.0, left: 30.0, right: 30.0))
+                      ),
+            child: const Text("Upload File"))
           ],),
         ),
       ),
