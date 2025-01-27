@@ -11,9 +11,9 @@ class _UploadFilePageState extends State<UploadFilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Upload File"),),
+      appBar: AppBar(title: const Text("Upload File"),),
       body: 
-      Container(
+      SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: Center(

@@ -25,7 +25,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           IconButton(onPressed: () =>
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=> SearchPageWidget())
+                  MaterialPageRoute(builder: (context)=> const SearchPageWidget())
                 ),
               
               icon: const Icon(Icons.search)),
@@ -38,7 +38,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           )
         },
         tooltip: "Upload File",
-        backgroundColor: Color.fromARGB(150, 210, 100, 10),
+        backgroundColor: const Color.fromARGB(150, 210, 100, 10),
         child: const Icon(Icons.add)
       ),
       
@@ -61,24 +61,24 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               )),
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text("Settings"),
+              leading: const Icon(Icons.settings),
+              title: const Text("Settings"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=> SettingsPageWidget())
+                  MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
                 );
               },
             ),
             ListTile(
-                leading: Icon(Icons.upload_file),
-              title: Text("Upload File"),
+                leading: const Icon(Icons.upload_file),
+              title: const Text("Upload File"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=> UploadFilePage())
+                  MaterialPageRoute(builder: (context)=> const UploadFilePage())
                 );
               },
             )
