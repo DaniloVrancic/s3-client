@@ -107,7 +107,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
                       fontSize: 16.0,
                     ),
                   ),
-                  child: const Text("Upload File"),
+                  child: const Text("Upload Files"),
                 ),
               ],
             ),

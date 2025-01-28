@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
+import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -33,9 +34,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => {
-          ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File successfully uploaded')),
-          )
+          //ScaffoldMessenger.of(context).showSnackBar(
+          //const SnackBar(content: Text('File successfully uploaded')),
+          //)
+
+          
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=> const UploadFilePage())
+                )
         },
         tooltip: "Upload File",
         backgroundColor: const Color.fromARGB(150, 210, 100, 10),
@@ -81,7 +88,18 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                   MaterialPageRoute(builder: (context)=> const UploadFilePage())
                 );
               },
-            )
+            ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Log Out"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=> const StartPageWidget())
+                );
+              },
+            ),
           ],
         )
       ),
