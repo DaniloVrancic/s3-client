@@ -98,7 +98,12 @@ class _UploadFilePageState extends State<UploadFilePage> {
                   child: const Text("Select Files"),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+
+                    //ScaffoldMessenger.of(context).showSnackBar(
+                    //const SnackBar(content: Text('File successfully uploaded')),
+                    //)
+                  },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 24.0),
                     side: const BorderSide(width: 1.25, color: Color.fromARGB(125, 0, 0, 0)),
