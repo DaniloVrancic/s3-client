@@ -28,7 +28,7 @@ class FileItem extends StatelessWidget {
             children: [
               Text("File Path: ${file.path ?? 'N/A'}"),
               const SizedBox(height: 10.0,),
-              Text("Size: ${(file.size) > 1000 ? "${file.size.toDouble()/1000.00}kB" : "${file.size} bytes"}"),
+              Text("Size: ${(file.size) > 1000 ? "${file.size.toDouble()/1000.00}KB" : "${file.size} bytes"}"),
               const SizedBox(height: 10.0,),
               Text("File Extension: ${file.extension ?? 'N/A'}"),
             ],
