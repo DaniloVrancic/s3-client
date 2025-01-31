@@ -57,7 +57,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               decoration: BoxDecoration(
                 color: Colors.orange,
                 gradient: LinearGradient(colors: [
-            Color.fromARGB(255, 228, 58, 11),
+            Color.fromARGB(255, 220, 130, 25),
             Color.fromARGB(255, 23, 22, 22)
           ])
               ),

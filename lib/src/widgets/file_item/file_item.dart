@@ -45,7 +45,8 @@ class FileItem extends StatelessWidget {
                 onRemove();
                 Navigator.of(context).pop();
               },
-              child: const Text("Remove"),
+              child: const Text("Remove", 
+                                style: TextStyle(color: Colors.orangeAccent),),
             ),
           ],
         );
