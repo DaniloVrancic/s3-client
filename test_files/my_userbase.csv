@@ -1,0 +1,5 @@
+admin@admin.com, admin,$2a$12$zHPmhm9Rcodrjp.SpDyE6udEP9u/vsDEgTHlvsK0jyg77PecdENc2
+root@admin.com, root,$2a$12$sDQW02IMmWG8NvlTQDd1RecAy0.S56o7rIQogyE6DOPglsF1QugGC
+user1@example.com, username1,$2a$12$h/RZ1UrgYlfg9WvXszyyLeLdt91/ikX/Pb/8jym.3VGhhkfoEEft2
+user2@example.com, username2,$2a$12$kX2SqPivEZJHlOANWwl6HO8oTrPuLNm1oYCa58.gRaZ9u0ECUMbbO
+user3@example.com, username3,$2a$12$dg87HCJnQrUUAPl8LxQ.mucP.no0uoJVfiqIC9B9XxuVWV27tscfi
