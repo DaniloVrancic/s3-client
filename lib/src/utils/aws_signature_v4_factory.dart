@@ -13,6 +13,10 @@ class AwsSignatureV4Factory {
 
   AwsSignatureV4Factory(this._keyID, this._applicationKey, this._region, this._service);
 
+  String getRegion(){
+    return _region;
+  }
+
   String getAuthorizationHeader(
     {
       required String method,
