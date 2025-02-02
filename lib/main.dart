@@ -27,7 +27,7 @@ void main() async {
   //Instantiate the S3Client for sending requests and working with the cloud:
   final String myRegion = "eu-central-003";
   final String myProvider = "backblazeb2";
-  final String myEndpoint = "https://s3.${myRegion}.${myProvider}.com";
+  final String myEndpoint = "https://s3.$myRegion.$myProvider.com";
   final awsSigner = AwsSignatureV4Factory(
     '', //The KeyID
     '', //The ApplicationKey
