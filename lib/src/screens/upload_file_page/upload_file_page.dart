@@ -33,12 +33,6 @@ class _UploadFilePageState extends State<UploadFilePage> {
     }
   }
 
-  Future<void> _uploadFiles() async
-  {
-    
-    return;
-  }
-
   
 
   @override

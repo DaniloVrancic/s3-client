@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
 
 class RegisterPageWidget extends StatefulWidget {
   const RegisterPageWidget({super.key});
@@ -62,10 +64,18 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       _showSnackbar("Invalid username: Cannot contain '---'", Colors.red);
       return;
     }
+    if(username.startsWith("-")) {
+      _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red);
+      return;
+    }
     if (!_formKey.currentState!.validate()) {
       _showSnackbar("Register failed.", Colors.red);
         return;
     }
+
+    BackblazeService b2service = context.read<BackblazeService>();
+
+    b2service.fetchUserbase().then((v) => print(v));
 
     // Fetch and read the userbase file
 
@@ -90,8 +100,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Process the form
-      
+      _registerUser();
     }
   }
 
