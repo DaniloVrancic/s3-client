@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
 
 class RegisterPageWidget extends StatefulWidget {
@@ -31,6 +32,10 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     if (value.length < 4) {
       return 'Username must be at least 4 characters';
     }
+    if(value.contains('---'))
+    {
+      return 'Username has illegal character combination';
+    }
     return null;
   }
 
@@ -44,13 +49,56 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     return null;
   }
 
+    void _registerUser() async {
+    String username = _usernameController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text;
+
+    User userToRegister = User();
+    userToRegister.updateUser(newUsername: username, newEmail: email, newPassword: password);
+
+    // Validate username
+    if (username.contains('---')) {
+      _showSnackbar("Invalid username: Cannot contain '---'", Colors.red);
+      return;
+    }
+    if (!_formKey.currentState!.validate()) {
+      _showSnackbar("Register failed.", Colors.red);
+        return;
+    }
+
+    // Fetch and read the userbase file
+
+
+
+
+    // Check if username or email exists
+    
+    // Hash the password
+    
+
+    // Append new user data
+    
+
+    _showSnackbar("Successfully registered!", Colors.green);
+
+    // Redirect to Login after 2 seconds
+    Future.delayed(Duration(seconds: 2), () {
+      Navigator.pop(context); // Assuming previous screen is Login
+    });
+  }
+
   void _submit() {
     if (_formKey.currentState!.validate()) {
       // Process the form
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Register request submitted successfully')),
-      );
+      
     }
+  }
+
+    void _showSnackbar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
+    );
   }
 
   @override
