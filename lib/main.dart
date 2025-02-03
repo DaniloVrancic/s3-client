@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:amplify_core/amplify_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/utils/aws_signature_v4_factory.dart';
 import 'package:s3_client/src/utils/backblaze_client.dart';
 
@@ -54,18 +55,20 @@ void main() async {
   
   
   final S3Service s3Service = S3Service(awsSigner, myEndpoint);
-  
-
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
    runApp(
-    Provider<S3Service>.value(
-      value: s3Service,
-      child: MyApp(settingsController: settingsController),
-    ),
-
+    MultiProvider(
+    providers: [
+      Provider<S3Service>.value(value: s3Service),
+      ChangeNotifierProvider<User>(create: (_) => User()), // Now it's mutable!
+    ],
+    child: MyApp(settingsController: settingsController),
+  ),
     //Accessing Provider: final s3Service = Provider.of<S3Service>(context);
+    //or more concise:
+    //final loggedUser = context.read<S3Service>();
   );
 }
