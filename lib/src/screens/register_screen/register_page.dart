@@ -74,23 +74,42 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     }
 
     BackblazeService b2service = context.read<BackblazeService>();
+    bool foundUser = false;
+    List<String> listOfUsers = [];
+    await b2service.fetchUserbase().then((userStringList) {
+      for(String line in userStringList)
+      {
+        List<String> tokens = line.split(",");
+        if(tokens.length != 3)
+        {
+          continue;
+        }
 
-    b2service.fetchUserbase().then((v) => print(v));
+        if(username == tokens.elementAt(1) || email == tokens.elementAt(0))
+        {
+          foundUser = true;
+          break;
+        }
+      }
+    });
 
-    // Fetch and read the userbase file
-
-
-
-
-    // Check if username or email exists
+    if(foundUser) //  If the User already exists in the users file on the cloud
+    {
+      _showSnackbar("User already registered.", Colors.red);
+      return;
+    }
     
-    // Hash the password
+    userToRegister.updateUser(
+      newUsername: username,
+      newEmail: email,
+      newPassword: password);
     
+    listOfUsers.add(userToRegister.toString());
+    listOfUsers=listOfUsers..sort((a,b) => a.split(",").elementAt(1).compareTo(b.split(",").elementAt(1))); //  Sort by Username
 
-    // Append new user data
-    
+    //b2service.uploadFileFromBytes() TODO: Finish this method from here. 
 
-    _showSnackbar("Successfully registered!", Colors.green);
+    _showSnackbar("Successfully registered User: $username!", Colors.green);
 
     // Redirect to Login after 2 seconds
     Future.delayed(Duration(seconds: 2), () {

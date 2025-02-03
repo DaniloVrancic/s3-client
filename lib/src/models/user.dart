@@ -1,6 +1,6 @@
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class User with ChangeNotifier {
   String _username;
@@ -38,23 +38,56 @@ class User with ChangeNotifier {
   }
 
   set password(String value) {
-    _password = _hashPassword(value);
+    _password = value;
     notifyListeners();
   }
 
    // Update user details
-  void updateUser({String? newUsername, String? newEmail, String? newPassword}) {
+  void updateUser({String? newUsername, String? newEmail, String? newPassword}) async {
     if (newUsername != null) username = newUsername;
     if (newEmail != null) email = newEmail;
-    if (newPassword != null) _password = _hashPassword(newPassword);
+    if (newPassword != null) _password = await _hashPassword(newPassword);
     
     notifyListeners(); // Notify UI about changes
   }
 
   // Private method for hashing passwords
-  String _hashPassword(String password) {
-    final bytes = utf8.encode(password);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
+  Future<String> _hashPassword(String password) async {
+   try{
+    String salt = await FlutterBcrypt.saltWithRounds(rounds: 10);
+    
+    String digest = await FlutterBcrypt.hashPw(password: password, salt: salt);
+    
+    return digest;
+   }
+   on PlatformException{
+    print("Failed to get Hash");
+    return "Failed to get Hash";
+   }
+    
   }
-}
+
+  Future<bool> _verifyPassword(String password, String hashedPassword) async {
+    try{
+      return await FlutterBcrypt.verify(password: password, hash: hashedPassword);
+      }
+    catch (e)
+    {
+      print(e);
+      print("Failed to verify Hash");
+      return false;
+    }
+    
+  }
+
+  @override
+  String toString() {
+    StringBuffer sb = StringBuffer();
+    sb.write(email);
+    sb.write(",");
+    sb.write(username);
+    sb.write(",");
+    sb.write(password);
+    return sb.toString();
+    }
+  }

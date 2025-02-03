@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:minio/minio.dart';
@@ -31,6 +33,7 @@ class BackblazeService {
       );
     
   Future<List<String>> fetchUserbase() async {
+
     try{
       dynamic stream;
       print("TRYING TO FETCH USERBASE:");
@@ -62,7 +65,6 @@ class BackblazeService {
       // Rejoin the tokens into a single line using commas
       processedLines.add(tokens.join(","));
     }
-    processedLines.forEach((line)=>print(line));
     return processedLines;
     }
     catch (e) {
@@ -70,4 +72,74 @@ class BackblazeService {
       return [];
     }
   }
+   /// Uploads a new version of the user database, the List has a user in each line
+  Future<bool> uploadNewDatabase(List<String> updatedUserList) async {
+    try {
+      if (userbaseBucket == null || userbaseObject == null) {
+        throw Exception("Bucket or object name not set");
+      }
+
+      String newUserData = updatedUserList.join("\n");
+
+      await minio.putObject(
+        userbaseBucket!,
+        userbaseObject!,
+        Stream.value(utf8.encode(newUserData)),
+        metadata: {'Content-Type': 'text/csv'},
+      );
+
+      print("User database updated successfully.");
+      return true;
+    } catch (e) {
+      print("Error updating user database: $e");
+      return false;
+    }
+  }
+
+  /// Uploads a specified file to a bucket
+  Future<bool> uploadFile(String filePath, String bucket, String objectName) async {
+    try {
+      File file = File(filePath);
+      if (!file.existsSync()) {
+        throw Exception("File does not exist: $filePath");
+      }
+
+      int fileSize = await file.length();
+      Stream<Uint8List> fileStream = file.openRead().map((chunk) => Uint8List.fromList(chunk));
+
+      await minio.putObject(
+        bucket,
+        objectName,
+        fileStream,
+        size: fileSize,
+        metadata: {'Content-Type': 'application/octet-stream'},
+      );
+
+      print("File uploaded successfully: $objectName");
+      return true;
+    } catch (e) {
+      print("Error uploading file: $e");
+      return false;
+    }
+  }
+
+  Future<bool> uploadFileFromBytes(Uint8List fileBytes, String bucket, String objectName, {String contentType = 'application/octet-stream'}) async {
+  try {
+    Stream<Uint8List> fileStream = Stream.value(fileBytes);
+
+    await minio.putObject(
+      bucket,
+      objectName,
+      fileStream,
+      size: fileBytes.length,
+      metadata: {'Content-Type': contentType},
+    );
+
+    print("File uploaded successfully: $objectName");
+    return true;
+  } catch (e) {
+    print("Error uploading file: $e");
+    return false;
+  }
+}
 }
