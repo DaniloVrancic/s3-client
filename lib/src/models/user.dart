@@ -5,13 +5,13 @@ import 'package:flutter/services.dart';
 class User with ChangeNotifier {
   String _username;
   String _email;
-  String _password;
+  String? _password;
 
   // Nameless Constructor
   User()
       : _username = "---guest",
         _email = "---guest",
-        _password = "N/A";
+        _password = null;
   // Named Constructor
   User.fromInfo({
     required String username,
@@ -24,7 +24,7 @@ class User with ChangeNotifier {
   //  Getters
   String get username => _username;
   String get email => _email;
-  String get password => _password;
+  String get password => _password ?? "[N/A]";
 
   // Setters
   set username(String value) {
@@ -44,7 +44,7 @@ class User with ChangeNotifier {
 
   bool isLoggedIn(){
     
-    if(_username.isNotEmpty && _email.isNotEmpty && _password.isNotEmpty)
+    if(_username.isNotEmpty && _email.isNotEmpty && _password != null)
     {
       if(!_username.contains('---') && !_email.contains('---'))
       {
@@ -60,6 +60,13 @@ class User with ChangeNotifier {
     if (newPassword != null) _password = await _hashPassword(newPassword);
     
     notifyListeners(); // Notify UI about changes
+  }
+
+  logout() {
+    _username = "---guest";
+    _email = "---guest";
+    _password = null;
+    notifyListeners();
   }
 
   // Private method for hashing passwords

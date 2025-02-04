@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
@@ -17,8 +19,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     
     return;
   }
+
+  
   @override
   Widget build(BuildContext context) {
+    User loggedUser = context.read<User>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home"),
@@ -93,6 +99,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               leading: const Icon(Icons.logout),
               title: const Text("Log Out"),
               onTap: () {
+                loggedUser.logout();
                 Navigator.pop(context);
                 Navigator.push(
                   context,
