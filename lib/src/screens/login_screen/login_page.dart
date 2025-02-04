@@ -85,11 +85,15 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
             loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
             _showSnackbar("Login successful!.", Colors.green.shade300);
 
-            Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
-              Navigator.pushReplacement(
-                  context, 
-                  MaterialPageRoute(builder: (context)=> const HomePageWidget())); // Assuming previous screen is Starting Screen
-            });
+                 Future.delayed(Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (context)=> const HomePageWidget())); // Assuming previous screen is Starting Screen
+                  });
+            
+          }
+          else{
+            _showSnackbar("Login failed.", Colors.red.shade400);
           }
         }
         else{
@@ -253,9 +257,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       ),
     );
   }
-  void _showSnackbar(String message, Color color) {
+void _showSnackbar(String message, Color color) {
+    if (!mounted) return; // Ensure the widget is still active
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color),
+      SnackBar(content: Text(message), backgroundColor: color,),
     );
   }
 }

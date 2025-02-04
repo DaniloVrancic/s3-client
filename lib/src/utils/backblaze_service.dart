@@ -36,9 +36,6 @@ class BackblazeService {
 
     try{
       dynamic stream;
-      print("TRYING TO FETCH USERBASE:");
-      print(userbaseBucket);
-      print(userbaseObject);
       if(userbaseBucket != null && userbaseObject != null)
       {
        stream = await minio.getObject(userbaseBucket.toString(), userbaseObject.toString());

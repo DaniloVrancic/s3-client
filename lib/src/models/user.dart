@@ -72,7 +72,6 @@ class User with ChangeNotifier {
     return digest;
    }
    on PlatformException{
-    print("Failed to get Hash");
     return "Failed to get Hash";
    }
     
@@ -85,7 +84,6 @@ class User with ChangeNotifier {
     catch (e)
     {
       print(e);
-      print("Failed to verify Hash");
       return false;
     }
     

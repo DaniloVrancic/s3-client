@@ -55,7 +55,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     return null;
   }
 
-    Future<void> _registerUser() async {
+    void _registerUser() async {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text;
@@ -72,7 +72,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red.shade400);
       return;
     }
-    else if(!RegExp(r'^[a-z0-9][a-z0-9.-]+[a-z0-9]$').hasMatch(username))
+    else if(!RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$').hasMatch(username))
     {
       _showSnackbar("Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')", Colors.red.shade400);
       return;
@@ -89,10 +89,12 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     await b2service.fetchUserbase().then((List<String> userStringList) {
       for(String line in userStringList)
       {
-        listOfUsers.addAll(userStringList);
         List<String> tokens = line.split(",");
-        if(tokens.length != 3)
+        if(tokens.length == 3)
         {
+          listOfUsers.add(line);
+        }
+        else{
           continue;
         }
 
@@ -116,6 +118,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       newPassword: password);
     
     listOfUsers.add(userToRegister.toString());
+    
     listOfUsers=listOfUsers..sort((u1,u2) => u1.split(",").elementAt(1).compareTo(u2.split(",").elementAt(1))); //  Sort by Username
 
     String listOfUsersString = listOfUsers.join('\n');
@@ -153,11 +156,12 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     }
   }
 
-    void _showSnackbar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color),
-    );
-  }
+void _showSnackbar(String message, Color color) {
+  if (!mounted) return; // Ensure the widget is still active
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text(message), backgroundColor: color,),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
