@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
+import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 
 class RegisterPageWidget extends StatefulWidget {
@@ -88,6 +89,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     await b2service.fetchUserbase().then((List<String> userStringList) {
       for(String line in userStringList)
       {
+        listOfUsers.addAll(userStringList);
         List<String> tokens = line.split(",");
         if(tokens.length != 3)
         {
@@ -138,8 +140,10 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     _showSnackbar("Successfully registered User: $username!", Colors.green);
 
     // Redirect to previous page after 2 seconds
-    Future.delayed(Duration(seconds: 2), () {
-      Navigator.pop(context); // Assuming previous screen is Starting Screen
+    Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
+      Navigator.push(
+        context, 
+        MaterialPageRoute(builder: (context)=> const StartPageWidget())); // Assuming previous screen is Starting Screen
     });
   }
 

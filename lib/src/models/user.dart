@@ -1,6 +1,6 @@
+import 'package:bcrypt/bcrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bcrypt/flutter_bcrypt.dart';
 
 class User with ChangeNotifier {
   String _username;
@@ -54,9 +54,9 @@ class User with ChangeNotifier {
   // Private method for hashing passwords
   Future<String> _hashPassword(String password) async {
    try{
-    String salt = await FlutterBcrypt.saltWithRounds(rounds: 10);
+    String salt = BCrypt.gensalt(logRounds: 10);
     
-    String digest = await FlutterBcrypt.hashPw(password: password, salt: salt);
+    String digest = BCrypt.hashpw(password, salt);
     
     return digest;
    }
@@ -67,9 +67,9 @@ class User with ChangeNotifier {
     
   }
 
-  Future<bool> _verifyPassword(String password, String hashedPassword) async {
+  bool _verifyPassword(String password, String hashedPassword) {
     try{
-      return await FlutterBcrypt.verify(password: password, hash: hashedPassword);
+      return BCrypt.checkpw(password, hashedPassword);
       }
     catch (e)
     {
