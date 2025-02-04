@@ -142,6 +142,17 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
 
+    b2service.bucketExists(username.toLowerCase()).then((bool exists) {
+      if(exists){
+        // TODO: Throw an error here
+      }
+      else{
+        // TODO: Send request to create bucket here
+      }
+    },
+    onError: (e) => print(e));
+    
+
     // Redirect to previous page after 2 seconds
     Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
       Navigator.pushReplacement(

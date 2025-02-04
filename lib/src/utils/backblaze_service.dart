@@ -11,8 +11,11 @@ class BackblazeService {
   String applicationKey = "YOUR_APPLICATION_KEY";
   String region = "YOUR_REGION";
 
-  String? userbaseBucket = "YOUR_BUCKET";
-  String? userbaseObject = "YOUR_OBJECT";
+  String? _userbaseBucket = "YOUR_BUCKET";
+  String? _userbaseObject = "YOUR_OBJECT";
+
+  
+  
 
   final Minio minio;
 
@@ -21,24 +24,30 @@ class BackblazeService {
       required this.keyId, 
       required this.applicationKey, 
       required this.region, 
-      required this.userbaseBucket, 
-      required this.userbaseObject
+      required userbaseBucket, 
+      required userbaseObject
     }) 
-      : minio = Minio(
+      :
+      _userbaseBucket = userbaseBucket,
+      _userbaseObject = userbaseObject, 
+      minio = Minio(
         endPoint: "s3.$region.backblazeb2.com",
         accessKey: keyId,
         secretKey: applicationKey,
         region: region,
         useSSL: true
       );
+  
+  String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
+  String get userbaseObject => _userbaseObject ?? "a---user-repository";
     
   Future<List<String>> fetchUserbase() async {
 
     try{
       dynamic stream;
-      if(userbaseBucket != null && userbaseObject != null)
+      if(_userbaseBucket != null && _userbaseObject != null)
       {
-       stream = await minio.getObject(userbaseBucket.toString(), userbaseObject.toString());
+       stream = await minio.getObject(_userbaseBucket.toString(), _userbaseObject.toString());
       }
       else{
        stream = await minio.getObject("a---user-repository", "my_userbase.csv");
@@ -72,15 +81,15 @@ class BackblazeService {
    /// Uploads a new version of the user database, the List has a user in each line
   Future<bool> uploadNewDatabase(List<String> updatedUserList) async {
     try {
-      if (userbaseBucket == null || userbaseObject == null) {
+      if (_userbaseBucket == null || _userbaseObject == null) {
         throw Exception("Bucket or object name not set");
       }
 
       String newUserData = updatedUserList.join("\n");
 
       await minio.putObject(
-        userbaseBucket!,
-        userbaseObject!,
+        _userbaseBucket!,
+        _userbaseObject!,
         Stream.value(utf8.encode(newUserData)),
         metadata: {'Content-Type': 'text/csv'},
       );
@@ -123,7 +132,6 @@ class BackblazeService {
   Future<bool> uploadFileFromBytes(Uint8List fileBytes, String bucket, String objectName, {String contentType = 'application/octet-stream'}) async {
   try {
     Stream<Uint8List> fileStream = Stream.value(fileBytes);
-
     await minio.putObject(
       bucket,
       objectName,
@@ -139,4 +147,44 @@ class BackblazeService {
     return false;
   }
 }
+
+  Future<bool> bucketExists(String bucketName) async {
+    try{
+      bool exists = await minio.bucketExists(bucketName);
+      if(exists){
+        return true;
+        }
+      else{
+        return false;
+        }
+      }
+        on MinioError catch (e) {
+          print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
+        return false;
+      } on SocketException {
+          print("Network error: Unable to connect to Backblaze B2.");
+        return false;
+      } catch (e) {
+          print("Unexpected error while creating bucket '$bucketName': $e");
+        return false;
+      }   
+  }
+
+  Future<bool> createBucket(String bucketName) async {
+    try{
+      await minio.makeBucket(
+        bucketName, region);
+      return true;
+    }
+    on MinioError catch (e) {
+    print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
+    return false;
+  } on SocketException {
+    print("Network error: Unable to connect to Backblaze B2.");
+    return false;
+  } catch (e) {
+    print("Unexpected error while creating bucket '$bucketName': $e");
+    return false;
+  }
+  }
 }
