@@ -9,16 +9,16 @@ class User with ChangeNotifier {
 
   // Nameless Constructor
   User()
-      : _username = "guest",
-        _email = "guest",
+      : _username = "---guest",
+        _email = "---guest",
         _password = "N/A";
   // Named Constructor
-  User.fromUser({
+  User.fromInfo({
     required String username,
-    String? email,
+    required String email,
     String? password,
   })  : _username = username,
-        _email = email ?? "guest",
+        _email = email,
         _password = password ?? "N/A";
 
   //  Getters
@@ -42,8 +42,19 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
+  bool isLoggedIn(){
+    
+    if(_username.isNotEmpty && _email.isNotEmpty && _password.isNotEmpty)
+    {
+      if(!_username.contains('---') && !_email.contains('---'))
+      {
+        return true;
+      }
+    }
+    return false;
+  }
    // Update user details
-  void updateUser({String? newUsername, String? newEmail, String? newPassword}) async {
+  void setUser({String? newUsername, String? newEmail, String? newPassword}) async {
     if (newUsername != null) username = newUsername;
     if (newEmail != null) email = newEmail;
     if (newPassword != null) _password = await _hashPassword(newPassword);
@@ -67,7 +78,7 @@ class User with ChangeNotifier {
     
   }
 
-  bool _verifyPassword(String password, String hashedPassword) {
+  bool verifyPassword(String password, String hashedPassword) {
     try{
       return BCrypt.checkpw(password, hashedPassword);
       }

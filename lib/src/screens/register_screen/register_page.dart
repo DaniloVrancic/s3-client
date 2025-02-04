@@ -55,34 +55,34 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     return null;
   }
 
-    void _registerUser() async {
+    Future<void> _registerUser() async {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
     User userToRegister = User();
-    userToRegister.updateUser(newUsername: username, newEmail: email, newPassword: password);
+    userToRegister.setUser(newUsername: username, newEmail: email, newPassword: password);
 
     // Validate username
     if (username.contains('---')) {
-      _showSnackbar("Invalid username: Cannot contain '---'", Colors.red);
+      _showSnackbar("Invalid username: Cannot contain '---'", Colors.red.shade400);
       return;
     }
     else if(username.startsWith("-")) {
-      _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red);
+      _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red.shade400);
       return;
     }
     else if(!RegExp(r'^[a-z0-9][a-z0-9.-]+[a-z0-9]$').hasMatch(username))
     {
-      _showSnackbar("Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')", Colors.red);
+      _showSnackbar("Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')", Colors.red.shade400);
       return;
     }
     if (!_formKey.currentState!.validate()) {
-      _showSnackbar("Register failed.", Colors.red);
+      _showSnackbar("Register failed.", Colors.red.shade400);
         return;
     }
 
-    BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 compatible service from the context (initialized at start in main method)
+    BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
 
     bool foundUser = false;
     List<String> listOfUsers = [];
@@ -106,11 +106,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     if(foundUser) //  If the User already exists in the users file on the cloud
     {
-      _showSnackbar("User already registered.", Colors.red);
+      _showSnackbar("User already registered.", Colors.red.shade400);
       return;
     }
     
-    userToRegister.updateUser(
+    userToRegister.setUser(
       newUsername: username,
       newEmail: email,
       newPassword: password);
@@ -129,19 +129,19 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       (bool value) => {
         if(value == true)
         {
-          _showSnackbar("User successfully registered!", Colors.green)
+          _showSnackbar("User successfully registered!", Colors.green.shade300)
         }
       },
       onError: (e) {
-          _showSnackbar("An Error occured: Couldn't register User", Colors.red);
+          _showSnackbar("An Error occured: Couldn't register User", Colors.red.shade400);
       }
     );
 
-    _showSnackbar("Successfully registered User: $username!", Colors.green);
+    _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
 
     // Redirect to previous page after 2 seconds
     Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
-      Navigator.push(
+      Navigator.pushReplacement(
         context, 
         MaterialPageRoute(builder: (context)=> const StartPageWidget())); // Assuming previous screen is Starting Screen
     });

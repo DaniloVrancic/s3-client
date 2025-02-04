@@ -59,6 +59,7 @@ void main() async {
     userbaseBucket: userbaseBucket,
     userbaseObject: userbaseObject);
 
+
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
@@ -66,7 +67,7 @@ void main() async {
     MultiProvider(
     providers: [
       Provider<BackblazeService>.value(value: b2Service),
-      ChangeNotifierProvider<User>(create: (_) => User()), // Now it's mutable!
+      ChangeNotifierProvider<User>(create: (_) => User()), // The User that I will use anywhere in the application
     ],
     child: MyApp(settingsController: settingsController),
   ),

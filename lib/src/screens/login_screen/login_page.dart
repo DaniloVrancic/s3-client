@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
 
 class LoginPageWidget extends StatefulWidget {
   const LoginPageWidget({super.key});
@@ -35,12 +39,76 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     return null;
   }
 
+  Future<void> _loginUser() async {
+    String loginUsername = _usernameController.text.trim();
+    String loginPassword = _passwordController.text;
+
+    BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
+    User loggedUser = context.read<User>();
+    
+    List<String> listOfUsers = [];
+    await b2service.fetchUserbase()
+    .then<List<String>?>((List<String> userStringList) { //Parses through all the users in the listOfUsers, return the tokens of the found user, or null if the user hasn't been found
+      for(String line in userStringList)
+      {
+        listOfUsers.addAll(userStringList);
+        List<String> tokens = line.split(",");
+        if(tokens.length != 3)
+        {
+          continue;
+        }
+
+        if(loginUsername == tokens.elementAt(1) || loginUsername == tokens.elementAt(0))
+        {
+          return tokens;
+        }
+      }
+      return null;
+    },
+    onError: (e) => {
+      _showSnackbar('Something went wrong with connecting to the server!', Colors.red.shade400)
+    })
+    .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword
+      if(foundUser != null && foundUser.length == 3)
+      {
+        String? foundEmail = foundUser.elementAtOrNull(0);
+        String? foundUsername = foundUser.elementAtOrNull(1);
+        String? foundPassword = foundUser.elementAtOrNull(2);
+
+        if(foundEmail != null && foundUsername != null && foundPassword != null)
+        {
+          User foundUserObj = User.fromInfo(username: foundUsername, email: foundEmail, password: foundPassword);
+          bool isPasswordValid = foundUserObj.verifyPassword(loginPassword, foundUserObj.password);
+
+          if(isPasswordValid)
+          {
+            loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
+            _showSnackbar("Login successful!.", Colors.green.shade300);
+
+            Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
+              Navigator.pushReplacement(
+                  context, 
+                  MaterialPageRoute(builder: (context)=> const HomePageWidget())); // Assuming previous screen is Starting Screen
+            });
+          }
+        }
+        else{
+          _showSnackbar("Corrupted user info.", Colors.red.shade400);
+        }
+      }
+      else{
+        _showSnackbar("That username or E-mail haven't been found.", Colors.red.shade400);
+      }
+    },
+      onError: (e) {
+        _showSnackbar("An unexpected error happened.", Colors.red.shade400);
+    });
+  }
+
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Process the form
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login request submitted successfully')),
-      );
+      // Process the Form
+      _loginUser();
     }
   }
 
@@ -183,6 +251,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           ),
         ),
       ),
+    );
+  }
+  void _showSnackbar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: color),
     );
   }
 }
