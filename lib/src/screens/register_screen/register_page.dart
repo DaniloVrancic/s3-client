@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
@@ -64,8 +67,13 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       _showSnackbar("Invalid username: Cannot contain '---'", Colors.red);
       return;
     }
-    if(username.startsWith("-")) {
+    else if(username.startsWith("-")) {
       _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red);
+      return;
+    }
+    else if(!RegExp(r'^[a-z0-9][a-z0-9.-]+[a-z0-9]$').hasMatch(username))
+    {
+      _showSnackbar("Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')", Colors.red);
       return;
     }
     if (!_formKey.currentState!.validate()) {
@@ -73,10 +81,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
         return;
     }
 
-    BackblazeService b2service = context.read<BackblazeService>();
+    BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 compatible service from the context (initialized at start in main method)
+
     bool foundUser = false;
     List<String> listOfUsers = [];
-    await b2service.fetchUserbase().then((userStringList) {
+    await b2service.fetchUserbase().then((List<String> userStringList) {
       for(String line in userStringList)
       {
         List<String> tokens = line.split(",");
@@ -105,15 +114,32 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       newPassword: password);
     
     listOfUsers.add(userToRegister.toString());
-    listOfUsers=listOfUsers..sort((a,b) => a.split(",").elementAt(1).compareTo(b.split(",").elementAt(1))); //  Sort by Username
+    listOfUsers=listOfUsers..sort((u1,u2) => u1.split(",").elementAt(1).compareTo(u2.split(",").elementAt(1))); //  Sort by Username
 
-    //b2service.uploadFileFromBytes() TODO: Finish this method from here. 
+    String listOfUsersString = listOfUsers.join('\n');
+    List<int> listOfUsersCodeUnits = utf8.encode(listOfUsersString); //Used to create a proper Uint8List to send to method
+    await b2service.uploadFileFromBytes(
+      Uint8List.fromList(listOfUsersCodeUnits),
+      b2service.userbaseBucket.toString(),
+      b2service.userbaseObject.toString(),
+      contentType: "text/csv"
+    ).then(
+      (bool value) => {
+        if(value == true)
+        {
+          _showSnackbar("User successfully registered!", Colors.green)
+        }
+      },
+      onError: (e) {
+          _showSnackbar("An Error occured: Couldn't register User", Colors.red);
+      }
+    );
 
     _showSnackbar("Successfully registered User: $username!", Colors.green);
 
-    // Redirect to Login after 2 seconds
+    // Redirect to previous page after 2 seconds
     Future.delayed(Duration(seconds: 2), () {
-      Navigator.pop(context); // Assuming previous screen is Login
+      Navigator.pop(context); // Assuming previous screen is Starting Screen
     });
   }
 
@@ -279,7 +305,6 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
                         ],)
                       ],)
                     ],
-                    
                   ),
                 ),
               )
