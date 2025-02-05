@@ -273,8 +273,13 @@ void _showSnackbar(String message, Color color) {
                         expands: false,
                       ),
                       const SizedBox(height: 30.0),
-                      GestureDetector(
-                        onTap: _submit,
+                      Material(
+                      color: Colors.transparent, // Ensures the background stays unchanged
+                      child: InkWell(
+                        onTap: _submit, // Replace with your register function if different
+                        borderRadius: BorderRadius.circular(30), // Ensures the ripple follows the shape
+                        splashColor: Colors.white.withOpacity(0.3), // Light ripple effect
+                        highlightColor: Colors.transparent, // Prevents unwanted highlights
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
@@ -296,7 +301,7 @@ void _showSnackbar(String message, Color color) {
                           ),
                         ),
                       ),
-                    
+                    ),                  
                     SizedBox(height: MediaQuery.of(context).size.height / 40,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,

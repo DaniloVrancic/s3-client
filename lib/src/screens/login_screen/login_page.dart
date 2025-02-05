@@ -217,8 +217,13 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         expands: false,
                       ),
                       const SizedBox(height: 30.0),
-                      GestureDetector(
+                     Material(
+                      color: Colors.transparent, // Ensures the background stays the same
+                      child: InkWell(
                         onTap: _submit,
+                        borderRadius: BorderRadius.circular(30), // Matches the container's border radius
+                        splashColor: Colors.white.withOpacity(0.35), 
+                        highlightColor: Colors.transparent, // Prevents unwanted highlights
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
@@ -240,6 +245,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                           ),
                         ),
                       ),
+                    ),
                     SizedBox(height: MediaQuery.of(context).size.height / 8,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
