@@ -68,7 +68,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     onError: (e) => {
       _showSnackbar('Something went wrong with connecting to the server!', Colors.red.shade400)
     })
-    .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword
+    .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword, attempts to login with the password and (username or email)
       if(foundUser != null && foundUser.length == 3)
       {
         String? foundEmail = foundUser.elementAtOrNull(0);
@@ -94,19 +94,38 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           }
           else{
             _showSnackbar("Login failed.", Colors.red.shade400);
+            return;
           }
         }
         else{
           _showSnackbar("Corrupted user info.", Colors.red.shade400);
+          return;
         }
       }
       else{
         _showSnackbar("That username or E-mail haven't been found.", Colors.red.shade400);
+        return;
       }
     },
       onError: (e) {
         _showSnackbar("An unexpected error happened.", Colors.red.shade400);
+        return;
     });
+
+      if(!loggedUser.isLoggedIn())
+      {
+        return;
+      }
+      await b2service.bucketExists(loginUsername.toLowerCase()) //Make sure the bucket exists if the user is logging in
+      .then((bool exists) {
+      if(exists){
+        return;
+      }
+      else{
+        b2service.createBucket(loginUsername.toLowerCase());
+      }
+    },
+    onError: (e) => print(e));
   }
 
   void _submit() {

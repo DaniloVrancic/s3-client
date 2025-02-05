@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:amplify_core/amplify_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
@@ -98,7 +99,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
           continue;
         }
 
-        if(username == tokens.elementAt(1) || email == tokens.elementAt(0))
+        if(username.toLowerCase() == tokens.elementAt(1).toLowerCase() || email.toLowerCase() == tokens.elementAt(0).toLowerCase())
         {
           foundUser = true;
           break;
@@ -144,10 +145,10 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     b2service.bucketExists(username.toLowerCase()).then((bool exists) {
       if(exists){
-        // TODO: Throw an error here
+        print("Bucket already exists");
       }
       else{
-        // TODO: Send request to create bucket here
+        b2service.createBucket(username.toLowerCase());
       }
     },
     onError: (e) => print(e));
