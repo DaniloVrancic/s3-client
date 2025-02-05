@@ -57,7 +57,7 @@ class User with ChangeNotifier {
   void setUser({String? newUsername, String? newEmail, String? newPassword}) async {
     if (newUsername != null) username = newUsername;
     if (newEmail != null) email = newEmail;
-    if (newPassword != null) _password = await _hashPassword(newPassword);
+    if (newPassword != null) password = await _hashPassword(newPassword);
     
     notifyListeners(); // Notify UI about changes
   }

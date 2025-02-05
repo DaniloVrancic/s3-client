@@ -82,8 +82,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
           if(isPasswordValid)
           {
-            loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
-            _showSnackbar("Login successful!.", Colors.green.shade300);
+            loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: loginPassword);
+            _showSnackbar("Login successful!", Colors.green.shade300);
 
                  Future.delayed(Duration(seconds: 1), () {
                     Navigator.pushReplacement(
@@ -112,17 +112,24 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         return;
     });
 
+    print("IS USER LOGGED IN? :  ${loggedUser.isLoggedIn()}");
+
       if(!loggedUser.isLoggedIn())
       {
+         print("LOGGED USER: username: ${loggedUser.username} email: ${loggedUser.email} password: ${loggedUser.password}");
         return;
+      }
+      else{
+        print("LOGGED USER: username: ${loggedUser.username} email: ${loggedUser.email} password: ${loggedUser.password}");
       }
       await b2service.bucketExists(loginUsername.toLowerCase()) //Make sure the bucket exists if the user is logging in
       .then((bool exists) {
+      print("BUCKET EXISTS?: ${exists}");
       if(exists){
         return;
       }
       else{
-        b2service.createBucket(loginUsername.toLowerCase());
+        b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) => {print("Is Bucket now successfully created? : ${isCreated}")});
       }
     },
     onError: (e) => print(e));
