@@ -60,9 +60,9 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     String username = _usernameController.text.trim();
     String email = _emailController.text.trim();
     String password = _passwordController.text;
+    Future<String> hashedPassword = User.hashPassword(password);
 
     User userToRegister = User();
-    userToRegister.setUser(newUsername: username, newEmail: email, newPassword: password);
 
     // Validate username
     if (username.contains('---')) {
@@ -91,7 +91,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       for(String line in userStringList)
       {
         List<String> tokens = line.split(",");
-        if(tokens.length == 3)
+        if(tokens.length == 3 && tokens[2].length >= 28) //if there are exactly 3 tokens and the password is longer than 28 characters (min length of BCrypt salt = the pass is hashed) - then take it into consideration
         {
           listOfUsers.add(line);
         }
@@ -116,7 +116,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     userToRegister.setUser(
       newUsername: username,
       newEmail: email,
-      newPassword: password);
+      newPassword: await hashedPassword);
     
     listOfUsers.add(userToRegister.toString());
     

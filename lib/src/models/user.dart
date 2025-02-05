@@ -37,7 +37,7 @@ class User with ChangeNotifier {
     notifyListeners();
   }
 
-  set password(String value) {
+  set password(String? value) {
     _password = value;
     notifyListeners();
   }
@@ -54,10 +54,10 @@ class User with ChangeNotifier {
     return false;
   }
    // Update user details
-  void setUser({String? newUsername, String? newEmail, String? newPassword}) async {
+  void setUser({String? newUsername, String? newEmail, String? newPassword}) {
     if (newUsername != null) username = newUsername;
     if (newEmail != null) email = newEmail;
-    if (newPassword != null) password = await _hashPassword(newPassword);
+    if (newPassword != null) password = newPassword;
     
     notifyListeners(); // Notify UI about changes
   }
@@ -70,7 +70,7 @@ class User with ChangeNotifier {
   }
 
   // Private method for hashing passwords
-  Future<String> _hashPassword(String password) async {
+  static Future<String> hashPassword(String password) async {
    try{
     String salt = BCrypt.gensalt(logRounds: 10);
     
