@@ -22,6 +22,8 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _isLoading = false; // Loading state
+
   String? validateEmail(String? value) {
     const emailPattern =
         r'^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+';
@@ -43,6 +45,17 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     {
       return 'Username has illegal character combination';
     }
+        // Validate username
+    if (value.contains('---')) {
+      return "Invalid username: Cannot contain '---'";
+    }
+    else if(value.startsWith("-")) {
+      return "Invalid username: Username cannot start with: '-'";
+    }
+    else if(!RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$').hasMatch(value))
+    {
+      return "Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')";
+    }
     return null;
   }
 
@@ -62,22 +75,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     String password = _passwordController.text;
     Future<String> hashedPassword = User.hashPassword(password);
 
+    setState(() => _isLoading = true); // Start loading
+
     User userToRegister = User();
 
-    // Validate username
-    if (username.contains('---')) {
-      _showSnackbar("Invalid username: Cannot contain '---'", Colors.red.shade400);
-      return;
-    }
-    else if(username.startsWith("-")) {
-      _showSnackbar("Invalid username: Username cannot start with: '-'", Colors.red.shade400);
-      return;
-    }
-    else if(!RegExp(r'^[a-zA-Z0-9][a-zA-Z0-9.-]+[a-zA-Z0-9]$').hasMatch(username))
-    {
-      _showSnackbar("Invalid username: Username is of invalid form. (Use only alphanumericals and '-', can't start and end with '-')", Colors.red.shade400);
-      return;
-    }
+
     if (!_formKey.currentState!.validate()) {
       _showSnackbar("Register failed.", Colors.red.shade400);
         return;
@@ -110,6 +112,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     if(foundUser) //  If the User already exists in the users file on the cloud
     {
       _showSnackbar("User already registered.", Colors.red.shade400);
+      setState(() => _isLoading = false);
       return;
     }
     
@@ -124,6 +127,32 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     String listOfUsersString = listOfUsers.join('\n');
     List<int> listOfUsersCodeUnits = utf8.encode(listOfUsersString); //Used to create a proper Uint8List to send to method
+
+    bool isUserCreated = false;
+
+     await b2service.bucketExists(username.toLowerCase()).then((bool exists) async {
+      if(exists){
+        print("Bucket already exists");
+      }
+      else{
+        return await b2service.createBucket(username.toLowerCase());
+      }
+    },
+    onError: (e) => {
+      print("Some unknown error happened, don't even know why: $e")
+      
+    })
+    .then( (bool? isCreated)  {
+      if(isCreated == true){
+        isUserCreated = true;
+        //_showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
+      }
+      else{
+        
+        _showSnackbar("An error occured during registration!", Colors.red.shade400);
+      }
+    });
+
     await b2service.uploadFileFromBytes(
       Uint8List.fromList(listOfUsersCodeUnits),
       b2service.userbaseBucket.toString(),
@@ -133,27 +162,21 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       (bool value) => {
         if(value == true)
         {
-          _showSnackbar("User successfully registered!", Colors.green.shade300)
+          //_showSnackbar("User successfully registered!", Colors.green.shade300)
         }
       },
       onError: (e) {
           _showSnackbar("An Error occured: Couldn't register User", Colors.red.shade400);
+          setState(() => _isLoading = false); // Stop loading
+          return;
       }
     );
-
-    _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
-
-    b2service.bucketExists(username.toLowerCase()).then((bool exists) {
-      if(exists){
-        print("Bucket already exists");
-      }
-      else{
-        b2service.createBucket(username.toLowerCase());
-      }
-    },
-    onError: (e) => print(e));
     
-
+     if(isUserCreated == true)
+     {
+        _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
+     }
+      setState(() => _isLoading = false); // Stop loading
     // Redirect to previous page after 2 seconds
     Future.delayed(Duration(seconds: 1, milliseconds: 400), () {
       Navigator.pushReplacement(
@@ -276,7 +299,7 @@ void _showSnackbar(String message, Color color) {
                       Material(
                       color: Colors.transparent, // Ensures the background stays unchanged
                       child: InkWell(
-                        onTap: _submit, // Replace with your register function if different
+                        onTap: _isLoading ? null : _submit, // Disable tap while loading
                         borderRadius: BorderRadius.circular(30), // Ensures the ripple follows the shape
                         splashColor: Colors.white.withOpacity(0.3), // Light ripple effect
                         highlightColor: Colors.transparent, // Prevents unwanted highlights
@@ -289,15 +312,17 @@ void _showSnackbar(String message, Color color) {
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          child: const Center(
-                            child: Text(
-                              "REGISTER",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                          child: Center(
+                            child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : const Text(
+                                        "REGISTER",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                           ),
                         ),
                       ),

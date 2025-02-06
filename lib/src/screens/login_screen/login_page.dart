@@ -19,6 +19,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _isLoading = false;
+
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
       return 'Username cannot be empty';
@@ -40,8 +42,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   }
 
   Future<void> _loginUser() async {
+    setState(() => _isLoading = true);
+
     String loginUsername = _usernameController.text.trim();
     String loginPassword = _passwordController.text;
+    
 
     BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
     User loggedUser = context.read<User>();
@@ -114,16 +119,20 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
       if(!loggedUser.isLoggedIn())
       {
+        setState(() => _isLoading = false);
         return;
       }
 
       await b2service.bucketExists(loginUsername.toLowerCase()) //Make sure the bucket exists if the user is logging in
-      .then((bool exists) {
+      .then((bool exists) async {
       if(exists){
         return;
       }
       else{
-        b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) => {print("Is Bucket now successfully created? : ${isCreated}")});
+        await b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) {
+          print("Is Bucket now successfully created? : ${isCreated}");
+          setState(() => _isLoading = false);
+          });
       }
     },
     onError: (e) => print(e));
@@ -132,7 +141,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       // Process the Form
-      _loginUser();
+      
+        _loginUser();
+
     }
   }
 
@@ -220,7 +231,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                      Material(
                       color: Colors.transparent, // Ensures the background stays the same
                       child: InkWell(
-                        onTap: _submit,
+                        onTap: _isLoading ? null : _submit,
                         borderRadius: BorderRadius.circular(30), // Matches the container's border radius
                         splashColor: Colors.white.withOpacity(0.35), 
                         highlightColor: Colors.transparent, // Prevents unwanted highlights
@@ -233,8 +244,10 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          child: const Center(
-                            child: Text(
+                          child: Center(
+                            child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.white,)
+                            : const Text(
                               "LOG IN",
                               style: TextStyle(
                                 color: Colors.white,

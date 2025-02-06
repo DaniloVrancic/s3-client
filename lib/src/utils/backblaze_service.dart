@@ -159,13 +159,14 @@ class BackblazeService {
         }
       }
         on MinioError catch (e) {
-          print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
+          print(e);
         return false;
       } on SocketException {
           print("Network error: Unable to connect to Backblaze B2.");
         return false;
       } catch (e) {
-          print("Unexpected error while creating bucket '$bucketName': $e");
+          print("Unexpected error while creating bucket ");
+          print(e);
         return false;
       }   
   }
