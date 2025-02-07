@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields, avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';

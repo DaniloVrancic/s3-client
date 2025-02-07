@@ -5,6 +5,8 @@ import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/s3_service.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -15,9 +17,26 @@ class HomePageWidget extends StatefulWidget {
 
 class _HomePageWidgetState extends State<HomePageWidget> {
 
+  late BackblazeService _b2service;
+
   void requestFileUpload() {
     
     return;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    User currentUser = context.read<User>();
+    _b2service = context.read<BackblazeService>();
+
+    getAllBucketObjects(currentUser.username.toLowerCase());
+    //my function here
+  }
+
+  Future<void> getAllBucketObjects(String bucket) async{
+
+    
   }
 
   
