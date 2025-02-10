@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 
@@ -29,11 +30,46 @@ class CloudObject extends StatefulWidget {
   });
 
   @override
-  _CloudObjectState createState() => _CloudObjectState();
+  // ignore: library_private_types_in_public_api
+  State<CloudObject> createState() => _CloudObjectState();
 }
 
 class _CloudObjectState extends State<CloudObject> {
   bool _isTapped = false;
+  bool _isDownloading = false;
+
+  Future<void> _downloadFile() async { //TODO: Define this method in the HomePage, not here, move the logic from here there, and also implement the loading logic here.
+    
+    //Open file picker to select download location
+
+    String? selectedDirectory = await FilePicker.platform.getDirectoryPath(
+      dialogTitle: "Select Download Directory",
+      lockParentWindow: true // Works only for Windows
+    );
+
+    if (selectedDirectory == null) {
+      // User canceled the picker
+      return;
+    }
+
+    setState(() {
+      _isDownloading = true;
+    });
+
+    try{
+      //var fileData = await _b2service.downloadFile(widget.fileName);
+    }
+    catch (e) {
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Download Failed: $e')));
+    }
+    finally {
+      setState(() {
+      _isDownloading = false;
+    });
+    }
+
+    print(selectedDirectory);
+  }
 
   void _onTap() {
     setState(() {
@@ -45,8 +81,11 @@ class _CloudObjectState extends State<CloudObject> {
       setState(() {
         _isTapped = false;
       });
+      
     });
+
     _showFileDetails(context);
+    
   }
 
   void _showFileDetails(BuildContext context) {
@@ -120,7 +159,7 @@ class _CloudObjectState extends State<CloudObject> {
       onTap: _onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        transform: Matrix4.translationValues(0, _isTapped ? 10 : 0, 0), // Moves the card down slightly
+        transform: Matrix4.translationValues(0, _isTapped ? 20 : 0, 0), // Moves the card down slightly
 
         child: Card(
           elevation: 3,
@@ -154,7 +193,7 @@ class _CloudObjectState extends State<CloudObject> {
                         decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green, width: 1.5)),
                         child: IconButton(
                           icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.10, 60)),
-                          onPressed: widget.onDownload,
+                          onPressed: _isDownloading ? null : _downloadFile,
                           tooltip: "Download",
                         ),
                       ),
