@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:path/path.dart';
@@ -82,46 +84,53 @@ class CloudObject extends StatelessWidget {
     );
   }
 
-  @override   
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showFileDetails(context),
-      child: Card(
-        
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.insert_drive_file, size: 45, color: iconColor ?? Colors.white70),
-              const SizedBox(height: 8),
-              Text(
+ @override
+Widget build(BuildContext context) {
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  return GestureDetector(
+    onTap: () => _showFileDetails(context),
+    child: Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min, // Ensures it doesn't take more space than needed
+          children: [
+            Flexible(child: Icon(Icons.insert_drive_file, size: min(screenWidth * 0.18, 80) , color: iconColor ?? Colors.white70),
+            ),
+            
+            SizedBox(height: min(screenWidth * 0.01, 8)),
+             
+               Text(
                 fileName,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: min(screenWidth * 0.05, 20)),
               ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.download, color: Colors.green, size: 35.0,),
-                    onPressed: onDownload,
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red, size: 35.0),
-                    onPressed: onDelete,
-                  ),
-                ],
-              ),
-            ],
-          ),
+            
+            SizedBox(height: min(screenWidth * 0.02, 6)),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.12, 60)),
+                  onPressed: onDownload,
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.12, 60)),
+                  onPressed: onDelete,
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

@@ -19,7 +19,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> {
 
   late BackblazeService _b2service;
-  late List<Object> foundFiles;
+  late List<Object> foundFiles = [];
 
   void requestFileUpload() {
     
@@ -164,9 +164,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
-                      mainAxisSpacing: 10.0,
+                      mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: 2.0,
+                      childAspectRatio: 1.5,
                     ),
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
