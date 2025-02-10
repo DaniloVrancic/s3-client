@@ -99,7 +99,7 @@ Widget build(BuildContext context) {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min, // Ensures it doesn't take more space than needed
           children: [
-            Flexible(child: Icon(Icons.insert_drive_file, size: min(screenWidth * 0.18, 80) , color: iconColor ?? Colors.white70),
+            Flexible(child: Icon(Icons.insert_drive_file, size: min(screenWidth * 0.15, 80) , color: iconColor ?? Colors.white70),
             ),
             
             SizedBox(height: min(screenWidth * 0.01, 8)),
@@ -117,11 +117,11 @@ Widget build(BuildContext context) {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 IconButton(
-                  icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.12, 60)),
+                  icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.10, 60)),
                   onPressed: onDownload,
                 ),
                 IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.12, 60)),
+                  icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.10, 60)),
                   onPressed: onDelete,
                 ),
               ],

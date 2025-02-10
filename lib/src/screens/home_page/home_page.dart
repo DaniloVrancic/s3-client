@@ -163,10 +163,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: 1.5,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1.5 : 0.9) : 0.7,
                     ),
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
