@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:minio/minio.dart';
+import 'package:minio/models.dart';
 import 'package:s3_client/src/models/user.dart';
 
 class BackblazeService {
@@ -80,6 +81,20 @@ class BackblazeService {
       return [];
     }
   }
+
+  Future<ListObjectsResult?> fetchAllObjectsFromBucket(String bucketName) async {
+
+    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName).toList();
+    if(listOfObjects.isNotEmpty)
+    {
+      ListObjectsResult result = listOfObjects.first;
+      return result;
+    }
+    else{
+      return null;
+    }
+  }
+
    /// Uploads a new version of the user database, the List has a user in each line
   Future<bool> uploadNewDatabase(List<String> updatedUserList) async {
     try {

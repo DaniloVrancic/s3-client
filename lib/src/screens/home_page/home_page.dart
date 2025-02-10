@@ -1,4 +1,6 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
@@ -7,6 +9,8 @@ import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/s3_service.dart';
+import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
+import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -18,6 +22,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> {
 
   late BackblazeService _b2service;
+  late List<Object> foundFiles;
 
   void requestFileUpload() {
     
@@ -27,16 +32,33 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   void initState() {
     super.initState();
-    User currentUser = context.read<User>();
+    
     _b2service = context.read<BackblazeService>();
 
-    getAllBucketObjects(currentUser.username.toLowerCase());
-    //my function here
+    loadObjects();
+    
   }
 
-  Future<void> getAllBucketObjects(String bucket) async{
+  Future<void> loadObjects() async {
+    User currentUser = context.read<User>();
+    List<Object> objects = await getAllBucketObjects(currentUser.username.toLowerCase());
+    setState(() {
+      foundFiles = objects;
+    });
+  }
 
-    
+  Future<List<Object>> getAllBucketObjects(String bucket) async{
+
+      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket);
+      if (list != null)
+      {
+        list.objects.forEach((element) => print("$element\n"));
+      }
+      else{
+        list = ListObjectsResult(objects: [], prefixes: []);
+      }
+      List<Object> objectsList =  list.objects;
+      return objectsList;
   }
 
   
@@ -128,6 +150,54 @@ class _HomePageWidgetState extends State<HomePageWidget> {
             ),
           ],
         )
+      ),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+            child: foundFiles.isEmpty
+                ? const Center(
+                    child: Text("No files found."),
+                  )
+                : GridView.builder(
+                    padding: const EdgeInsets.all(8.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: MediaQuery.of(context).size.width > 600 ? 2 : 1,
+                      mainAxisSpacing: 10.0,
+                      crossAxisSpacing: 10.0,
+                      childAspectRatio: 2.0,
+                    ),
+                    itemCount: foundFiles.length,
+                    itemBuilder: (context, index) {
+                      return CloudObject(
+                        eTag: foundFiles[index].eTag,
+                        size: foundFiles[index].size,
+                        owner: foundFiles[index].owner,
+                        lastModified: foundFiles[index].lastModified,
+                        fileName: foundFiles[index].key.toString(),
+                        onDownload: (){},
+                        onDelete: (){
+
+                          setState(() {
+                            foundFiles.removeAt(index);
+                          });
+                        },
+                        border: Border.all(
+                          color: const Color.fromARGB(125, 226, 158, 11),
+                          width: 1.25,
+                          ),
+                        borderRadius: BorderRadius.circular(20.0),
+                      );
+                    },
+                  ),
+          ),
+            ],
+          ),
+        ),
       ),
     );
   }
