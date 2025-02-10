@@ -1,4 +1,3 @@
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
@@ -8,9 +7,7 @@ import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
-import 'package:s3_client/src/utils/s3_service.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
-import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
