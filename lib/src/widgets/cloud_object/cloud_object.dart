@@ -88,6 +88,18 @@ class CloudObject extends StatelessWidget {
 Widget build(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
 
+  Widget preview;
+  String fileExtension = fileName.split(",").last;
+
+  if (fileExtension != null && ['jpg', 'jpeg', 'png', 'gif'].contains(fileExtension.toLowerCase())) {
+      preview = Icon(Icons.photo, size: min(screenWidth * 0.15, 80), color: iconColor ?? Colors.white70,);
+        
+    } else if (['mp4', 'mov', 'avi'].contains(fileExtension.toLowerCase())) {
+      preview = Icon(Icons.video_file, size: min(screenWidth * 0.15, 80), color: iconColor ?? Colors.white70,);
+    } else {
+      preview = Icon(Icons.insert_drive_file, size: min(screenWidth * 0.15, 80), color: iconColor ?? Colors.white70);
+    }
+
   return GestureDetector(
     onTap: () => _showFileDetails(context),
     child: Card(
@@ -99,7 +111,7 @@ Widget build(BuildContext context) {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min, // Ensures it doesn't take more space than needed
           children: [
-            Flexible(child: Icon(Icons.insert_drive_file, size: min(screenWidth * 0.15, 80) , color: iconColor ?? Colors.white70),
+            Flexible(child: preview,
             ),
             
             SizedBox(height: min(screenWidth * 0.01, 8)),

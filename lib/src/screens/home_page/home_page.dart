@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
@@ -47,13 +49,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   Future<List<Object>> getAllBucketObjects(String bucket) async{
 
       ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket);
-      if (list != null)
-      {
-        list.objects.forEach((element) => print("$element\n"));
-      }
-      else{
-        list = ListObjectsResult(objects: [], prefixes: []);
-      }
+      list ??= ListObjectsResult(objects: [], prefixes: []); 
+      
       List<Object> objectsList =  list.objects;
       return objectsList;
   }
@@ -62,6 +59,25 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   @override
   Widget build(BuildContext context) {
     User loggedUser = context.read<User>();
+    List<Color> listOfIconColors = [
+      Colors.orangeAccent,
+      Colors.purple.shade300,
+      Colors.purple.shade400,
+      Colors.purple.shade500,
+      Colors.purple.shade600,
+      Colors.limeAccent,
+      Colors.indigo,
+      Colors.blue.shade700,
+      Colors.blue.shade800,
+      Colors.blue.shade900,
+      Colors.yellow.shade300,
+      Colors.pink.shade300,
+      Colors.orange.shade300,
+      Colors.orange.shade400,
+      Colors.orange.shade500,
+      Colors.orange.shade600
+    ];
+    Random rand = Random();
 
     return Scaffold(
       appBar: AppBar(
@@ -176,9 +192,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         owner: foundFiles[index].owner,
                         lastModified: foundFiles[index].lastModified,
                         fileName: foundFiles[index].key.toString(),
+                        iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
                         onDownload: (){},
                         onDelete: (){
-
                           setState(() {
                             foundFiles.removeAt(index);
                           });
