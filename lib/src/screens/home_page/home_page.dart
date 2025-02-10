@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
@@ -65,6 +63,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       Colors.purple.shade400,
       Colors.purple.shade500,
       Colors.purple.shade600,
+      Colors.orange.shade300,
+      Colors.orange.shade400,
+      Colors.orange.shade500,
+      Colors.orange.shade600,
       Colors.limeAccent,
       Colors.indigo,
       Colors.blue.shade700,
@@ -72,12 +74,10 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       Colors.blue.shade900,
       Colors.yellow.shade300,
       Colors.pink.shade300,
-      Colors.orange.shade300,
-      Colors.orange.shade400,
-      Colors.orange.shade500,
-      Colors.orange.shade600
+      Colors.pink.shade400,
+      Colors.pink.shade500,
+      
     ];
-    Random rand = Random();
 
     return Scaffold(
       appBar: AppBar(
@@ -110,60 +110,97 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       ),
       
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.orange,
-                gradient: LinearGradient(colors: [
-            Color.fromARGB(255, 220, 130, 25),
-            Color.fromARGB(255, 23, 22, 22)
-          ])
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  const DrawerHeader(
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      gradient: LinearGradient(colors: [
+                  Color.fromARGB(255, 220, 130, 25),
+                  Color.fromARGB(255, 23, 22, 22)
+                ])
+                    ),
+                    child: Text("Menu",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 36
+                    )),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text("Settings"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
+                      );
+                    },
+                  ),
+                  ListTile(
+                      leading: const Icon(Icons.upload_file),
+                    title: const Text("Upload File"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)=> const UploadFilePage())
+                      );
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.logout),
+                    title: const Text("Log Out"),
+                    onTap: () {
+                      loggedUser.logout();
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)=> const StartPageWidget())
+                      );
+                    },
+                  ),
+                  
+                ],
+                
               ),
-              child: Text("Menu",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24
-              )),
             ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
-                );
-              },
+          const Divider(), // Divider above the user info
+      Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            const CircleAvatar(
+              radius: 24,
+              backgroundImage: AssetImage('assets/images/default_user.png'), // Use a default profile picture
             ),
-            ListTile(
-                leading: const Icon(Icons.upload_file),
-              title: const Text("Upload File"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=> const UploadFilePage())
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Log Out"),
-              onTap: () {
-                loggedUser.logout();
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=> const StartPageWidget())
-                );
-              },
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  loggedUser.username,
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  loggedUser.email,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                ),
+              ],
             ),
           ],
-        )
+        ),
       ),
+          ],
+        ),
+        
+        
+      ),
+      
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Center(
@@ -174,7 +211,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               Expanded(
             child: foundFiles.isEmpty
                 ? const Center(
-                    child: Text("No files found."),
+                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),

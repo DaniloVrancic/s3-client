@@ -124,17 +124,33 @@ Widget build(BuildContext context) {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: min(screenWidth * 0.05, 20)),
               ),
             
+            const Divider(),
             SizedBox(height: min(screenWidth * 0.02, 6)),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                IconButton(
-                  icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.10, 60)),
-                  onPressed: onDownload,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.green, width: 1.5)
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.10, 60)),
+                    onPressed: onDownload,
+                    tooltip: "Download",
+                  ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.10, 60)),
-                  onPressed: onDelete,
+                
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.red, width: 1.5)
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.10, 60)),
+                    onPressed: onDelete,
+                    tooltip: "Delete",
+                  ),
                 ),
               ],
             ),
