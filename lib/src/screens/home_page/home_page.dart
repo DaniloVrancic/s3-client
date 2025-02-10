@@ -11,6 +11,7 @@ import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
+  
 
   @override
   State<HomePageWidget> createState() => _HomePageWidgetState();
@@ -86,7 +87,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           IconButton(onPressed: () =>
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=> const SearchPageWidget())
+                  MaterialPageRoute(builder: (context)=> SearchPageWidget(objects: foundFiles,))
                 ),
               
               icon: const Icon(Icons.search)),

@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class SearchPageWidget extends GetView<SearchController> {
-  const SearchPageWidget({super.key});
+class SearchPageWidget extends StatefulWidget {
+  final List<Object> objects;
+
+    const SearchPageWidget({
+    super.key,
+    required this.objects
+    });
+
+  @override
+  State<SearchPageWidget> createState() => _SearchPageWidgetState();
+}
+
+class _SearchPageWidgetState extends State<SearchPageWidget> {
+
 
   @override
   Widget build(BuildContext context) {
