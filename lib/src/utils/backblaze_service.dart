@@ -4,10 +4,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
-import 'package:s3_client/src/models/user.dart';
 
 class BackblazeService {
   String keyId = "YOUR_KEY_ID";
