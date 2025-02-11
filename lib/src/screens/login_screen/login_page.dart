@@ -4,6 +4,7 @@ import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 
 class LoginPageWidget extends StatefulWidget {
   const LoginPageWidget({super.key});
@@ -71,7 +72,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       return null;
     },
     onError: (e) => {
-      _showSnackbar('Something went wrong with connecting to the server!', Colors.red.shade400)
+      SnackbarShower.showSnackbar(
+        context: context,
+        message: 'Something went wrong with connecting to the server!',
+        color: Colors.red.shade400
+        )
     })
     .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword, attempts to login with the password and (username or email)
       if(foundUser != null && foundUser.length == 3)
@@ -88,7 +93,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           if(isPasswordValid)
           {
             loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
-            _showSnackbar("Login successful!", Colors.green.shade300);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login successful!',
+                            color: Colors.green.shade300
+                            );
 
                  Future.delayed(Duration(seconds: 1), () {
                     Navigator.pushReplacement(
@@ -98,22 +107,38 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
             
           }
           else{
-            _showSnackbar("Login failed.", Colors.red.shade400);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login failed.',
+                            color: Colors.red.shade400
+                            );
             return;
           }
         }
         else{
-          _showSnackbar("Corrupted user info.", Colors.red.shade400);
+         SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Corrupted user info.',
+                            color: Colors.red.shade400
+                            );
           return;
         }
       }
       else{
-        _showSnackbar("That username or E-mail haven't been found.", Colors.red.shade400);
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "That username or E-mail haven't been found.",
+                            color: Colors.red.shade400
+                            );
         return;
       }
     },
       onError: (e) {
-        _showSnackbar("An unexpected error happened.", Colors.red.shade400);
+        SnackbarShower.showSnackbar(
+        context: context,
+        message: 'An unexpected error happened.',
+        color: Colors.red.shade400
+        );
         return;
     });
 
@@ -297,12 +322,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           ),
         ),
       ),
-    );
-  }
-void _showSnackbar(String message, Color color) {
-    if (!mounted) return; // Ensure the widget is still active
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color,),
     );
   }
 }

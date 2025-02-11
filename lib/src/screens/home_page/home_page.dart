@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
@@ -8,6 +10,7 @@ import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -70,6 +73,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     }
   } */
 
+
   Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
     
       // Open file picker for the user to select a location
@@ -99,20 +103,23 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
       if (success) {
         // Show success feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('File downloaded successfully')),
-        );
+       SnackbarShower.showSnackbar(
+        context: context,
+        message: 'File downloaded successfully',
+        color: Colors.green);
       } else {
         // Show error feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error downloading file')),
-        );
+        SnackbarShower.showSnackbar(
+        context: context,
+        message: 'Error downloading file',
+        color: Colors.red);
       }
     } else {
       // Show feedback if no file was picked
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No file selected'), backgroundColor: Colors.red,),
-      );
+      SnackbarShower.showSnackbar(
+        context: context,
+        message: 'No file selected',
+        color: Colors.red);
     }
   }
 

@@ -7,6 +7,7 @@ import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 
 class RegisterPageWidget extends StatefulWidget {
   const RegisterPageWidget({super.key});
@@ -80,7 +81,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
 
     if (!_formKey.currentState!.validate()) {
-      _showSnackbar("Register failed.", Colors.red.shade400);
+       SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Register failed.',
+                            color: Colors.red.shade400
+                            );
         return;
     }
 
@@ -110,7 +115,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     if(foundUser) //  If the User already exists in the users file on the cloud
     {
-      _showSnackbar("User already registered.", Colors.red.shade400);
+      SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'User already registered.',
+                            color: Colors.red.shade400
+                            );
       setState(() => _isLoading = false);
       return;
     }
@@ -144,11 +153,14 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     .then( (bool? isCreated)  {
       if(isCreated == true){
         isUserCreated = true;
-        //_showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
       }
       else{
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'An error occured during registration!',
+                            color: Colors.red.shade400
+                            );
         
-        _showSnackbar("An error occured during registration!", Colors.red.shade400);
       }
     });
 
@@ -161,11 +173,16 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       (bool value) => {
         if(value == true)
         {
-          //_showSnackbar("User successfully registered!", Colors.green.shade300)
+          //print("Success!");
         }
       },
       onError: (e) {
-          _showSnackbar("An Error occured: Couldn't register User", Colors.red.shade400);
+          SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "An Error occured: Couldn't register User!",
+                            color: Colors.red.shade400
+                            );
+          
           setState(() => _isLoading = false); // Stop loading
           return;
       }
@@ -173,7 +190,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     
      if(isUserCreated == true)
      {
-        _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "Successfully registered User: $username!",
+                            color: Colors.green.shade300
+                            );
      }
       setState(() => _isLoading = false); // Stop loading
     // Redirect to previous page after 2 seconds
@@ -189,13 +210,6 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       _registerUser();
     }
   }
-
-void _showSnackbar(String message, Color color) {
-  if (!mounted) return; // Ensure the widget is still active
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message), backgroundColor: color,),
-  );
-}
 
   @override
   Widget build(BuildContext context) {
