@@ -199,13 +199,15 @@ void _showSnackbar(String message, Color color) {
 
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 50.0),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             Color.fromARGB(255, 228, 58, 11),
-            Color.fromARGB(255, 23, 22, 22)
+            theme.primaryColorDark
           ]),
         ),
         child: Form(
@@ -229,8 +231,8 @@ void _showSnackbar(String message, Color color) {
                 child: Container(
                   padding:
                       const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 20, 5, 5),
+                  decoration: BoxDecoration(
+                    color: theme.dialogBackgroundColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -296,18 +298,18 @@ void _showSnackbar(String message, Color color) {
                       ),
                       const SizedBox(height: 30.0),
                       Material(
-                      color: Colors.transparent, // Ensures the background stays unchanged
+                      color: Colors.transparent, // Added just not to add another background color layer
                       child: InkWell(
-                        onTap: _isLoading ? null : _submit, // Disable tap while loading
-                        borderRadius: BorderRadius.circular(30), // Ensures the ripple follows the shape
-                        splashColor: Colors.white.withOpacity(0.3), // Light ripple effect
-                        highlightColor: Colors.transparent, // Prevents unwanted highlights
+                        onTap: _isLoading ? null : _submit, // Disables click while loading
+                        borderRadius: BorderRadius.circular(30), 
+                        splashColor: (theme.brightness == Brightness.light) ? Colors.black87 : theme.splashColor,
+                        highlightColor: Colors.transparent, 
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [
+                            gradient: LinearGradient(colors: [
                               Color.fromARGB(255, 228, 58, 11),
-                              Color.fromARGB(175, 80, 30, 10),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -333,9 +335,9 @@ void _showSnackbar(String message, Color color) {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                          const Text("Already have an account?",
+                          Text("Already have an account?",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.hintColor,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500
                           ),
@@ -344,9 +346,9 @@ void _showSnackbar(String message, Color color) {
                             onTap: (){
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageWidget()));
                             },
-                            child: const Text("SIGN IN",
+                            child: Text("SIGN IN",
                             style: TextStyle(
-                              color: Colors.lightBlue, 
+                              color: (theme.brightness == Brightness.dark) ? Colors.lightBlue : Colors.blue.shade700,
                             fontSize: 14.0, 
                             fontWeight: FontWeight.bold
                             ),),

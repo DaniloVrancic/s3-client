@@ -66,6 +66,9 @@ class _FileItemState extends State<FileItem> {
   Widget build(BuildContext context) {
     // Determine if the file is an image, video, or other file type for preview
     Widget preview;
+
+    //Get theme
+    ThemeData theme = Theme.of(context);
     if (widget.file.extension != null && ['jpg', 'jpeg', 'png', 'gif'].contains(widget.file.extension!.toLowerCase())) {
       preview = Container(
         margin: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
@@ -102,14 +105,14 @@ class _FileItemState extends State<FileItem> {
       onTapUp: (_) => setState(() => _isPressed = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
-        transform: _isPressed ? Matrix4.translationValues(0, 4, 0) : Matrix4.identity(),
+        transform: _isPressed ? Matrix4.translationValues(0, 10, 0) : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           border: widget.border,
           borderRadius: widget.borderRadius,
           boxShadow: [
             BoxShadow(
-              color: Colors.black26,
+              color: theme.dividerColor,
               blurRadius: _isPressed ? 4.0 : 10.0,
               offset: Offset(0, _isPressed ? 1.0 : 4.0),
             ),

@@ -57,6 +57,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     User loggedUser = context.read<User>();
     List<Color> listOfIconColors = [
       Colors.orangeAccent,
@@ -117,12 +119,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  const DrawerHeader(
+                  DrawerHeader(
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       gradient: LinearGradient(colors: [
-                  Color.fromARGB(255, 220, 130, 25),
-                  Color.fromARGB(255, 23, 22, 22)
+                  Color.fromARGB(255, 228, 58, 11),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                 ])
                     ),
                     child: Text("Menu",

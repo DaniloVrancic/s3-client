@@ -108,7 +108,7 @@ class _CloudObjectState extends State<CloudObject> {
               const SizedBox(height: 10.0,),
               size == null ? Text("N/A") : Text("Size: ${sizeNorm > 1000 ? "${sizeNorm/1000.00}KB" : "$sizeNorm bytes"}"),
               const SizedBox(height: 10.0,),
-              Text("File Extension: ${fileExtension ?? 'N/A'}"),
+              Text("File Extension: ${fileExtension.isNotEmpty ? fileExtension : "N/A"}"),
             ],
           ),
           actions: [
@@ -140,7 +140,8 @@ class _CloudObjectState extends State<CloudObject> {
     );
   }
 
- Widget build(BuildContext context) {
+ @override
+  Widget build(BuildContext context) {
   double screenWidth = MediaQuery.of(context).size.width;
 
   Widget preview;
@@ -166,6 +167,7 @@ class _CloudObjectState extends State<CloudObject> {
         child: InkWell(
           onTap: () => _onTap(),
           splashColor: Colors.orangeAccent.withValues(alpha: 0.7),
+          highlightColor: Colors.transparent, //  To not show any highlights
           borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(12.0),
