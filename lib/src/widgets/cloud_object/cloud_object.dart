@@ -140,79 +140,81 @@ class _CloudObjectState extends State<CloudObject> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+ Widget build(BuildContext context) {
+  double screenWidth = MediaQuery.of(context).size.width;
 
-    Widget preview;
-    String fileExtension = widget.fileName.split(".").last;
+  Widget preview;
+  String fileExtension = widget.fileName.split(".").last;
 
-    if (['jpg', 'jpeg', 'png', 'gif'].contains(fileExtension.toLowerCase())) {
-      preview = Icon(Icons.photo, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.white70);
-    } else if (['mp4', 'mov', 'avi'].contains(fileExtension.toLowerCase())) {
-      preview = Icon(Icons.video_file, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.white70);
-    } else {
-      preview = Icon(Icons.insert_drive_file, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.white70);
-    }
+  if (['jpg', 'jpeg', 'png', 'gif'].contains(fileExtension.toLowerCase())) {
+    preview = Icon(Icons.photo, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.orangeAccent);
+  } else if (['mp4', 'mov', 'avi'].contains(fileExtension.toLowerCase())) {
+    preview = Icon(Icons.video_file, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.orangeAccent);
+  } else {
+    preview = Icon(Icons.insert_drive_file, size: min(screenWidth * 0.15, 80), color: widget.iconColor ?? Colors.orangeAccent);
+  }
 
-    return GestureDetector(
-      onTap: _onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        transform: Matrix4.translationValues(0, _isTapped ? 20 : 0, 0), // Moves the card down slightly
+  return GestureDetector(
+    onTap: _onTap,
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      transform: Matrix4.translationValues(0, _isTapped ? 8 : 0, 0), // Subtle tap effect
 
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          child: InkWell(
-            onTap: () => _onTap(),
-            splashColor: Colors.orangeAccent.withOpacity(0.4),
-            highlightColor: Colors.transparent,
-            borderRadius: BorderRadius.circular(10), // Ensures ripple effect follows shape
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(child: preview),
-                  SizedBox(height: min(screenWidth * 0.01, 8)),
-                  Text(
-                    widget.fileName,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: min(screenWidth * 0.05, 20)),
-                  ),
-                  const Divider(),
-                  SizedBox(height: min(screenWidth * 0.02, 6)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.green, width: 1.5)),
-                        child: IconButton(
-                          icon: Icon(Icons.download, color: Colors.green, size: min(screenWidth * 0.10, 60)),
-                          onPressed: _isDownloading ? null : _downloadFile,
-                          tooltip: "Download",
-                        ),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          onTap: () => _onTap(),
+          splashColor: Colors.orangeAccent.withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(child: preview),
+                const SizedBox(height: 10),
+                Text(
+                  widget.fileName,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: min(screenWidth * 0.05, 18)),
+                ),
+                const SizedBox(height: 12),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.download, color: Colors.white),
+                      label: const Text("Download", style: TextStyle(color: Colors.white),),
+                      onPressed: _isDownloading ? null : _downloadFile,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       ),
-                      Container(
-                        decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.red, width: 1.5)),
-                        child: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red, size: min(screenWidth * 0.10, 60)),
-                          onPressed: widget.onDelete,
-                          tooltip: "Delete",
-                        ),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      label: const Text("Delete", style: TextStyle(color: Colors.white),),
+                      onPressed: widget.onDelete,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 }
