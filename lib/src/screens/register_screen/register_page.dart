@@ -7,6 +7,7 @@ import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 
 class RegisterPageWidget extends StatefulWidget {
   const RegisterPageWidget({super.key});
@@ -80,7 +81,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
 
     if (!_formKey.currentState!.validate()) {
-      _showSnackbar("Register failed.", Colors.red.shade400);
+       SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Register failed.',
+                            color: Colors.red.shade400
+                            );
         return;
     }
 
@@ -110,7 +115,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     if(foundUser) //  If the User already exists in the users file on the cloud
     {
-      _showSnackbar("User already registered.", Colors.red.shade400);
+      SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'User already registered.',
+                            color: Colors.red.shade400
+                            );
       setState(() => _isLoading = false);
       return;
     }
@@ -144,11 +153,14 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     .then( (bool? isCreated)  {
       if(isCreated == true){
         isUserCreated = true;
-        //_showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
       }
       else{
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'An error occured during registration!',
+                            color: Colors.red.shade400
+                            );
         
-        _showSnackbar("An error occured during registration!", Colors.red.shade400);
       }
     });
 
@@ -161,11 +173,16 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
       (bool value) => {
         if(value == true)
         {
-          //_showSnackbar("User successfully registered!", Colors.green.shade300)
+          //print("Success!");
         }
       },
       onError: (e) {
-          _showSnackbar("An Error occured: Couldn't register User", Colors.red.shade400);
+          SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "An Error occured: Couldn't register User!",
+                            color: Colors.red.shade400
+                            );
+          
           setState(() => _isLoading = false); // Stop loading
           return;
       }
@@ -173,7 +190,11 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     
      if(isUserCreated == true)
      {
-        _showSnackbar("Successfully registered User: $username!", Colors.green.shade300);
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "Successfully registered User: $username!",
+                            color: Colors.green.shade300
+                            );
      }
       setState(() => _isLoading = false); // Stop loading
     // Redirect to previous page after 2 seconds
@@ -190,22 +211,17 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     }
   }
 
-void _showSnackbar(String message, Color color) {
-  if (!mounted) return; // Ensure the widget is still active
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(message), backgroundColor: color,),
-  );
-}
-
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 50.0),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             Color.fromARGB(255, 228, 58, 11),
-            Color.fromARGB(255, 23, 22, 22)
+            theme.primaryColorDark
           ]),
         ),
         child: Form(
@@ -229,8 +245,8 @@ void _showSnackbar(String message, Color color) {
                 child: Container(
                   padding:
                       const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 20, 5, 5),
+                  decoration: BoxDecoration(
+                    color: theme.dialogBackgroundColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -296,18 +312,18 @@ void _showSnackbar(String message, Color color) {
                       ),
                       const SizedBox(height: 30.0),
                       Material(
-                      color: Colors.transparent, // Ensures the background stays unchanged
+                      color: Colors.transparent, // Added just not to add another background color layer
                       child: InkWell(
-                        onTap: _isLoading ? null : _submit, // Disable tap while loading
-                        borderRadius: BorderRadius.circular(30), // Ensures the ripple follows the shape
-                        splashColor: Colors.white.withOpacity(0.3), // Light ripple effect
-                        highlightColor: Colors.transparent, // Prevents unwanted highlights
+                        onTap: _isLoading ? null : _submit, // Disables click while loading
+                        borderRadius: BorderRadius.circular(30), 
+                        splashColor: (theme.brightness == Brightness.light) ? Colors.black87 : theme.splashColor,
+                        highlightColor: Colors.transparent, 
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [
+                            gradient: LinearGradient(colors: [
                               Color.fromARGB(255, 228, 58, 11),
-                              Color.fromARGB(175, 80, 30, 10),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -333,9 +349,9 @@ void _showSnackbar(String message, Color color) {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                          const Text("Already have an account?",
+                          Text("Already have an account?",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.hintColor,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500
                           ),
@@ -344,9 +360,9 @@ void _showSnackbar(String message, Color color) {
                             onTap: (){
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageWidget()));
                             },
-                            child: const Text("SIGN IN",
+                            child: Text("SIGN IN",
                             style: TextStyle(
-                              color: Colors.lightBlue, 
+                              color: (theme.brightness == Brightness.dark) ? Colors.lightBlue : Colors.blue.shade700,
                             fontSize: 14.0, 
                             fontWeight: FontWeight.bold
                             ),),

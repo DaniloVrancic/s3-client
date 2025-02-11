@@ -4,6 +4,7 @@ import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 
 class LoginPageWidget extends StatefulWidget {
   const LoginPageWidget({super.key});
@@ -71,7 +72,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       return null;
     },
     onError: (e) => {
-      _showSnackbar('Something went wrong with connecting to the server!', Colors.red.shade400)
+      SnackbarShower.showSnackbar(
+        context: context,
+        message: 'Something went wrong with connecting to the server!',
+        color: Colors.red.shade400
+        )
     })
     .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword, attempts to login with the password and (username or email)
       if(foundUser != null && foundUser.length == 3)
@@ -88,7 +93,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           if(isPasswordValid)
           {
             loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
-            _showSnackbar("Login successful!", Colors.green.shade300);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login successful!',
+                            color: Colors.green.shade300
+                            );
 
                  Future.delayed(Duration(seconds: 1), () {
                     Navigator.pushReplacement(
@@ -98,22 +107,38 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
             
           }
           else{
-            _showSnackbar("Login failed.", Colors.red.shade400);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login failed.',
+                            color: Colors.red.shade400
+                            );
             return;
           }
         }
         else{
-          _showSnackbar("Corrupted user info.", Colors.red.shade400);
+         SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Corrupted user info.',
+                            color: Colors.red.shade400
+                            );
           return;
         }
       }
       else{
-        _showSnackbar("That username or E-mail haven't been found.", Colors.red.shade400);
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "That username or E-mail haven't been found.",
+                            color: Colors.red.shade400
+                            );
         return;
       }
     },
       onError: (e) {
-        _showSnackbar("An unexpected error happened.", Colors.red.shade400);
+        SnackbarShower.showSnackbar(
+        context: context,
+        message: 'An unexpected error happened.',
+        color: Colors.red.shade400
+        );
         return;
     });
 
@@ -149,15 +174,18 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 50.0),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             Color.fromARGB(255, 228, 58, 11),
-            Color.fromARGB(255, 23, 22, 22)
+            theme.primaryColorDark
           ])
         ),
         child: Form(
@@ -181,8 +209,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                 child: Container(
                   padding:
                       const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 20, 5, 5),
+                  decoration: BoxDecoration(
+                    color: theme.dialogBackgroundColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -229,28 +257,28 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                       ),
                       const SizedBox(height: 30.0),
                      Material(
-                      color: Colors.transparent, // Ensures the background stays the same
+                     color: Colors.transparent,
                       child: InkWell(
                         onTap: _isLoading ? null : _submit,
                         borderRadius: BorderRadius.circular(30), // Matches the container's border radius
-                        splashColor: Colors.white.withOpacity(0.35), 
+                        splashColor: (theme.brightness == Brightness.light) ? Colors.black87 : theme.splashColor, 
                         highlightColor: Colors.transparent, // Prevents unwanted highlights
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [
+                            gradient: LinearGradient(colors: [
                               Color.fromARGB(255, 228, 58, 11),
-                              Color.fromARGB(175, 80, 30, 10),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
                           child: Center(
                             child: _isLoading 
                             ? const CircularProgressIndicator(color: Colors.white,)
-                            : const Text(
+                            : Text(
                               "LOG IN",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: (theme.brightness == Brightness.light) ? theme.primaryColorLight : Colors.white,
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -266,9 +294,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                          const Text("Don't have an account?",
+                          Text("Don't have an account?",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.hintColor,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500
                           ),
@@ -277,9 +305,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                             onTap: (){
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPageWidget()));
                             },
-                            child: const Text("SIGN UP",
+                            child: Text("SIGN UP",
                             style: TextStyle(
-                              color: Colors.lightBlue, 
+                              color: (theme.brightness == Brightness.dark) ? Colors.lightBlue : Colors.blue.shade700,
                             fontSize: 14.0, 
                             fontWeight: FontWeight.bold
                             ),),
@@ -294,12 +322,6 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
           ),
         ),
       ),
-    );
-  }
-void _showSnackbar(String message, Color color) {
-    if (!mounted) return; // Ensure the widget is still active
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: color,),
     );
   }
 }

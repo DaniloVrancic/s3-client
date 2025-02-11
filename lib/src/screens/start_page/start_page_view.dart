@@ -69,20 +69,27 @@ class StartPageWidget extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                    child: 
                      ElevatedButton(
-                      onPressed: (){
+                      onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPageWidget()));
-
-                      }, 
-                      style: const ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(Color.fromARGB(255, 255, 255, 255),),
-                        padding: WidgetStatePropertyAll(EdgeInsets.only(top: 15, bottom: 15))
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white, // Set button color
+                        foregroundColor: Colors.black, // Ensures text/splash effect
+                        padding: const EdgeInsets.only(top: 15, bottom: 15),
+                        elevation: 5, 
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                       ),
-                      child: const Text("Login", 
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20,
-                        color: Color.fromARGB(255, 40, 97, 190)
-                      ),)),
+                      child: const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 40, 97, 190),
+                        ),
+                      ),
+),
                    
                  ),
                  const SizedBox(height: 30),
@@ -95,7 +102,7 @@ class StartPageWidget extends StatelessWidget {
                         
                       },
                       style: ElevatedButton.styleFrom(
-                        elevation: 0,
+                        elevation: 5,
                         backgroundColor: Colors.transparent,
                         side: const BorderSide(
                           width: 3.0,

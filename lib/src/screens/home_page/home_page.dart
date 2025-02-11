@@ -1,3 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +10,7 @@ import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 
 class HomePageWidget extends StatefulWidget {
@@ -21,25 +25,32 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
   late BackblazeService _b2service;
   late List<Object> foundFiles = [];
+  late String userBucket;
+  late User loggedUser;
 
   void requestFileUpload() {
     
     return;
   }
 
+  late Map<String, CloudObjectController> _controllers;
+
   @override
   void initState() {
     super.initState();
     
     _b2service = context.read<BackblazeService>();
+    
+    loggedUser = context.read<User>();
+    userBucket = loggedUser.username.toLowerCase();
+    _controllers = {};
 
     loadObjects();
     
   }
 
   Future<void> loadObjects() async {
-    User currentUser = context.read<User>();
-    List<Object> objects = await getAllBucketObjects(currentUser.username.toLowerCase());
+    List<Object> objects = await getAllBucketObjects(userBucket);
     setState(() {
       foundFiles = objects;
     });
@@ -54,9 +65,69 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       return objectsList;
   }
 
+/*
+  Future<void> simulatedDownloadWithProgress(int seconds, CloudObjectController controller) async {
+    for(int i = 0; i < seconds; i++){
+      controller.updateProgress(i / seconds);
+      await Future.delayed(Duration(seconds: 1));
+    }
+  } */
+
+
+  Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
+    
+      // Open file picker for the user to select a location
+    FilePickerResult? result = await FilePicker.platform.pickFiles(  //TODO: Fix this so it's not working with file selection but rather directory selection
+      type: FileType.custom,
+      allowedExtensions: ['*'], // or specify specific file extensions
+    );
+   // Then I need to concat the downloaded filename to the directory
+    print("SELECTION: ");
+    print(result);
+
+    if (result != null && result.files.single.path != null) {
+      String selectedPath = result.files.single.path!;
+
+    print("FINAL SELECTED PATH: ");
+    print(selectedPath);
+      
+      bool success = await _b2service.downloadFileWithProgress(
+        bucketName: userBucket,
+        objectName: fileName,
+        savePath: selectedPath,
+        onProgress: (progress) {
+          
+            controller.updateProgress(progress);
+        },
+      );
+
+      if (success) {
+        // Show success feedback
+       SnackbarShower.showSnackbar(
+        context: context,
+        message: 'File downloaded successfully',
+        color: Colors.green);
+      } else {
+        // Show error feedback
+        SnackbarShower.showSnackbar(
+        context: context,
+        message: 'Error downloading file',
+        color: Colors.red);
+      }
+    } else {
+      // Show feedback if no file was picked
+      SnackbarShower.showSnackbar(
+        context: context,
+        message: 'No file selected',
+        color: Colors.red);
+    }
+  }
+
   
   @override
   Widget build(BuildContext context) {
+    ThemeData theme = Theme.of(context);
+
     User loggedUser = context.read<User>();
     List<Color> listOfIconColors = [
       Colors.orangeAccent,
@@ -117,12 +188,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  const DrawerHeader(
+                  DrawerHeader(
                     decoration: BoxDecoration(
                       color: Colors.orange,
                       gradient: LinearGradient(colors: [
-                  Color.fromARGB(255, 220, 130, 25),
-                  Color.fromARGB(255, 23, 22, 22)
+                  Color.fromARGB(255, 228, 58, 11),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                 ])
                     ),
                     child: Text("Menu",
@@ -196,10 +267,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           ],
         ),
       ),
-          ],
+        ],
         ),
-        
-        
       ),
       
       body: Padding(
@@ -217,26 +286,37 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:  MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1 : 2) : 3,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1.5 : 0.9) : 0.7,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
                     ),
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
+                      String fileKey = foundFiles[index].key.toString();
+
+                      // Ensure that the controller is created for this file if not already done
+                      if (!_controllers.containsKey(fileKey)) {
+                        _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
+                      }
+
+                      CloudObjectController controller = _controllers[fileKey]!;
+                      String thisFileName = foundFiles[index].key!;
                       return CloudObject(
+                        controller: controller,
                         eTag: foundFiles[index].eTag,
                         size: foundFiles[index].size,
                         owner: foundFiles[index].owner,
                         lastModified: foundFiles[index].lastModified,
                         fileName: foundFiles[index].key.toString(),
                         iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
-                        onDownload: (){},
+                        onDownload: () => _downloadFile(thisFileName, controller),
                         onDelete: (){
                           setState(() {
                             foundFiles.removeAt(index);
                           });
                         },
+
                         border: Border.all(
                           color: const Color.fromARGB(125, 226, 158, 11),
                           width: 1.25,
