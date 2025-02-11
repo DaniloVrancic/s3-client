@@ -191,16 +191,65 @@ class BackblazeService {
       await minio.makeBucket(
         bucketName, region);
       return true;
+      }
+      on MinioError catch (e) {
+      print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
+      return false;
+    } on SocketException {
+      print("Network error: Unable to connect to Backblaze B2.");
+      return false;
+    } catch (e) {
+      print("Unexpected error while creating bucket '$bucketName': $e");
+      return false;
     }
-    on MinioError catch (e) {
-    print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
-    return false;
-  } on SocketException {
-    print("Network error: Unable to connect to Backblaze B2.");
-    return false;
-  } catch (e) {
-    print("Unexpected error while creating bucket '$bucketName': $e");
-    return false;
   }
+
+  /// Downloads a file from the specified bucket and object, reporting progress
+  /// Parameters:
+  /// - [bucketName] (String): The name of the bucket where the object (file) is stored. This is a required parameter.
+  /// - [objectName] (String): The name of the object (file) to download. This is a required parameter.
+  /// - [savePath] (String): The local file path where the downloaded file should be saved. The method will write the file to this location.
+  /// - [onProgress] (Function): A callback function that receives a `double` parameter, which represents the download progress as a percentage. 
+  ///   This function is called periodically as chunks of data are downloaded. The value passed to this callback is between 0.0 (start) and 1.0 (complete).
+  Future<bool> downloadFileWithProgress({required String bucketName, required String objectName, required String savePath, Function(double progress)? onProgress}) async {
+    try {
+      // Get the file stream
+      final stream = await minio.getObject(bucketName, objectName);
+
+      // Get the file size (in bytes) for progress calculation
+      final fileSize = await minio.statObject(bucketName, objectName);
+      final totalSize = fileSize.size;
+
+      // Open the file to save the data
+      final file = File(savePath);
+      final fileSink = file.openWrite();
+
+      // Track downloaded bytes
+      int bytesDownloaded = 0;
+
+      
+      await for (List<int> chunk in stream) {
+        fileSink.add(chunk);
+        bytesDownloaded += chunk.length;
+
+        
+        double progress = (bytesDownloaded / totalSize!);
+
+        // Call the onProgress callback to report progress (If it exists)
+        if(onProgress != null)
+        {
+          onProgress(progress);
+        }
+      }
+
+      // Close the file once done
+      await fileSink.close();
+
+      print("File downloaded successfully: $objectName");
+      return true;
+    } catch (e) {
+      print("Error downloading file: $e");
+      return false;
+    }
   }
 }

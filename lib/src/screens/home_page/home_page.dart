@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
 
   late BackblazeService _b2service;
   late List<Object> foundFiles = [];
+  late String userBucket;
+  late User loggedUser;
 
   void requestFileUpload() {
     
@@ -34,6 +37,9 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     super.initState();
     
     _b2service = context.read<BackblazeService>();
+    
+    loggedUser = context.read<User>();
+    userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
 
     loadObjects();
@@ -41,8 +47,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   }
 
   Future<void> loadObjects() async {
-    User currentUser = context.read<User>();
-    List<Object> objects = await getAllBucketObjects(currentUser.username.toLowerCase());
+    List<Object> objects = await getAllBucketObjects(userBucket);
     setState(() {
       foundFiles = objects;
     });
@@ -57,10 +62,57 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       return objectsList;
   }
 
+/*
   Future<void> simulatedDownloadWithProgress(int seconds, CloudObjectController controller) async {
     for(int i = 0; i < seconds; i++){
-      await Future.delayed(Duration(seconds: 1));
       controller.updateProgress(i / seconds);
+      await Future.delayed(Duration(seconds: 1));
+    }
+  } */
+
+  Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
+    
+      // Open file picker for the user to select a location
+    FilePickerResult? result = await FilePicker.platform.pickFiles(  //TODO: Fix this so it's not working with file selection but rather directory selection
+      type: FileType.custom,
+      allowedExtensions: ['*'], // or specify specific file extensions
+    );
+   // Then I need to concat the downloaded filename to the directory
+    print("SELECTION: ");
+    print(result);
+
+    if (result != null && result.files.single.path != null) {
+      String selectedPath = result.files.single.path!;
+
+    print("FINAL SELECTED PATH: ");
+    print(selectedPath);
+      
+      bool success = await _b2service.downloadFileWithProgress(
+        bucketName: userBucket,
+        objectName: fileName,
+        savePath: selectedPath,
+        onProgress: (progress) {
+          
+            controller.updateProgress(progress);
+        },
+      );
+
+      if (success) {
+        // Show success feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('File downloaded successfully')),
+        );
+      } else {
+        // Show error feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error downloading file')),
+        );
+      }
+    } else {
+      // Show feedback if no file was picked
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No file selected'), backgroundColor: Colors.red,),
+      );
     }
   }
 
@@ -242,6 +294,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                       }
 
                       CloudObjectController controller = _controllers[fileKey]!;
+                      String thisFileName = foundFiles[index].key!;
                       return CloudObject(
                         controller: controller,
                         eTag: foundFiles[index].eTag,
@@ -250,7 +303,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                         lastModified: foundFiles[index].lastModified,
                         fileName: foundFiles[index].key.toString(),
                         iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
-                        onDownload: () => simulatedDownloadWithProgress(5, _controllers[fileKey]!),
+                        onDownload: () => _downloadFile(thisFileName, controller),
                         onDelete: (){
                           setState(() {
                             foundFiles.removeAt(index);
