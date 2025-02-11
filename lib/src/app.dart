@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:s3_client/src/screens/home_page/home_page.dart';
-import 'package:s3_client/src/screens/login_screen/login_page.dart';
-import 'package:s3_client/src/screens/register_screen/register_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 
 import 'sample_feature/sample_item_details_view.dart';

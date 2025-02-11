@@ -130,7 +130,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       }
       else{
         await b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) {
-          print("Is Bucket now successfully created? : ${isCreated}");
+          print("Is Bucket now successfully created? : $isCreated}");
           setState(() => _isLoading = false);
           });
       }

@@ -59,16 +59,33 @@ class FileItem extends StatelessWidget {
     // Determine if the file is an image, video, or other file type for preview
     Widget preview;
     if (file.extension != null && ['jpg', 'jpeg', 'png', 'gif'].contains(file.extension!.toLowerCase())) {
-      preview = Image.file(
-        File(file.path!),
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
-      );
+      preview = Container(
+        margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.orangeAccent, width: 1.5),
+          borderRadius: BorderRadius.circular(20),
+                ),
+          child: ClipRRect(
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+            borderRadius: BorderRadius.circular(20), // Must match the Container's radius
+            child: Image.file(
+              File(file.path!),
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
     } else if (file.extension != null && ['mp4', 'mov', 'avi'].contains(file.extension!.toLowerCase())) {
-      preview = const Icon(Icons.video_file, size: 100, color: Colors.blue);
+      preview = Padding(
+        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        child: const Icon(Icons.video_file, size: 100, color: Colors.blue),
+      );
     } else {
-      preview = const Icon(Icons.insert_drive_file, size: 100, color: Colors.grey);
+      preview = Padding(
+        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        child: Icon(Icons.insert_drive_file, size: 100, color: Colors.orange.shade300),
+      );
     }
 
     return GestureDetector(
@@ -91,8 +108,6 @@ class FileItem extends StatelessWidget {
         ],
       ),
       )
-      
-      
     );
   }
 }
