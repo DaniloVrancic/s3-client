@@ -27,11 +27,14 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     return;
   }
 
+  late Map<String, CloudObjectController> _controllers;
+
   @override
   void initState() {
     super.initState();
     
     _b2service = context.read<BackblazeService>();
+    _controllers = {};
 
     loadObjects();
     
@@ -52,6 +55,13 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       
       List<Object> objectsList =  list.objects;
       return objectsList;
+  }
+
+  Future<void> simulatedDownloadWithProgress(int seconds, CloudObjectController controller) async {
+    for(int i = 0; i < seconds; i++){
+      await Future.delayed(Duration(seconds: 1));
+      controller.updateProgress(i / seconds);
+    }
   }
 
   
@@ -198,10 +208,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
           ],
         ),
       ),
-          ],
+        ],
         ),
-        
-        
       ),
       
       body: Padding(
@@ -219,26 +227,36 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:  MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1 : 2) : 3,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 815 ? (MediaQuery.of(context).size.width <= 555 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: MediaQuery.of(context).size.width <= 800 ? (MediaQuery.of(context).size.width <= 450 ? 1.5 : 0.9) : 0.7,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 815 ? (MediaQuery.of(context).size.width <= 555 ? 1.5 : 0.9) : 0.7,
                     ),
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
+                      String fileKey = foundFiles[index].key.toString();
+
+                      // Ensure that the controller is created for this file if not already done
+                      if (!_controllers.containsKey(fileKey)) {
+                        _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
+                      }
+
+                      CloudObjectController controller = _controllers[fileKey]!;
                       return CloudObject(
+                        controller: controller,
                         eTag: foundFiles[index].eTag,
                         size: foundFiles[index].size,
                         owner: foundFiles[index].owner,
                         lastModified: foundFiles[index].lastModified,
                         fileName: foundFiles[index].key.toString(),
                         iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
-                        onDownload: (){},
+                        onDownload: () => simulatedDownloadWithProgress(5, _controllers[fileKey]!),
                         onDelete: (){
                           setState(() {
                             foundFiles.removeAt(index);
                           });
                         },
+
                         border: Border.all(
                           color: const Color.fromARGB(125, 226, 158, 11),
                           width: 1.25,
