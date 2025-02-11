@@ -81,11 +81,13 @@ class _CloudObjectState extends State<CloudObject> {
       );
     } finally {
       // Remove the spinner.
+        if(mounted){
       setState(() {
-        _isDownloading = false;
+          _isDownloading = false;
         _downloadProgress = 0.0;
         _controller.updateProgress(0.0);
       });
+        }
     }
   }
 
