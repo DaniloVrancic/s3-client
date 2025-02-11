@@ -1,8 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
@@ -12,6 +15,7 @@ import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
+import 'package:path/path.dart' as path;
 
 class HomePageWidget extends StatefulWidget {
   const HomePageWidget({super.key});
@@ -73,57 +77,75 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     }
   } */
 
+Future<void> requestPermission() async {
+  if (Platform.isAndroid) {
+    var storageStatus = await Permission.storage.status;
 
-  Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
-    
-      // Open file picker for the user to select a location
-    FilePickerResult? result = await FilePicker.platform.pickFiles(  //TODO: Fix this so it's not working with file selection but rather directory selection
-      type: FileType.custom,
-      allowedExtensions: ['*'], // or specify specific file extensions
-    );
-   // Then I need to concat the downloaded filename to the directory
-    print("SELECTION: ");
-    print(result);
+    if (!storageStatus.isGranted) {
+      await Permission.storage.request();
+    }
 
-    if (result != null && result.files.single.path != null) {
-      String selectedPath = result.files.single.path!;
+    if (await Permission.manageExternalStorage.isDenied) {
+      await Permission.manageExternalStorage.request();
+    }
+  }
+}
 
-    print("FINAL SELECTED PATH: ");
-    print(selectedPath);
-      
+
+Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
+  await requestPermission(); // Ensure permissions
+
+  // Open file picker to select a directory
+  String? directoryPath = await FilePicker.platform.getDirectoryPath(
+    dialogTitle: "Select a Download Directory",
+  );
+
+  if (directoryPath != null) {
+    // Ensure path is correctly joined
+    String savePath = path.join(directoryPath, fileName);
+
+    print("FINAL SELECTED PATH: $savePath");
+
+    try {
       bool success = await _b2service.downloadFileWithProgress(
         bucketName: userBucket,
         objectName: fileName,
-        savePath: selectedPath,
+        savePath: savePath,
         onProgress: (progress) {
-          
-            controller.updateProgress(progress);
+          controller.updateProgress(progress);
         },
       );
 
       if (success) {
-        // Show success feedback
-       SnackbarShower.showSnackbar(
-        context: context,
-        message: 'File downloaded successfully',
-        color: Colors.green);
-      } else {
-        // Show error feedback
         SnackbarShower.showSnackbar(
-        context: context,
-        message: 'Error downloading file',
-        color: Colors.red);
+          context: context,
+          message: 'File downloaded successfully to $savePath',
+          color: Colors.green,
+        );
+      } else {
+        SnackbarShower.showSnackbar(
+          context: context,
+          message: 'Error downloading file',
+          color: Colors.red,
+        );
       }
-    } else {
-      // Show feedback if no file was picked
+    } catch (e) {
+      print("Download error: $e");
       SnackbarShower.showSnackbar(
         context: context,
-        message: 'No file selected',
-        color: Colors.red);
+        message: 'Failed to download file: $e',
+        color: Colors.red,
+      );
     }
+  } else {
+    SnackbarShower.showSnackbar(
+      context: context,
+      message: 'No directory selected',
+      color: Colors.red,
+    );
   }
+}
 
-  
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -261,12 +283,12 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                 Text(
                   loggedUser.email,
                   style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
         ],
         ),
       ),
@@ -332,4 +354,5 @@ class _HomePageWidgetState extends State<HomePageWidget> {
       ),
     );
   }
+
 }
