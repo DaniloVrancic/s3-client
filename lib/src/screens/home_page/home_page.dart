@@ -152,13 +152,14 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Delete Object from Storage"),
+          title: Text("Warning"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               
               const Text("Are you sure you wish to delete this object from storage?"),
+              const Text("(Deleted Storage items can't be retrieved)"),
               const SizedBox(height: 10.0,),
               Text("Name: ${myObject.key}")
             ],
@@ -172,7 +173,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
               onPressed: () {
                 Navigator.of(context).pop();
                 
-                _handleDelete(myObject);
+                _handleDelete(loggedUser.username.toLowerCase(), myObject);
                 
               },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
@@ -183,23 +184,37 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     );
   }
 
-  Future<bool> _handleDelete(Object myObject) async{
-    print("DELETING OBJECT!");
-    print(myObject.key);
-    setState(()
+  Future<bool> _handleDelete(String bucket, Object myObject) async{
+    bool success = await _b2service.deleteObject(
+      bucket: bucket,
+      objectName: myObject.key!
+      );
+
+    if(success)
+    {
+      setState(()
     {
       foundFiles.removeWhere((o) {
         return o == myObject;
       });
     });
+    SnackbarShower.showSnackbar(
+      context: context, 
+      message: "File ${myObject.key} deleted successfully!", 
+      color: Colors.green.shade400);
+
     return true;
+    }
+    else{
+      return false;
+    }
+    
   }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    User loggedUser = context.read<User>();
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
 
