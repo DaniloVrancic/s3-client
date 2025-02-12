@@ -33,6 +33,8 @@ class _UploadFilePageState extends State<UploadFilePage> {
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,46 +79,51 @@ class _UploadFilePageState extends State<UploadFilePage> {
                     },
                   ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _pickMultipleFiles,
-                  
-                  style: ElevatedButton.styleFrom(
-                     side: const BorderSide(width: 1.25, color: Color.fromARGB(125, 0, 0, 0)),
-                    backgroundColor: const Color.fromARGB(255, 250, 150, 20),
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 24.0),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16.0,
-                      color: Colors.black,
-                    ),
-                  ),
-                  child: const Text("Select Files"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-
-                    //ScaffoldMessenger.of(context).showSnackBar(
-                    //const SnackBar(content: Text('File successfully uploaded')),
-                    //)
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0, vertical: 24.0),
-                    side: const BorderSide(width: 1.25, color: Color.fromARGB(125, 0, 0, 0)),
-                    textStyle: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  child: const Text("Upload Files"),
-                ),
-              ],
-            ),
+    Padding(
+  padding: const EdgeInsets.all(16.0),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    children: [
+      ElevatedButton.icon(
+        onPressed: _pickMultipleFiles,
+        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
+        label: const Text(
+          "Select Files",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orangeAccent,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
           ),
+        ),
+      ),
+      ElevatedButton.icon(
+        onPressed: () {
+          // Handle file upload
+        },
+        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
+        label: const Text(
+          "Upload Files",
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+        ),
+      ),
+    ],
+  ),
+)
+
+
+
           ],
           ),
         ),

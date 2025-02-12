@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 
 class LoginPageWidget extends StatefulWidget {
   const LoginPageWidget({super.key});
@@ -14,6 +19,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  bool _isLoading = false;
 
   String? validateUsername(String? value) {
     if (value == null || value.isEmpty) {
@@ -35,26 +42,150 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     return null;
   }
 
+  Future<void> _loginUser() async {
+    setState(() => _isLoading = true);
+
+    String loginUsername = _usernameController.text.trim();
+    String loginPassword = _passwordController.text;
+    
+
+    BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
+    User loggedUser = context.read<User>();
+    
+    List<String> listOfUsers = [];
+    await b2service.fetchUserbase()
+    .then<List<String>?>((List<String> userStringList) { //Parses through all the users in the listOfUsers, return the tokens of the found user, or null if the user hasn't been found
+      for(String line in userStringList)
+      {
+        listOfUsers.addAll(userStringList);
+        List<String> tokens = line.split(",");
+        if(tokens.length != 3)
+        {
+          continue;
+        }
+
+        if(loginUsername == tokens.elementAt(1) || loginUsername == tokens.elementAt(0))
+        {
+          return tokens;
+        }
+      }
+      return null;
+    },
+    onError: (e) => {
+      SnackbarShower.showSnackbar(
+        context: context,
+        message: 'Something went wrong with connecting to the server!',
+        color: Colors.red.shade400
+        )
+    })
+    .then((List<String>? foundUser) { //List<String>? foundUser are the tokens of the found user given in order of email/username/hashedPassword, attempts to login with the password and (username or email)
+      if(foundUser != null && foundUser.length == 3)
+      {
+        String? foundEmail = foundUser.elementAtOrNull(0);
+        String? foundUsername = foundUser.elementAtOrNull(1);
+        String? foundPassword = foundUser.elementAtOrNull(2);
+
+        if(foundEmail != null && foundUsername != null && foundPassword != null)
+        {
+          User foundUserObj = User.fromInfo(username: foundUsername, email: foundEmail, password: foundPassword);
+          bool isPasswordValid = foundUserObj.verifyPassword(loginPassword, foundUserObj.password);
+
+          if(isPasswordValid)
+          {
+            loggedUser.setUser(newUsername: foundUsername, newEmail: foundEmail, newPassword: foundPassword);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login successful!',
+                            color: Colors.green.shade300
+                            );
+
+                 Future.delayed(Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (context)=> const HomePageWidget())); // Assuming previous screen is Starting Screen
+                  });
+            
+          }
+          else{
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login failed.',
+                            color: Colors.red.shade400
+                            );
+            return;
+          }
+        }
+        else{
+         SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Corrupted user info.',
+                            color: Colors.red.shade400
+                            );
+          return;
+        }
+      }
+      else{
+        SnackbarShower.showSnackbar(
+                            context: context,
+                            message: "That username or E-mail haven't been found.",
+                            color: Colors.red.shade400
+                            );
+        return;
+      }
+    },
+      onError: (e) {
+        SnackbarShower.showSnackbar(
+        context: context,
+        message: 'An unexpected error happened.',
+        color: Colors.red.shade400
+        );
+        return;
+    });
+
+      if(!loggedUser.isLoggedIn())
+      {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      await b2service.bucketExists(loginUsername.toLowerCase()) //Make sure the bucket exists if the user is logging in
+      .then((bool exists) async {
+      if(exists){
+        return;
+      }
+      else{
+        await b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) {
+          print("Is Bucket now successfully created? : $isCreated}");
+          setState(() => _isLoading = false);
+          });
+      }
+    },
+    onError: (e) => print(e));
+  }
+
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      // Process the form
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login request submitted successfully')),
-      );
+      // Process the Form
+      
+        _loginUser();
+
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.only(top: 50.0),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             Color.fromARGB(255, 228, 58, 11),
-            Color.fromARGB(255, 23, 22, 22)
+            theme.primaryColorDark
           ])
         ),
         child: Form(
@@ -78,8 +209,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                 child: Container(
                   padding:
                       const EdgeInsets.only(top: 50.0, left: 20.0, right: 20.0),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 20, 5, 5),
+                  decoration: BoxDecoration(
+                    color: theme.dialogBackgroundColor,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
@@ -125,22 +256,29 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         expands: false,
                       ),
                       const SizedBox(height: 30.0),
-                      GestureDetector(
-                        onTap: _submit,
+                     Material(
+                     color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _isLoading ? null : _submit,
+                        borderRadius: BorderRadius.circular(30), // Matches the container's border radius
+                        splashColor: (theme.brightness == Brightness.light) ? Colors.black87 : theme.splashColor, 
+                        highlightColor: Colors.transparent, // Prevents unwanted highlights
                         child: Container(
                           height: 60,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(colors: [
+                            gradient: LinearGradient(colors: [
                               Color.fromARGB(255, 228, 58, 11),
-                              Color.fromARGB(175, 80, 30, 10),
+                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
                             ]),
                             borderRadius: BorderRadius.circular(30),
                           ),
-                          child: const Center(
-                            child: Text(
+                          child: Center(
+                            child: _isLoading 
+                            ? const CircularProgressIndicator(color: Colors.white,)
+                            : Text(
                               "LOG IN",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: (theme.brightness == Brightness.light) ? theme.primaryColorLight : Colors.white,
                                 fontSize: 20.0,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -148,6 +286,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                           ),
                         ),
                       ),
+                    ),
                     SizedBox(height: MediaQuery.of(context).size.height / 8,),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -155,9 +294,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                          const Text("Don't have an account?",
+                          Text("Don't have an account?",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: theme.hintColor,
                             fontSize: 16.0,
                             fontWeight: FontWeight.w500
                           ),
@@ -166,9 +305,9 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                             onTap: (){
                               Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPageWidget()));
                             },
-                            child: const Text("SIGN UP",
+                            child: Text("SIGN UP",
                             style: TextStyle(
-                              color: Colors.lightBlue, 
+                              color: (theme.brightness == Brightness.dark) ? Colors.lightBlue : Colors.blue.shade700,
                             fontSize: 14.0, 
                             fontWeight: FontWeight.bold
                             ),),
