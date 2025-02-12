@@ -147,6 +147,54 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
   }
 }
 
+void _showDeleteDialog(BuildContext context, Object myObject) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Delete Object from Storage"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const Text("Are you sure you wish to delete this object from storage?"),
+              const SizedBox(height: 10.0,),
+              Text("Name: ${myObject.key}")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                
+                _handleDelete(myObject);
+                
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _handleDelete(Object myObject) async{
+    print("DELETING OBJECT!");
+    print(myObject.key);
+    setState(()
+    {
+      foundFiles.removeWhere((o) {
+        return o == myObject;
+      });
+    });
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -154,7 +202,7 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
     User loggedUser = context.read<User>();
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home"),
@@ -315,10 +363,8 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
                         fileName: foundFiles[index].key.toString(),
                         iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
                         onDownload: () => _downloadFile(thisFileName, controller),
-                        onDelete: (){
-                          setState(() {
-                            foundFiles.removeAt(index);
-                          });
+                        onDelete: () async {
+                          _showDeleteDialog(context, foundFiles[index]);
                         },
 
                         border: Border.all(
