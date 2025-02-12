@@ -86,7 +86,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
     children: [
       ElevatedButton.icon(
         onPressed: _pickMultipleFiles,
-        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
+        icon: const Icon(Icons.attach_file, size: 20, color: Colors.white,),
         label: const Text(
           "Select Files",
           style: TextStyle(fontWeight: FontWeight.w600),
