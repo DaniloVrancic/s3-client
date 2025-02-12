@@ -17,7 +17,7 @@ class CloudObject extends StatefulWidget {
   final CloudObjectController? controller; // Optional controller
 
   const CloudObject({
-    Key? key,
+    super.key,
     required this.fileName,
     required this.eTag,
     required this.owner,
@@ -29,7 +29,7 @@ class CloudObject extends StatefulWidget {
     this.controller,
     this.border = const Border.fromBorderSide(BorderSide.none),
     this.borderRadius = const BorderRadius.all(Radius.zero),
-  }) : super(key: key);
+  });
 
   @override
   State<CloudObject> createState() => _CloudObjectState();

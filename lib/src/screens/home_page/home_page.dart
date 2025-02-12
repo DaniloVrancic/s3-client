@@ -13,6 +13,7 @@ import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
@@ -151,28 +152,9 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
     ThemeData theme = Theme.of(context);
 
     User loggedUser = context.read<User>();
-    List<Color> listOfIconColors = [
-      Colors.orangeAccent,
-      Colors.purple.shade300,
-      Colors.purple.shade400,
-      Colors.purple.shade500,
-      Colors.purple.shade600,
-      Colors.orange.shade300,
-      Colors.orange.shade400,
-      Colors.orange.shade500,
-      Colors.orange.shade600,
-      Colors.limeAccent,
-      Colors.indigo,
-      Colors.blue.shade700,
-      Colors.blue.shade800,
-      Colors.blue.shade900,
-      Colors.yellow.shade300,
-      Colors.pink.shade300,
-      Colors.pink.shade400,
-      Colors.pink.shade500,
-      
-    ];
+    List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home"),
