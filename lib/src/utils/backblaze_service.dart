@@ -144,6 +144,21 @@ class BackblazeService {
     }
   }
 
+    Future<bool> deleteObject({required String bucket, required String objectName}) async {    
+      try{
+        await minio.removeObject(bucket, objectName);
+        print("File successfully deleted: $bucket/$objectName");
+        return true;
+      }
+      catch(e){
+        print("Error deleting object: $e");
+        return false;
+      }
+    }
+
+    
+  
+
   Future<bool> uploadFileFromBytes(Uint8List fileBytes, String bucket, String objectName, {String contentType = 'application/octet-stream'}) async {
   try {
     Stream<Uint8List> fileStream = Stream.value(fileBytes);

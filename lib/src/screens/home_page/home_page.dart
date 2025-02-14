@@ -13,6 +13,7 @@ import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
@@ -146,32 +147,76 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
   }
 }
 
+void _showDeleteDialog(BuildContext context, Object myObject) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Warning"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const Text("Are you sure you wish to delete this object from storage?"),
+              const Text("(Deleted Storage items can't be retrieved)"),
+              const SizedBox(height: 10.0,),
+              Text("Name: ${myObject.key}")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                
+                _handleDelete(loggedUser.username.toLowerCase(), myObject);
+                
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> _handleDelete(String bucket, Object myObject) async{
+    bool success = await _b2service.deleteObject(
+      bucket: bucket,
+      objectName: myObject.key!
+      );
+
+    if(success)
+    {
+      setState(()
+    {
+      foundFiles.removeWhere((o) {
+        return o == myObject;
+      });
+    });
+    SnackbarShower.showSnackbar(
+      context: context, 
+      message: "File ${myObject.key} deleted successfully!", 
+      color: Colors.green.shade400);
+
+    return true;
+    }
+    else{
+      return false;
+    }
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
-    User loggedUser = context.read<User>();
-    List<Color> listOfIconColors = [
-      Colors.orangeAccent,
-      Colors.purple.shade300,
-      Colors.purple.shade400,
-      Colors.purple.shade500,
-      Colors.purple.shade600,
-      Colors.orange.shade300,
-      Colors.orange.shade400,
-      Colors.orange.shade500,
-      Colors.orange.shade600,
-      Colors.limeAccent,
-      Colors.indigo,
-      Colors.blue.shade700,
-      Colors.blue.shade800,
-      Colors.blue.shade900,
-      Colors.yellow.shade300,
-      Colors.pink.shade300,
-      Colors.pink.shade400,
-      Colors.pink.shade500,
-      
-    ];
+    List<Color> listOfIconColors = MyColorsList.listOfIconColors;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -333,10 +378,8 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
                         fileName: foundFiles[index].key.toString(),
                         iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
                         onDownload: () => _downloadFile(thisFileName, controller),
-                        onDelete: (){
-                          setState(() {
-                            foundFiles.removeAt(index);
-                          });
+                        onDelete: () async {
+                          _showDeleteDialog(context, foundFiles[index]);
                         },
 
                         border: Border.all(

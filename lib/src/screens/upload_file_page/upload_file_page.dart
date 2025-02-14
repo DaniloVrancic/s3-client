@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class UploadFilePage extends StatefulWidget {
@@ -12,6 +13,8 @@ class UploadFilePage extends StatefulWidget {
 }
 
 class _UploadFilePageState extends State<UploadFilePage> {
+
+  bool _isLoading = false;
 
   String selectedPaths = "";
   List<PlatformFile> selectedFiles = List.empty();
@@ -37,6 +40,8 @@ class _UploadFilePageState extends State<UploadFilePage> {
 
   @override
   Widget build(BuildContext context) {
+     final ThemeData theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Upload File"),
       backgroundColor: Colors.orange[400],
@@ -85,14 +90,25 @@ class _UploadFilePageState extends State<UploadFilePage> {
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       ElevatedButton.icon(
-        onPressed: _pickMultipleFiles,
-        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
-        label: const Text(
-          "Select Files",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        onPressed: _isLoading ? null : _pickMultipleFiles,
+        icon: _isLoading 
+        ? 
+        const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+        :
+        const Icon(Icons.attach_file, size: 20, color: Colors.white,),
+        label: Text(
+                          _isLoading ? "Can't Select" : "Select Files",
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orangeAccent,
+          backgroundColor: _isLoading ? theme.disabledColor : Colors.orangeAccent,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           shape: RoundedRectangleBorder(
@@ -101,29 +117,39 @@ class _UploadFilePageState extends State<UploadFilePage> {
         ),
       ),
       ElevatedButton.icon(
-        onPressed: () {
-          // Handle file upload
+        onPressed: _isLoading ? null : () {
+          setState(() { //TODO: Move this logic into the function that will be called (The upload function, also add a Linear progress bar for all the files selected and uploaded)
+            _isLoading = true;
+          });
         },
-        icon: const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
-        label: const Text(
-          "Upload Files",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        icon: _isLoading 
+        ?
+        const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ) 
+        :
+        const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
+        label: Text(
+                          _isLoading ? "Uploading" : "Upload Files",
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.teal,
+          backgroundColor: _isLoading ? theme.disabledColor : Colors.teal,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
-          ),
-        ),
-      ),
-    ],
-  ),
-)
-
-
-
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
           ],
           ),
         ),
