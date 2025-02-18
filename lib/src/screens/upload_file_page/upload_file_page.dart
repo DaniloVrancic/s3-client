@@ -14,7 +14,7 @@ class UploadFilePage extends StatefulWidget {
 
 class _UploadFilePageState extends State<UploadFilePage> {
 
-  bool _isLoading = false;
+  bool _isUploading = false;
 
   String selectedPaths = "";
   List<PlatformFile> selectedFiles = List.empty();
@@ -34,6 +34,12 @@ class _UploadFilePageState extends State<UploadFilePage> {
     else{
       //User cancelled the picker
     }
+  }
+
+  Future<bool> _uploadFiles(List<FileItem> filesToUpload) async {
+
+
+    return true;
   }
 
   
@@ -90,8 +96,8 @@ class _UploadFilePageState extends State<UploadFilePage> {
     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
     children: [
       ElevatedButton.icon(
-        onPressed: _isLoading ? null : _pickMultipleFiles,
-        icon: _isLoading 
+        onPressed: _isUploading ? null : _pickMultipleFiles,
+        icon: _isUploading 
         ? 
         const SizedBox(
                     width: 18,
@@ -104,11 +110,11 @@ class _UploadFilePageState extends State<UploadFilePage> {
         :
         const Icon(Icons.attach_file, size: 20, color: Colors.white,),
         label: Text(
-                          _isLoading ? "Can't Select" : "Select Files",
+                          _isUploading ? "Can't Select" : "Select Files",
                           style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _isLoading ? theme.disabledColor : Colors.orangeAccent,
+          backgroundColor: _isUploading ? theme.disabledColor : Colors.orangeAccent,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           shape: RoundedRectangleBorder(
@@ -117,12 +123,12 @@ class _UploadFilePageState extends State<UploadFilePage> {
         ),
       ),
       ElevatedButton.icon(
-        onPressed: _isLoading ? null : () {
+        onPressed: _isUploading ? null : () {
           setState(() { //TODO: Move this logic into the function that will be called (The upload function, also add a Linear progress bar for all the files selected and uploaded)
-            _isLoading = true;
+            _isUploading = true;
           });
         },
-        icon: _isLoading 
+        icon: _isUploading 
         ?
         const SizedBox(
                     width: 18,
@@ -135,11 +141,11 @@ class _UploadFilePageState extends State<UploadFilePage> {
         :
         const Icon(Icons.cloud_upload, size: 20, color: Colors.white,),
         label: Text(
-                          _isLoading ? "Uploading" : "Upload Files",
+                          _isUploading ? "Uploading" : "Upload Files",
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: _isLoading ? theme.disabledColor : Colors.teal,
+          backgroundColor: _isUploading ? theme.disabledColor : Colors.teal,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
           shape: RoundedRectangleBorder(
@@ -154,6 +160,13 @@ class _UploadFilePageState extends State<UploadFilePage> {
           ),
         ),
       ),
+      bottomSheet: _isUploading
+          ? LinearProgressIndicator(
+              // value: _uploadProgress, //  This value Controls the upload progress bar
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+            )
+          : const SizedBox.shrink(), // Hide bottom sheet when not uploading
     );
   }
 }
