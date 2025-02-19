@@ -2,11 +2,15 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class UploadFilePage extends StatefulWidget {
   const UploadFilePage({super.key});
+
 
   @override
   State<UploadFilePage> createState() => _UploadFilePageState();
@@ -15,9 +19,20 @@ class UploadFilePage extends StatefulWidget {
 class _UploadFilePageState extends State<UploadFilePage> {
 
   bool _isUploading = false;
+  late BackblazeService _b2Service;
+  late User loggedUser; 
+  double? uploadProgress = null;
 
   String selectedPaths = "";
   List<PlatformFile> selectedFiles = List.empty();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _b2Service = context.read<BackblazeService>();
+    loggedUser = context.read<User>();
+  }
 
   void _pickMultipleFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -36,10 +51,86 @@ class _UploadFilePageState extends State<UploadFilePage> {
     }
   }
 
-  Future<bool> _uploadFiles(List<FileItem> filesToUpload) async {
+  Future<bool> _uploadFiles(List<PlatformFile> filesToUpload) async {
+
+    List<Future<bool>> listOfFutureUploads = [];
+    int totalUploadSize = filesToUpload.fold(0, (sum, file) => sum + (file.size ?? 0));
+    int uploadedBytes = 0;
 
 
-    return true;
+    setState(() {
+            uploadProgress = 0.0;
+            _isUploading = true;
+          });
+
+    
+    for(PlatformFile pFile in filesToUpload)
+    {
+
+      Future<bool> uploadTask = _b2Service.uploadFile(
+        pFile.path!, 
+        loggedUser.username.toLowerCase(), 
+        pFile.name)
+      .then(
+        (bool success) {
+          if(success){
+            setState(() {
+              uploadedBytes += pFile.size ?? 0;
+              if(uploadProgress != null)
+              {
+                uploadProgress = uploadedBytes / totalUploadSize;
+              }
+            });
+          }
+          else{
+              setState(() {
+                uploadProgress = null;
+              });
+          }
+          return success;}, 
+        onError: (error) {
+          print(error); 
+          return false;
+          });
+
+        
+      listOfFutureUploads.add(uploadTask);
+    }
+
+    List<bool> results = await Future.wait(listOfFutureUploads);
+
+    bool allFilesUploaded = results.every((result) => result);
+
+
+    setState(() {
+          if(allFilesUploaded)
+          {
+            uploadProgress = 1.0;
+          }
+            _isUploading = false;
+          });
+
+    return allFilesUploaded;
+  }
+
+  Future <void> _startUploadProcess() async{
+    bool success = await _uploadFiles(selectedFiles);
+
+    if(success)
+    {
+      SnackbarShower.showSnackbar(
+        context: context, 
+        message: "File upload successful!", 
+        color: Colors.green.shade300); 
+    }
+    else
+    {
+      SnackbarShower.showSnackbar(
+        context: context, 
+        message: "Failed to upload some files.", 
+        color: Colors.red.shade400); 
+    }
+    uploadProgress = null;
   }
 
   
@@ -123,11 +214,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
         ),
       ),
       ElevatedButton.icon(
-        onPressed: _isUploading ? null : () {
-          setState(() { //TODO: Move this logic into the function that will be called (The upload function, also add a Linear progress bar for all the files selected and uploaded)
-            _isUploading = true;
-          });
-        },
+        onPressed: _isUploading ? null : _startUploadProcess,
         icon: _isUploading 
         ?
         const SizedBox(
@@ -164,7 +251,9 @@ class _UploadFilePageState extends State<UploadFilePage> {
           ? LinearProgressIndicator(
               // value: _uploadProgress, //  This value Controls the upload progress bar
               backgroundColor: Colors.grey[300],
+              minHeight: 4.0,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              value: uploadProgress,
             )
           : const SizedBox.shrink(), // Hide bottom sheet when not uploading
     );

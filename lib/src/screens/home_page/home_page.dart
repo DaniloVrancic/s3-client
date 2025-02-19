@@ -121,13 +121,13 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
         SnackbarShower.showSnackbar(
           context: context,
           message: 'File downloaded successfully to $savePath',
-          color: Colors.green,
+          color: Colors.green.shade300,
         );
       } else {
         SnackbarShower.showSnackbar(
           context: context,
           message: 'Error downloading file',
-          color: Colors.red,
+          color: Colors.red.shade400,
         );
       }
     } catch (e) {
@@ -135,14 +135,14 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
       SnackbarShower.showSnackbar(
         context: context,
         message: 'Failed to download file: $e',
-        color: Colors.red,
+        color: Colors.red.shade400,
       );
     }
   } else {
     SnackbarShower.showSnackbar(
       context: context,
       message: 'No directory selected',
-      color: Colors.red,
+      color: Colors.red.shade400,
     );
   }
 }
