@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
@@ -32,6 +33,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   late List<Object> foundFiles = [];
   late String userBucket;
   late User loggedUser;
+  late ChangeFollower changeFollower;
 
   void requestFileUpload() {
     
@@ -49,9 +51,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     loggedUser = context.read<User>();
     userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
-
-    loadObjects();
-    
+    changeFollower = context.read<ChangeFollower>();
   }
 
   Future<void> loadObjects() async {
@@ -214,6 +214,12 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+
+    if(changeFollower.needToGetObjects){
+      loadObjects();
+      print("FETCHING OBJECTS NOW!");
+      changeFollower.needToGetObjects = false;
+    }
 
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 

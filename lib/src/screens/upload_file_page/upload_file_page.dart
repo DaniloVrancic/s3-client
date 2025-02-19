@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -21,6 +22,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
   bool _isUploading = false;
   late BackblazeService _b2Service;
   late User loggedUser; 
+  late ChangeFollower _changeFollower;
   double? uploadProgress = null;
 
   String selectedPaths = "";
@@ -32,6 +34,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
 
     _b2Service = context.read<BackblazeService>();
     loggedUser = context.read<User>();
+    _changeFollower = context.read<ChangeFollower>();
   }
 
   void _pickMultipleFiles() async {
@@ -74,8 +77,9 @@ class _UploadFilePageState extends State<UploadFilePage> {
       .then(
         (bool success) {
           if(success){
+            _changeFollower.needToGetObjects = true;
             setState(() {
-              uploadedBytes += pFile.size ?? 0;
+              uploadedBytes += pFile.size * 100 ?? 0;
               if(uploadProgress != null)
               {
                 uploadProgress = uploadedBytes / totalUploadSize;
@@ -87,6 +91,8 @@ class _UploadFilePageState extends State<UploadFilePage> {
                 uploadProgress = null;
               });
           }
+
+          selectedFiles.remove(pFile);
           return success;}, 
         onError: (error) {
           print(error); 
@@ -251,8 +257,8 @@ class _UploadFilePageState extends State<UploadFilePage> {
           ? LinearProgressIndicator(
               // value: _uploadProgress, //  This value Controls the upload progress bar
               backgroundColor: Colors.grey[300],
-              minHeight: 4.0,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+              minHeight: 5.0,
+              valueColor: (uploadProgress != null) ? AlwaysStoppedAnimation<Color>(Colors.green) : AlwaysStoppedAnimation<Color>(Colors.orange),
               value: uploadProgress,
             )
           : const SizedBox.shrink(), // Hide bottom sheet when not uploading
