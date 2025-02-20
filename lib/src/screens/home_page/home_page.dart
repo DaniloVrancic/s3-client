@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
@@ -32,6 +33,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   late List<Object> foundFiles = [];
   late String userBucket;
   late User loggedUser;
+  late ChangeFollower changeFollower;
 
   void requestFileUpload() {
     
@@ -49,10 +51,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     loggedUser = context.read<User>();
     userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
-
-    loadObjects();
+    loadObjects(); // Initial loading of objects
     
   }
+
+  @override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  changeFollower = context.watch<ChangeFollower>();
+}
 
   Future<void> loadObjects() async {
     List<Object> objects = await getAllBucketObjects(userBucket);
@@ -82,13 +89,15 @@ Future<void> requestPermission() async {
   if (Platform.isAndroid) {
     var storageStatus = await Permission.storage.status;
 
-    if (!storageStatus.isGranted) {
-      await Permission.storage.request();
-    }
-
     if (await Permission.manageExternalStorage.isDenied) {
       await Permission.manageExternalStorage.request();
     }
+    /*
+    if (!storageStatus.isGranted) {
+      await Permission.storage.request(); //  Deprecated on newer OS
+    }
+    */
+    
   }
 }
 
@@ -121,13 +130,13 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
         SnackbarShower.showSnackbar(
           context: context,
           message: 'File downloaded successfully to $savePath',
-          color: Colors.green,
+          color: Colors.green.shade300,
         );
       } else {
         SnackbarShower.showSnackbar(
           context: context,
           message: 'Error downloading file',
-          color: Colors.red,
+          color: Colors.red.shade400,
         );
       }
     } catch (e) {
@@ -135,14 +144,14 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
       SnackbarShower.showSnackbar(
         context: context,
         message: 'Failed to download file: $e',
-        color: Colors.red,
+        color: Colors.red.shade400,
       );
     }
   } else {
     SnackbarShower.showSnackbar(
       context: context,
       message: 'No directory selected',
-      color: Colors.red,
+      color: Colors.red.shade400,
     );
   }
 }
@@ -208,15 +217,23 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     else{
       return false;
     }
-    
+  }
+
+  void refreshHomePage() {
+    loadObjects(); // Every time when I want to refresh, the only thing that will have changed are the objects in the bucket
   }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
-
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
+
+    if(changeFollower.needToGetObjects) {
+      refreshHomePage();
+      print("FETCHING OBJECTS NOW!");
+      changeFollower.needToGetObjects = false;
+    }
 
     return Scaffold(
       appBar: AppBar(
