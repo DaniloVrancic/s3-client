@@ -70,7 +70,7 @@ void main() async {
     MultiProvider(
     providers: [
       Provider<BackblazeService>.value(value: b2Service),
-      Provider<ChangeFollower>.value(value: changeFollower),
+      ChangeNotifierProvider<ChangeFollower>(create: (_) => ChangeFollower()),
       ChangeNotifierProvider<User>(create: (_) => User()), // The User that I will use anywhere in the application
     ],
     child: MyApp(settingsController: settingsController),

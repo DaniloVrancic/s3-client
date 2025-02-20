@@ -1,7 +1,16 @@
-class ChangeFollower {
-  late bool needToGetObjects;
+import 'package:flutter/material.dart';
 
-  ChangeFollower(){ //Simple object container class just to optimize the fetching and getting from the client that will be done
-    needToGetObjects = true;
+class ChangeFollower extends ChangeNotifier {
+  bool _needToGetObjects = false;
+
+  bool get needToGetObjects => _needToGetObjects;
+
+  set needToGetObjects(bool value) {
+    _needToGetObjects = value;
+
+    if(value == true)
+    {
+      notifyListeners();
+    }
   }
 }

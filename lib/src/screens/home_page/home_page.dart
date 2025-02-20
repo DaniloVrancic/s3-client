@@ -51,8 +51,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     loggedUser = context.read<User>();
     userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
-    changeFollower = context.read<ChangeFollower>();
+    loadObjects(); // Initial loading of objects
+    
   }
+
+  @override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  changeFollower = context.watch<ChangeFollower>();
+}
 
   Future<void> loadObjects() async {
     List<Object> objects = await getAllBucketObjects(userBucket);
@@ -82,13 +89,15 @@ Future<void> requestPermission() async {
   if (Platform.isAndroid) {
     var storageStatus = await Permission.storage.status;
 
-    if (!storageStatus.isGranted) {
-      await Permission.storage.request();
-    }
-
     if (await Permission.manageExternalStorage.isDenied) {
       await Permission.manageExternalStorage.request();
     }
+    /*
+    if (!storageStatus.isGranted) {
+      await Permission.storage.request(); //  Deprecated on newer OS
+    }
+    */
+    
   }
 }
 
@@ -208,21 +217,23 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     else{
       return false;
     }
-    
+  }
+
+  void refreshHomePage() {
+    loadObjects(); // Every time when I want to refresh, the only thing that will have changed are the objects in the bucket
   }
 
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
+    List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
-    if(changeFollower.needToGetObjects){
-      loadObjects();
+
+    if(changeFollower.needToGetObjects) {
+      refreshHomePage();
       print("FETCHING OBJECTS NOW!");
       changeFollower.needToGetObjects = false;
     }
-
-    List<Color> listOfIconColors = MyColorsList.listOfIconColors;
-
 
     return Scaffold(
       appBar: AppBar(

@@ -77,9 +77,9 @@ class _UploadFilePageState extends State<UploadFilePage> {
       .then(
         (bool success) {
           if(success){
-            _changeFollower.needToGetObjects = true;
             setState(() {
-              uploadedBytes += pFile.size * 100 ?? 0;
+              uploadedBytes += pFile.size ?? 0;
+              print("UPLOADED: ${uploadedBytes}b / TOTAL: ${totalUploadSize}b / Percentage: ${(uploadedBytes/totalUploadSize) * 100}");
               if(uploadProgress != null)
               {
                 uploadProgress = uploadedBytes / totalUploadSize;
@@ -95,7 +95,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
           selectedFiles.remove(pFile);
           return success;}, 
         onError: (error) {
-          print(error); 
+            print(error); 
           return false;
           });
 
@@ -116,6 +116,10 @@ class _UploadFilePageState extends State<UploadFilePage> {
             _isUploading = false;
           });
 
+    
+      Future.microtask(() {
+        _changeFollower.needToGetObjects = true; //  Will Trigger the home screen to update
+      }); // Makes sure the microtask defers until the next microtask cycle, ensuring it doesn't interfere with the current build process.
     return allFilesUploaded;
   }
 
