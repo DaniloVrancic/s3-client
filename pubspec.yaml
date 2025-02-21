@@ -46,3 +46,14 @@ flutter:
     # Add assets from the images directory to the application.
     - assets/images/
     - assets/.env
+
+  fonts:
+  - family: serif
+    fonts:
+      - asset: assets/fonts/serif.ttf
+  - family: monospace
+    fonts:
+      - asset: assets/fonts/monospace.ttf
+  - family: cursive
+    fonts:
+      - asset: assets/fonts/cursive.ttf

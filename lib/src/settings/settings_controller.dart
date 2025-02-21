@@ -20,12 +20,23 @@ class SettingsController with ChangeNotifier {
   // Allow Widgets to read the user's preferred ThemeMode.
   ThemeMode get themeMode => _themeMode;
 
+
+  // Allows Text to scale up or down with size
+  late double _textScaleFactor;
+  // Allows widgets to access the textScaleFactor
+  double get textScaleFactor => _textScaleFactor;
+
+  late String _fontFamily;
+
+  String get fontFamily => _fontFamily;
+
   /// Load the user's settings from the SettingsService. It may load from a
   /// local database or the internet. The controller only knows it can load the
   /// settings from the service.
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-
+    _textScaleFactor = await _settingsService.textScaleFactor();
+    _fontFamily = await _settingsService.fontFamily();
     // Important! Inform listeners a change has occurred.
     notifyListeners();
   }
@@ -47,4 +58,21 @@ class SettingsController with ChangeNotifier {
     // SettingService.
     await _settingsService.updateThemeMode(newThemeMode);
   }
+
+  Future<void> updateTextScaleFactor(double? newScaleFactor) async {
+    if (newScaleFactor == null) return;
+    if (newScaleFactor == _textScaleFactor) return;
+    _textScaleFactor = newScaleFactor;
+    notifyListeners();
+    await _settingsService.updateTextScaleFactor(newScaleFactor);
+  }
+
+  Future<void> updateFontFamily(String? newFontFamily) async {
+    if (newFontFamily == null) return;
+    if (newFontFamily == _fontFamily) return;
+    _fontFamily = newFontFamily;
+    notifyListeners();
+    await _settingsService.updateFontFamily(newFontFamily);
+  }
+  
 }
