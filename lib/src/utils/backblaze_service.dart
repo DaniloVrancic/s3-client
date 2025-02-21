@@ -93,6 +93,20 @@ class BackblazeService {
     }
   }
 
+  Future<ListObjectsResult?> fetchAllObjects(String bucketName) async {
+
+    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName).toList();
+    
+    if(listOfObjects.isNotEmpty)
+    {
+      ListObjectsResult result = listOfObjects.first;
+      return result;
+    }
+    else{
+      return null;
+    }
+  }
+
    /// Uploads a new version of the user database, the List has a user in each line
   Future<bool> uploadNewDatabase(List<String> updatedUserList) async {
     try {

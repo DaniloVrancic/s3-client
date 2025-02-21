@@ -27,7 +27,7 @@ class HomePageWidget extends StatefulWidget {
   State<HomePageWidget> createState() => _HomePageWidgetState();
 }
 
-class _HomePageWidgetState extends State<HomePageWidget> {
+class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
   late List<Object> foundFiles = [];
@@ -41,6 +41,8 @@ class _HomePageWidgetState extends State<HomePageWidget> {
   }
 
   late Map<String, CloudObjectController> _controllers;
+  bool _isReloading = false;
+  late AnimationController _animationController;
 
   @override
   void initState() {
@@ -51,8 +53,15 @@ class _HomePageWidgetState extends State<HomePageWidget> {
     loggedUser = context.read<User>();
     userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
-    loadObjects(); // Initial loading of objects
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _reloadObjects(); // Initial loading of objects
     
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -63,6 +72,7 @@ void didChangeDependencies() {
 
   Future<void> loadObjects() async {
     List<Object> objects = await getAllBucketObjects(userBucket);
+    
     setState(() {
       foundFiles = objects;
     });
@@ -181,10 +191,8 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                
                 _handleDelete(loggedUser.username.toLowerCase(), myObject);
-                
-              },
+                },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
           ],
@@ -219,9 +227,26 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     }
   }
 
-  void refreshHomePage() {
-    loadObjects(); // Every time when I want to refresh, the only thing that will have changed are the objects in the bucket
+  // This method wraps loadObjects() with our loading logic.
+  Future<void> _reloadObjects() async {
+    if (_isReloading) return; // Guard against repeated presses.
+    setState(() {
+      _isReloading = true;
+    });
+    _animationController.repeat();
+    
+    try{
+      await loadObjects();
+    }
+    finally{
+      _animationController.stop();
+      setState(() {
+        _isReloading = false;
+      });
+    }
+    
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -230,7 +255,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
 
 
     if(changeFollower.needToGetObjects) {
-      refreshHomePage();
+      _reloadObjects();
       print("FETCHING OBJECTS NOW!");
       changeFollower.needToGetObjects = false;
     }
@@ -239,13 +264,24 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
       appBar: AppBar(
         title: const Text("Home"),
         actions: [
-          IconButton(onPressed: () =>
-                Navigator.push(
+          IconButton(onPressed: () async { await _reloadObjects(); },
+              
+              icon: _isReloading 
+                ? RotationTransition(
+                    turns: _animationController,
+                    child: const Icon(Icons.refresh),
+                  )
+                : const Icon(Icons.refresh),
+              ),
+          IconButton(onPressed: () => 
+             Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context)=> SearchPageWidget(objects: foundFiles,))
                 ),
               
-              icon: const Icon(Icons.search)),
+              icon: const Icon(Icons.search)
+              ),
+              
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -320,9 +356,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       );
                     },
                   ),
-                  
                 ],
-                
               ),
             ),
           const Divider(), // Divider above the user info
@@ -348,13 +382,12 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                     ),
                   ],
                 ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
         ),
       ),
-      
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Center(
@@ -398,21 +431,19 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                         onDelete: () async {
                           _showDeleteDialog(context, foundFiles[index]);
                         },
-
                         border: Border.all(
                           color: const Color.fromARGB(125, 226, 158, 11),
                           width: 1.25,
-                          ),
+                        ),
                         borderRadius: BorderRadius.circular(20.0),
                       );
                     },
                   ),
-          ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
-
 }

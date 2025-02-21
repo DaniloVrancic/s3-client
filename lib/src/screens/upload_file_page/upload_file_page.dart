@@ -95,7 +95,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
           selectedFiles.remove(pFile);
           return success;}, 
         onError: (error) {
-            print(error); 
+          // print(error); 
           return false;
           });
 
