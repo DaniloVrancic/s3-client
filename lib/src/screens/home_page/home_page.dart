@@ -8,6 +8,7 @@ import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
+import 'package:s3_client/src/models/storage_item.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
@@ -30,7 +31,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
-  late List<Object> foundFiles = [];
+  late List<StorageItem> foundFiles = [];
   late String userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
@@ -71,20 +72,33 @@ void didChangeDependencies() {
 }
 
   Future<void> loadObjects() async {
-    List<Object> objects = await getAllBucketObjects(userBucket);
+    List<StorageItem> objects = await getAllBucketObjects(userBucket);
     
     setState(() {
       foundFiles = objects;
     });
   }
 
-  Future<List<Object>> getAllBucketObjects(String bucket) async{
+  Future<List<StorageItem>> getAllBucketObjects(String bucket) async{
 
       ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket);
       list ??= ListObjectsResult(objects: [], prefixes: []); 
       
       List<Object> objectsList =  list.objects;
-      return objectsList;
+      List<String> prefixList = list.prefixes;
+
+      List<StorageItem> storageItemList = []; // A combination of objects and prefixes
+
+      for(String prefix in prefixList){
+        StorageItem newStorageItem = StorageItem(key: prefix, type: StorageItemType.directory);
+        storageItemList.add(newStorageItem);
+      }
+      for(Object object in objectsList){
+        StorageItem newStorageItem = StorageItem(key: object.key!, type: StorageItemType.file, fileObject: object);
+        storageItemList.add(newStorageItem);
+      }
+
+      return storageItemList;
   }
 
 /*
@@ -410,7 +424,13 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                     ),
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
-                      String fileKey = foundFiles[index].key.toString();
+ 
+                      String thisFileName = foundFiles[index].key;
+
+                      if(foundFiles[index].type == StorageItemType.file)
+                      {
+                        Object fileObject = foundFiles[index].fileObject!;
+                        String fileKey = fileObject.key.toString();
 
                       // Ensure that the controller is created for this file if not already done
                       if (!_controllers.containsKey(fileKey)) {
@@ -418,18 +438,17 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       }
 
                       CloudObjectController controller = _controllers[fileKey]!;
-                      String thisFileName = foundFiles[index].key!;
-                      return CloudObject(
+                        return CloudObject(
                         controller: controller,
-                        eTag: foundFiles[index].eTag,
-                        size: foundFiles[index].size,
-                        owner: foundFiles[index].owner,
-                        lastModified: foundFiles[index].lastModified,
-                        fileName: foundFiles[index].key.toString(),
-                        iconColor: listOfIconColors[foundFiles[index].hashCode % listOfIconColors.length],
+                        eTag: fileObject.eTag,
+                        size: fileObject.size,
+                        owner: fileObject.owner,
+                        lastModified: fileObject.lastModified,
+                        fileName: fileObject.key.toString(),
+                        iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
                         onDownload: () => _downloadFile(thisFileName, controller),
                         onDelete: () async {
-                          _showDeleteDialog(context, foundFiles[index]);
+                          _showDeleteDialog(context, fileObject);
                         },
                         border: Border.all(
                           color: const Color.fromARGB(125, 226, 158, 11),
@@ -437,6 +456,11 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                         ),
                         borderRadius: BorderRadius.circular(20.0),
                       );
+                      }
+                      else{
+                        //TODO: IMplement a widget for displaying directories and return it here
+                      }
+                      
                     },
                   ),
               ),
