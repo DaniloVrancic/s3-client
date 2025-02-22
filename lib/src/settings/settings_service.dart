@@ -14,4 +14,18 @@ class SettingsService {
     // Use the shared_preferences package to persist settings locally or the
     // http package to persist settings over the network.
   }
+
+  Future<double> textScaleFactor() async => 1.0;
+
+  Future<void> updateTextScaleFactor(double scale_factor) async {
+    // Use the shared_preferences package to persist settings locally or the
+  }
+
+  Future<String> fontFamily() async => 'default';
+
+  Future<void> updateFontFamily(String newFontFamily) async {
+    
+  }
+
+
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:s3_client/src/models/storage_item.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
@@ -13,7 +14,7 @@ import 'package:minio/models.dart';
 import 'package:path/path.dart' as path;
 
 class SearchPageWidget extends StatefulWidget {
-  final List<Object> objects;
+  final List<StorageItem> objects;
 
     const SearchPageWidget({
     super.key,
@@ -26,8 +27,8 @@ class SearchPageWidget extends StatefulWidget {
 
 class _SearchPageWidgetState extends State<SearchPageWidget> {
 
-  late List<Object> foundObjects = []; //for display which objects to show
-  late List<Object> allObjects = []; // to keep in memory all the existing files
+  late List<StorageItem> foundObjects = []; //for display which objects to show
+  late List<StorageItem> allObjects = []; // to keep in memory all the existing files
   late BackblazeService _b2service;
   late String userBucket;
   late User loggedUser;
@@ -98,10 +99,10 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
                       String thisFileName = foundObjects[index].key!;
                       return CloudObject(
                         controller: controller,
-                        eTag: foundObjects[index].eTag,
-                        size: foundObjects[index].size,
-                        owner: foundObjects[index].owner,
-                        lastModified: foundObjects[index].lastModified,
+                        eTag: foundObjects[index].fileObject?.eTag,
+                        size: foundObjects[index].fileObject?.size,
+                        owner: foundObjects[index].fileObject?.owner,
+                        lastModified: foundObjects[index].fileObject?.lastModified,
                         fileName: foundObjects[index].key.toString(),
                         iconColor: listOfIconColors[foundObjects[index].hashCode % listOfIconColors.length],
                         onDownload: () => _downloadFile(thisFileName, controller),
@@ -127,7 +128,7 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
   }
 
   Future<void> findObjects(String searchString) async {
-    List<Object> tempObjects = allObjects;
+    List<StorageItem> tempObjects = allObjects;
     tempObjects = tempObjects.where((object) => object.key!.contains(searchString)).toList();
 
     setState(() {
