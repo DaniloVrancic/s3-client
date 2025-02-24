@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class CloudDirectory extends StatefulWidget {
   final String fileName;
@@ -73,7 +74,7 @@ class _CloudDirectoryState extends State<CloudDirectory> {
             children: [
               Icon(
                 Icons.folder,
-                size: screenWidth * 0.15,
+                size: min(screenWidth * 0.15, 80),
                 color: widget.iconColor ?? Colors.orangeAccent,
               ),
               const SizedBox(height: 10),
@@ -84,7 +85,7 @@ class _CloudDirectoryState extends State<CloudDirectory> {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: screenWidth * 0.05,
+                  fontSize: min(screenWidth * 0.05, 24),
                 ),
               ),
               const SizedBox(height: 12),
