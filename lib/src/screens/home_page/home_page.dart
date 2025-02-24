@@ -31,7 +31,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
-  late List<StorageItem> foundFiles = [];
+  late List<Object> foundFiles = [];
   late String userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
@@ -72,33 +72,22 @@ void didChangeDependencies() {
 }
 
   Future<void> loadObjects() async {
-    List<StorageItem> objects = await getAllBucketObjects(userBucket);
+    List<Object> objects = await getAllBucketObjects(userBucket);
     
     setState(() {
       foundFiles = objects;
     });
   }
 
-  Future<List<StorageItem>> getAllBucketObjects(String bucket) async{
+  Future<List<Object>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
 
-      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket);
+      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
       list ??= ListObjectsResult(objects: [], prefixes: []); 
       
       List<Object> objectsList =  list.objects;
-      List<String> prefixList = list.prefixes;
 
-      List<StorageItem> storageItemList = []; // A combination of objects and prefixes
-
-      for(String prefix in prefixList){
-        StorageItem newStorageItem = StorageItem(key: prefix, type: StorageItemType.directory);
-        storageItemList.add(newStorageItem);
-      }
-      for(Object object in objectsList){
-        StorageItem newStorageItem = StorageItem(key: object.key!, type: StorageItemType.file, fileObject: object);
-        storageItemList.add(newStorageItem);
-      }
-
-      return storageItemList;
+    
+      return objectsList;
   }
 
 /*
@@ -270,9 +259,35 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
 
     if(changeFollower.needToGetObjects) {
       _reloadObjects();
-      print("FETCHING OBJECTS NOW!");
       changeFollower.needToGetObjects = false;
     }
+
+
+
+    // IN THIS PART I WANT TO FILTER OUT THE TOP LEVEL FILES AND DIRECTORIES OF MY HOME PAGE
+    List<Object> topLevelObjects = [];
+    Set<String> topLevelDirectories = {};
+
+
+    for(Object foundObject in foundFiles) {
+      
+      if(foundObject.key!.contains("/"))
+      {
+        topLevelDirectories.add(foundObject.key!.split("/").first);
+      }
+      else{
+          topLevelObjects.add(foundObject);
+        
+      }
+    }
+
+    topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+      return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
+    });
+
+
+
+    // END OF TOP LEVEL FILTERING
 
     return Scaffold(
       appBar: AppBar(
@@ -410,7 +425,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-            child: foundFiles.isEmpty
+            child: (topLevelDirectories.isEmpty && topLevelObjects.isEmpty)
                 ? const Center(
                     child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
                   )
@@ -425,11 +440,10 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                     itemCount: foundFiles.length,
                     itemBuilder: (context, index) {
  
-                      String thisFileName = foundFiles[index].key;
+                      String thisFileName = foundFiles[index].key!;
 
-                      if(foundFiles[index].type == StorageItemType.file)
-                      {
-                        Object fileObject = foundFiles[index].fileObject!;
+                      
+                        Object fileObject = foundFiles[index];
                         String fileKey = fileObject.key.toString();
 
                       // Ensure that the controller is created for this file if not already done
@@ -456,10 +470,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                         ),
                         borderRadius: BorderRadius.circular(20.0),
                       );
-                      }
-                      else{
-                        //TODO: IMplement a widget for displaying directories and return it here
-                      }
+                      
                       
                     },
                   ),
