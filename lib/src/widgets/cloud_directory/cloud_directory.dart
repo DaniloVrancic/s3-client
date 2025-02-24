@@ -19,69 +19,100 @@ class CloudDirectory extends StatefulWidget {
 }
 
 class _CloudDirectoryState extends State<CloudDirectory> {
-  bool _isSelected = false;
+  bool _isTapped = false;
 
   void _onTap() {
     setState(() {
-      _isSelected = !_isSelected;
+      _isTapped = true;
     });
     widget.onClick?.call();
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (mounted) {
+        setState(() {
+          _isTapped = false;
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
 
+    // Use the same border as CloudObject:
+    final border = Border.all(
+      color: const Color.fromARGB(125, 226, 158, 11),
+      width: 1.25,
+    );
+    final borderRadius = BorderRadius.circular(20.0);
+
     return GestureDetector(
       onTap: _onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        transform: Matrix4.translationValues(0, _isSelected ? 4 : 0, 0),
+        transform: Matrix4.translationValues(0, _isTapped ? 8 : 0, 0),
         decoration: BoxDecoration(
-          color: _isSelected ? Colors.orangeAccent.withValues(alpha: 0.6) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            if (_isSelected)
-              BoxShadow(
-                color: Colors.orangeAccent.withValues(alpha: 0.6),
-                blurRadius: 10,
-                spreadRadius: 2,
-              ),
-          ],
+          
+          border: border,
+          borderRadius: borderRadius,
+          // Optionally, you can have a subtle shadow when tapped:
+          boxShadow: _isTapped
+              ? [
+                  BoxShadow(
+                    color: Colors.orangeAccent.withValues(alpha: 0.6),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ]
+              : null,
         ),
-        child: Card(
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 5),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.folder,
+                size: screenWidth * 0.15,
+                color: widget.iconColor ?? Colors.orangeAccent,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                widget.fileName,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: screenWidth * 0.05,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.delete, color: Colors.white),
+                    label: const Text(
+                      "Delete",
+                      style: TextStyle(color: Colors.white),
+                    ),
                     onPressed: widget.onDelete,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.folder,
-                  size: screenWidth * 0.15,
-                  color: widget.iconColor ?? Colors.orangeAccent,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  widget.fileName,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: screenWidth * 0.05,
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ),
         ),
       ),

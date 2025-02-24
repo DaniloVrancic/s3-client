@@ -8,8 +8,8 @@ import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
-import 'package:s3_client/src/models/storage_item.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
@@ -17,6 +17,7 @@ import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
+import 'package:s3_client/src/widgets/cloud_directory/cloud_directory.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
 
@@ -277,16 +278,32 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
       }
       else{
           topLevelObjects.add(foundObject);
-        
       }
     }
+    
 
     topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
       return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
     });
 
 
+    List<HomePageItem> itemsToDisplay = []; // Will Contain the List of All Top Level Entities to Print Out
 
+    itemsToDisplay.addAll(
+      topLevelDirectories
+          .map((directory) => HomePageItem.directory(directory))
+          .toList()
+          ..sort((a, b) => a.directoryName!.compareTo(b.directoryName!))
+    );
+
+    itemsToDisplay.addAll(
+      topLevelObjects
+        .map((Object object) => HomePageItem.object(object))
+        .toList()
+        ..sort((HomePageItem a, HomePageItem b) => a.object!.key!.compareTo(b.object!.key!))
+    );
+
+    
     // END OF TOP LEVEL FILTERING
 
     return Scaffold(
@@ -425,7 +442,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-            child: (topLevelDirectories.isEmpty && topLevelObjects.isEmpty)
+            child: (itemsToDisplay.isEmpty)
                 ? const Center(
                     child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
                   )
@@ -437,39 +454,52 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       crossAxisSpacing: 10.0,
                       childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
                     ),
-                    itemCount: foundFiles.length,
+                    itemCount: itemsToDisplay.length,
                     itemBuilder: (context, index) {
- 
-                      String thisFileName = foundFiles[index].key!;
-
                       
-                        Object fileObject = foundFiles[index];
+                      if(itemsToDisplay[index].type == HomePageItemType.object)
+                      {
+                        String thisFileName = itemsToDisplay[index].object!.key!;
+
+                        Object fileObject = itemsToDisplay[index].object!;
                         String fileKey = fileObject.key.toString();
 
-                      // Ensure that the controller is created for this file if not already done
-                      if (!_controllers.containsKey(fileKey)) {
-                        _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
-                      }
+                        // Ensure that the controller is created for this file if not already done
+                        if (!_controllers.containsKey(fileKey)) {
+                          _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
+                        }
+                        CloudObjectController controller = _controllers[fileKey]!; // For measuring download progress
 
-                      CloudObjectController controller = _controllers[fileKey]!;
                         return CloudObject(
-                        controller: controller,
-                        eTag: fileObject.eTag,
-                        size: fileObject.size,
-                        owner: fileObject.owner,
-                        lastModified: fileObject.lastModified,
-                        fileName: fileObject.key.toString(),
-                        iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
-                        onDownload: () => _downloadFile(thisFileName, controller),
-                        onDelete: () async {
-                          _showDeleteDialog(context, fileObject);
+                          controller: controller,
+                          eTag: fileObject.eTag,
+                          size: fileObject.size,
+                          owner: fileObject.owner,
+                          lastModified: fileObject.lastModified,
+                          fileName: fileObject.key.toString(),
+                          iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
+                          onDownload: () => _downloadFile(thisFileName, controller),
+                          onDelete: () async {
+                            _showDeleteDialog(context, fileObject);
+                          },
+                          border: Border.all(
+                            color: const Color.fromARGB(125, 226, 158, 11),
+                            width: 1.25,
+                          ),
+                          borderRadius: BorderRadius.circular(20.0),
+                        );
+                      } // end of if(type is Object)
+                      else{  //  In case the next item is a directory, do this segment
+                        String directoryName = itemsToDisplay[index].directoryName!;
+
+                        return CloudDirectory(fileName: directoryName, 
+                        onClick: () {
+                          print("Clicked ${directoryName}");
                         },
-                        border: Border.all(
-                          color: const Color.fromARGB(125, 226, 158, 11),
-                          width: 1.25,
-                        ),
-                        borderRadius: BorderRadius.circular(20.0),
-                      );
+                        onDelete: () {},
+                        iconColor: Colors.yellow.shade300,
+                        );
+                      }   //  end of else
                       
                       
                     },
