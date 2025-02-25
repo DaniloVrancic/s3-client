@@ -259,7 +259,7 @@ String getNameWithoutPrefix(String name){
 
 
     if(changeFollower.needToGetObjects) {
-      print("RELOADING OBJECTS!");
+      print("RELOADING OBJECTS!");  //FOR DEBUGGING PURPOSES
       _reloadObjects();
       changeFollower.needToGetObjects = false;
     }
