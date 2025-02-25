@@ -17,10 +17,12 @@ import 'package:path/path.dart' as path;
 class DirectoryPageWidget extends StatefulWidget {
 
   final String prefix;
+  late List<Object> foundFiles; 
 
-  const DirectoryPageWidget({
+  DirectoryPageWidget({
     super.key,
-    required this.prefix
+    required this.prefix,
+    required this.foundFiles
     });
 
   @override
@@ -56,8 +58,10 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     userBucket = loggedUser.username.toLowerCase();
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
-    _reloadObjects(); // Initial loading of objects
     
+     foundFiles = widget.foundFiles
+      .where((object) => object.key != null && object.key!.startsWith(widget.prefix))
+      .toList();  //  Filtered out only those who start with the given prefix
   }
 
   @override
@@ -136,7 +140,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                //handleDelete(loggedUser.username.toLowerCase(), myObject);
+                handleDelete(loggedUser.username.toLowerCase(), myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -144,6 +148,32 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
         );
       },
     );
+  }
+
+  Future<bool> handleDelete(String bucket, Object myObject) async{
+    bool success = await _b2service.deleteObject(
+      bucket: bucket,
+      objectName: myObject.key!
+      );
+
+    if(success)
+    {
+      setState(()
+    {
+      foundFiles.removeWhere((o) {
+        return o == myObject;
+      });
+    });
+    SnackbarShower.showSnackbar(
+      context: context, 
+      message: "File ${myObject.key} deleted successfully!", 
+      color: Colors.green.shade400);
+    changeFollower.needToGetObjects = true;
+    return true;
+    }
+    else{
+      return false;
+    }
   }
 
   Future<void> requestPermission() async {
@@ -227,13 +257,12 @@ String getNameWithoutPrefix(String name){
     ThemeData theme = Theme.of(context);
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
 
+
     if(changeFollower.needToGetObjects) {
+      print("RELOADING OBJECTS!");
       _reloadObjects();
       changeFollower.needToGetObjects = false;
     }
-
-    print("FOUND FILES");
-   // foundFiles.forEach((file) => print(file));
 
     List<Object> topLevelObjects = [];
     Set<String> topLevelDirectories = {};
@@ -343,7 +372,7 @@ String getNameWithoutPrefix(String name){
                         onClick: () {
                                        Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: widget.prefix + "/" +directoryName,))
+                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: widget.prefix + "/" +directoryName, foundFiles: widget.foundFiles,))
                                        );
                         },
                         onDelete: () {},

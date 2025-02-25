@@ -501,7 +501,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
                         onClick: () {
                          Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: directoryName,))
+                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: directoryName, foundFiles: foundFiles,))
                                        );
                         },
                         onDelete: () {},
