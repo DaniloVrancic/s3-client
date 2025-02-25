@@ -12,7 +12,6 @@ import 'package:s3_client/src/widgets/file_item/file_item.dart';
 class UploadFilePage extends StatefulWidget {
   const UploadFilePage({super.key});
 
-
   @override
   State<UploadFilePage> createState() => _UploadFilePageState();
 }

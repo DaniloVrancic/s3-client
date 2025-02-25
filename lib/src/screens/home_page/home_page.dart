@@ -9,6 +9,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/directory_page/directory_page.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
@@ -22,7 +23,9 @@ import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
 
 class HomePageWidget extends StatefulWidget {
-  const HomePageWidget({super.key});
+  const HomePageWidget({
+    super.key
+    });
   
 
   @override
@@ -335,8 +338,6 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
           //ScaffoldMessenger.of(context).showSnackBar(
           //const SnackBar(content: Text('File successfully uploaded')),
           //)
-
-          
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context)=> const UploadFilePage())
@@ -494,7 +495,10 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
 
                         return CloudDirectory(fileName: directoryName, 
                         onClick: () {
-                          print("Clicked ${directoryName}");
+                         Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: directoryName,))
+                                       );
                         },
                         onDelete: () {},
                         iconColor: Colors.yellow.shade300,
