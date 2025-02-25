@@ -266,8 +266,6 @@ String getNameWithoutPrefix(String name){
 
     List<Object> topLevelObjects = [];
     Set<String> topLevelDirectories = {};
-    int numOfDirectories = 0;
-    int numOfFiles = 0;
 
     for(Object foundObject in foundFiles) {
       String foundObjectString = foundObject.key!;
@@ -276,11 +274,9 @@ String getNameWithoutPrefix(String name){
       if(pathWithoutPrefix.contains("/"))
       {
          topLevelDirectories.add(pathWithoutPrefix.split("/").first);
-         numOfDirectories++;
       }
       else{
           topLevelObjects.add(foundObject);
-          numOfFiles++;
       }
     }
     
@@ -320,7 +316,7 @@ String getNameWithoutPrefix(String name){
               Expanded(
             child: (itemsToDisplay.isEmpty)
                 ? const Center(
-                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
+                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),), // TODO: Add another check here to see if the page is reloading, if it is reloading make a loading spinner active
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),

@@ -253,6 +253,46 @@ void showDeleteDialog(BuildContext context, Object myObject) {
     }
     
   }
+
+  Future<void> _showAddDirectoryDialog() async {
+  final TextEditingController _directoryNameController = TextEditingController();
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Add Directory"),
+        content: TextField(
+          autofocus: true,
+          controller: _directoryNameController,
+          decoration: const InputDecoration(
+            hintText: "Enter directory name",
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              final folderName = _directoryNameController.text.trim();
+              if (folderName.isNotEmpty) {
+                // TODO: Implement directory creation logic here
+                SnackbarShower.showSnackbar(
+                  context: context,
+                  message: "Directory '$folderName' created.",
+                  color: Colors.green.shade300,
+                );
+              }
+              Navigator.of(context).pop();
+            },
+            child: const Text("Add"),
+          ),
+        ],
+      );
+    },
+  );
+}
   
 
   @override
