@@ -119,7 +119,7 @@ Future<void> requestPermission() async {
 }
 
 
-Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
+Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
 
   // Open file picker to select a directory
@@ -131,7 +131,7 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
     // Ensure path is correctly joined
     String savePath = path.join(directoryPath, fileName);
 
-    print("FINAL SELECTED PATH: $savePath");
+    // print("FINAL SELECTED PATH: $savePath");
 
     try {
       bool success = await _b2service.downloadFileWithProgress(
@@ -173,7 +173,7 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
   }
 }
 
-void _showDeleteDialog(BuildContext context, Object myObject) {
+void showDeleteDialog(BuildContext context, Object myObject) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -198,7 +198,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _handleDelete(loggedUser.username.toLowerCase(), myObject);
+                handleDelete(loggedUser.username.toLowerCase(), myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -208,7 +208,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     );
   }
 
-  Future<bool> _handleDelete(String bucket, Object myObject) async{
+  Future<bool> handleDelete(String bucket, Object myObject) async{
     bool success = await _b2service.deleteObject(
       bucket: bucket,
       objectName: myObject.key!
@@ -360,7 +360,11 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       color: Colors.orange,
                       gradient: LinearGradient(colors: [
                   Color.fromARGB(255, 228, 58, 11),
-                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
+                              (
+                                theme.brightness == Brightness.light) ? 
+                                Color.fromARGB(235, 245, 145, 30) 
+                                : 
+                                Color.fromARGB(174, 50, 20, 5),
                 ])
                     ),
                     child: Text("Menu",
@@ -479,9 +483,9 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                           lastModified: fileObject.lastModified,
                           fileName: fileObject.key.toString(),
                           iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
-                          onDownload: () => _downloadFile(thisFileName, controller),
+                          onDownload: () => downloadFile(thisFileName, controller),
                           onDelete: () async {
-                            _showDeleteDialog(context, fileObject);
+                            showDeleteDialog(context, fileObject);
                           },
                           border: Border.all(
                             color: const Color.fromARGB(125, 226, 158, 11),
