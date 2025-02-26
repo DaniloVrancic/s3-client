@@ -302,7 +302,13 @@ Future<void> _createDirectory(String directoryName) async {
 
     _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
               .then((bool success) { 
-                if(success){_reloadObjects();}
+                if(success){
+                    _reloadObjects();
+                    SnackbarShower.showSnackbar(
+                      context: context, 
+                      color: Colors.green.shade300, 
+                      message: "Directory created.");
+                    }
                   }
                 );
 }

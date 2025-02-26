@@ -380,7 +380,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
           //)
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=> const UploadFilePage())
+                  MaterialPageRoute(builder: (context)=> const UploadFilePage(prefix: "",))
                 )
         },
         tooltip: "Add File",
