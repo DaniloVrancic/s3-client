@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
+import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -292,8 +293,6 @@ Future<void> _showAddDirectoryDialog() async {
   );
 }
 
-
-// Example function for directory creation:
 Future<void> _createDirectory(String directoryName) async {
     const String emptyFileName = ".bzEmpty";
     String fullFilePath = directoryName + emptyFileName;
@@ -367,7 +366,7 @@ String getNameWithoutPrefix(String name){
       );
 
     List<String> prefixTokens = widget.prefix.split("/");
-    String titleToShow = "";
+    String titleToShow = widget.prefix;
     if(prefixTokens.length > 3){
       titleToShow = "${prefixTokens.first}/.../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
     }
@@ -378,36 +377,38 @@ String getNameWithoutPrefix(String name){
           title: Text(
             titleToShow,
             overflow: TextOverflow.ellipsis,
-          ),
-      ),
-      floatingActionButton: Column(
-  mainAxisSize: MainAxisSize.min,
-  crossAxisAlignment: CrossAxisAlignment.end,
-  children: [
-    FloatingActionButton(
-      heroTag: 'addFile',
-      onPressed: () {
-        // TODO: Implement file upload into this directory.
-        // For example, navigate to the UploadFilePage or call a file picker.
-      },
-      tooltip: 'Add File',
-      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
-      child: const Icon(Icons.attach_file),
-      isExtended: true,
-    ),
-    const SizedBox(height: 16),
-    FloatingActionButton(
-      heroTag: 'addDirectory',
-      onPressed: () {
-       
-        _showAddDirectoryDialog();
-      },
-      tooltip: 'Add Directory',
-      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
-      child: const Icon(Icons.create_new_folder),
-    ),
-  ],
-),
+                ),
+            ),
+          floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'addFile',
+              onPressed: () {
+                String prefixToInitialize = (widget.prefix.isNotEmpty) ? "${widget.prefix}/" : "";
+                Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context)=> UploadFilePage(prefix: prefixToInitialize))
+                          );
+                        },
+                      tooltip: 'Add File',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.attach_file),
+                    ),
+                    const SizedBox(height: 16),
+                    FloatingActionButton(
+                      heroTag: 'addDirectory',
+                      onPressed: () {
+                      
+                        _showAddDirectoryDialog();
+                      },
+                      tooltip: 'Add Directory',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.create_new_folder),
+                    ),
+                  ],
+        ),
 
        body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -417,7 +418,9 @@ String getNameWithoutPrefix(String name){
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-            child: (itemsToDisplay.isEmpty)
+            child: _isReloading 
+             ? const CircularProgressIndicator(color: Colors.orangeAccent, ) 
+             : (itemsToDisplay.isEmpty)
                 ? const Center(
                     child: Text("No files found.", style: TextStyle(fontSize: 20.0),), //TODO: Add another check here to see if the page is reloading, if it is reloading make a loading spinner active
                   )

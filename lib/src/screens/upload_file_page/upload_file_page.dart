@@ -209,7 +209,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
                     ),
                   )
         :
@@ -236,7 +236,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
                     ),
                   ) 
         :

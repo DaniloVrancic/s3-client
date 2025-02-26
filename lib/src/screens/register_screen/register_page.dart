@@ -329,7 +329,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
                           ),
                           child: Center(
                             child: _isLoading 
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const CircularProgressIndicator(color: Colors.orange)
                             : const Text(
                                         "REGISTER",
                                         style: TextStyle(

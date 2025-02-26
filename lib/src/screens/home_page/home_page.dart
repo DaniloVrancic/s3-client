@@ -1,9 +1,11 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -254,39 +256,65 @@ void showDeleteDialog(BuildContext context, Object myObject) {
     
   }
 
+Future<void> _createDirectory(String directoryName) async {
+    const String emptyFileName = ".bzEmpty";
+    String fullFilePath = directoryName + emptyFileName;
+
+    Uint8List emptyList = Uint8List.fromList([]);
+
+    _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
+              .then((bool success) { 
+                if(success){
+                    _reloadObjects();
+                    SnackbarShower.showSnackbar(
+                      context: context, 
+                      color: Colors.green.shade300, 
+                      message: "Directory created.");
+                    }
+                  }
+                );
+}
   Future<void> _showAddDirectoryDialog() async {
-  final TextEditingController _directoryNameController = TextEditingController();
+  final TextEditingController directoryNameController = TextEditingController();
+  
   return showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: const Text("Add Directory"),
         content: TextField(
+          controller: directoryNameController,
           autofocus: true,
-          controller: _directoryNameController,
           decoration: const InputDecoration(
             hintText: "Enter directory name",
           ),
+          inputFormatters: [
+            // Only allow alphanumeric characters
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+          ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel"),
+            onPressed: () {
+              Navigator.of(context).pop(); // Cancel button: close the dialog.
+            },
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            ),
           ),
           TextButton(
-            onPressed: () {
-              final folderName = _directoryNameController.text.trim();
-              if (folderName.isNotEmpty) {
-                // TODO: Implement directory creation logic here
-                SnackbarShower.showSnackbar(
-                  context: context,
-                  message: "Directory '$folderName' created.",
-                  color: Colors.green.shade300,
-                );
+            onPressed: () async {
+              final String dirName = directoryNameController.text.trim();
+              if (dirName.isNotEmpty) {
+                await _createDirectory( dirName + '/');
               }
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(); // Close the dialog after confirming.
             },
-            child: const Text("Add"),
+            child: const Text(
+              "Confirm",
+              style: TextStyle(color: Colors.green),
+            ),
           ),
         ],
       );
@@ -373,20 +401,34 @@ void showDeleteDialog(BuildContext context, Object myObject) {
               
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {
-          //ScaffoldMessenger.of(context).showSnackBar(
-          //const SnackBar(content: Text('File successfully uploaded')),
-          //)
+      floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'addFile',
+              onPressed: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=> const UploadFilePage(prefix: "",))
-                )
-        },
-        tooltip: "Add File",
-        backgroundColor: const Color.fromARGB(150, 210, 100, 10),
-        child: const Icon(Icons.add)
-      ),
+                          context,
+                          MaterialPageRoute(builder: (context)=> UploadFilePage())
+                          );
+                        },
+                      tooltip: 'Add File',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.attach_file),
+                    ),
+                    const SizedBox(height: 16),
+                    FloatingActionButton(
+                      heroTag: 'addDirectory',
+                      onPressed: () {
+                        _showAddDirectoryDialog();
+                      },
+                      tooltip: 'Add Directory',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.create_new_folder),
+                    ),
+                  ],
+        ),
       
       drawer: Drawer(
         child: Column(
