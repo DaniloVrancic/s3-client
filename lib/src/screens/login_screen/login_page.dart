@@ -26,8 +26,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     if (value == null || value.isEmpty) {
       return 'Username cannot be empty';
     }
-    if (value.length < 4) {
-      return 'Username must be at least 4 characters';
+    if (value.length < 6) {
+      return 'Username must be at least 6 characters';
     }
     return null;
   }

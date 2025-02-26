@@ -202,7 +202,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
     children: [
       ElevatedButton.icon(
         onPressed: _isUploading ? null : _pickMultipleFiles,
-        icon: _isUploading 
+        icon: _isUploading
         ? 
         const SizedBox(
                     width: 18,
@@ -228,7 +228,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
         ),
       ),
       ElevatedButton.icon(
-        onPressed: _isUploading ? null : _startUploadProcess,
+        onPressed: (_isUploading || selectedFiles.isEmpty) ? null : _startUploadProcess,
         icon: _isUploading 
         ?
         const SizedBox(
