@@ -10,7 +10,12 @@ import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class UploadFilePage extends StatefulWidget {
-  const UploadFilePage({super.key});
+  final String prefix;
+
+  const UploadFilePage({
+    super.key,
+    this.prefix = ""
+    });
 
   @override
   State<UploadFilePage> createState() => _UploadFilePageState();
@@ -49,7 +54,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
       }); 
     }
     else{
-      //User cancelled the picker
+      // User cancelled the picker
     }
   }
 
@@ -72,7 +77,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
       Future<bool> uploadTask = _b2Service.uploadFile(
         pFile.path!, 
         loggedUser.username.toLowerCase(), 
-        pFile.name)
+        widget.prefix + pFile.name)
       .then(
         (bool success) {
           if(success){

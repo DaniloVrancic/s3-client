@@ -383,7 +383,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
                   MaterialPageRoute(builder: (context)=> const UploadFilePage())
                 )
         },
-        tooltip: "Upload File",
+        tooltip: "Add File",
         backgroundColor: const Color.fromARGB(150, 210, 100, 10),
         child: const Icon(Icons.add)
       ),

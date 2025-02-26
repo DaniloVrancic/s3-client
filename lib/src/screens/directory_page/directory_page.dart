@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -17,7 +18,7 @@ import 'package:path/path.dart' as path;
 class DirectoryPageWidget extends StatefulWidget {
 
   final String prefix;
-  late List<Object> foundFiles; 
+  final List<Object> foundFiles; 
 
   DirectoryPageWidget({
     super.key,
@@ -39,10 +40,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
 
   List<HomePageItem> itemsToDisplay = []; // Will Contain the List of All Top Level Entities to Print Out
 
-  void requestFileUpload() {
-    
-    return;
-  }
+
 
   late Map<String, CloudObjectController> _controllers;
   bool _isReloading = false;
@@ -246,11 +244,72 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
   }
 }
 
-String getNameWithoutPrefix(String name){
-  return name.replaceFirst(RegExp("${widget.prefix}/"), "");
+Future<void> _showAddDirectoryDialog() async {
+  final TextEditingController directoryNameController = TextEditingController();
+  
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Add Directory"),
+        content: TextField(
+          controller: directoryNameController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: "Enter directory name",
+          ),
+          inputFormatters: [
+            // Only allow alphanumeric characters
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cancel button: close the dialog.
+            },
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final String dirName = directoryNameController.text.trim();
+              if (dirName.isNotEmpty) {
+                await _createDirectory(widget.prefix + '/' + dirName + '/');
+              }
+              Navigator.of(context).pop(); // Close the dialog after confirming.
+            },
+            child: const Text(
+              "Confirm",
+              style: TextStyle(color: Colors.green),
+            ),
+          ),
+        ],
+      );
+    },
+  );
 }
 
 
+// Example function for directory creation:
+Future<void> _createDirectory(String directoryName) async {
+    const String emptyFileName = ".bzEmpty";
+    String fullFilePath = directoryName + emptyFileName;
+
+    Uint8List emptyList = Uint8List.fromList([]);
+
+    _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
+              .then((bool success) { 
+                if(success){_reloadObjects();}
+                  }
+                );
+}
+
+String getNameWithoutPrefix(String name){
+  return name.replaceFirst(RegExp("${widget.prefix}/"), "");
+}
 
   @override
   Widget build(BuildContext context) {
@@ -259,7 +318,7 @@ String getNameWithoutPrefix(String name){
 
 
     if(changeFollower.needToGetObjects) {
-      print("RELOADING OBJECTS!");  //FOR DEBUGGING PURPOSES
+      print("RELOADING OBJECTS!");  // FOR DEBUGGING PURPOSES
       _reloadObjects();
       changeFollower.needToGetObjects = false;
     }
@@ -279,7 +338,6 @@ String getNameWithoutPrefix(String name){
           topLevelObjects.add(foundObject);
       }
     }
-    
 
     topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
       return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
@@ -301,13 +359,52 @@ String getNameWithoutPrefix(String name){
           .toList()
           ..sort((HomePageItem a, HomePageItem b) => a.object!.key!.compareTo(b.object!.key!))
       );
+
+    List<String> prefixTokens = widget.prefix.split("/");
+    String titleToShow = "";
+    if(prefixTokens.length > 3){
+      titleToShow = "${prefixTokens.first}/.../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
+    }
+    
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Directory"),
+          title: Text(
+            titleToShow,
+            overflow: TextOverflow.ellipsis,
+          ),
       ),
+      floatingActionButton: Column(
+  mainAxisSize: MainAxisSize.min,
+  crossAxisAlignment: CrossAxisAlignment.end,
+  children: [
+    FloatingActionButton(
+      heroTag: 'addFile',
+      onPressed: () {
+        // TODO: Implement file upload into this directory.
+        // For example, navigate to the UploadFilePage or call a file picker.
+      },
+      tooltip: 'Add File',
+      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+      child: const Icon(Icons.attach_file),
+      isExtended: true,
+    ),
+    const SizedBox(height: 16),
+    FloatingActionButton(
+      heroTag: 'addDirectory',
+      onPressed: () {
+       
+        _showAddDirectoryDialog();
+      },
+      tooltip: 'Add Directory',
+      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+      child: const Icon(Icons.create_new_folder),
+    ),
+  ],
+),
+
        body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Center(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -316,7 +413,7 @@ String getNameWithoutPrefix(String name){
               Expanded(
             child: (itemsToDisplay.isEmpty)
                 ? const Center(
-                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),), // TODO: Add another check here to see if the page is reloading, if it is reloading make a loading spinner active
+                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),), //TODO: Add another check here to see if the page is reloading, if it is reloading make a loading spinner active
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
@@ -371,12 +468,12 @@ String getNameWithoutPrefix(String name){
                                         MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: widget.prefix + "/" +directoryName, foundFiles: widget.foundFiles,))
                                        );
                         },
-                        onDelete: () {},
+                        onDelete: () // Cloud Directory on Delete function
+                        {
+                        },
                         iconColor: Colors.yellow.shade300,
                         );
                       }   //  end of else
-                      
-                      
                     },
                   ),
               ),
