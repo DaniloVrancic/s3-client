@@ -19,7 +19,7 @@ import 'package:path/path.dart' as path;
 class DirectoryPageWidget extends StatefulWidget {
 
   final String prefix;
-  List<Object> foundFiles; 
+  final List<Object> foundFiles; 
 
   DirectoryPageWidget({
     super.key,
@@ -114,7 +114,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     
   }
 
-  void showDeleteDialog(BuildContext context, Object myObject) {
+  void showDeleteDialog(BuildContext context, Object myObject) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -313,10 +313,10 @@ Future<void> _createDirectory(String directoryName) async {
 }
 
 
-    void showDeleteDirectoryDialog(BuildContext context, String myDir) {
+    void showDeleteDirectoryDialog(BuildContext context, String myDir) async {
       String fullDirectory = "${widget.prefix}/$myDir/";
       List<Object> objectsFromDirectory = widget.foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
-    showDialog(
+     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -428,7 +428,18 @@ String getNameWithoutPrefix(String name){
             titleToShow,
             overflow: TextOverflow.ellipsis,
                 ),
+          actions: [
+          IconButton(onPressed: () async { await _reloadObjects(); },
+              
+              icon: _isReloading 
+                ? RotationTransition(
+                    turns: _animationController,
+                    child: const Icon(Icons.refresh),
+                  )
+                : const Icon(Icons.refresh),
+              ),]
             ),
+            
           floatingActionButton: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
