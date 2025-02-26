@@ -175,6 +175,25 @@ Future<void> downloadFile(String fileName, CloudObjectController controller) asy
   }
 }
 
+  // This method wraps loadObjects() with our loading logic.
+  Future<void> _reloadObjects() async {
+    if (_isReloading) return; // Guard against repeated presses.
+    setState(() {
+      _isReloading = true;
+    });
+    _animationController.repeat();
+    
+    try{
+      await loadObjects();
+    }
+    finally{
+      _animationController.stop();
+      setState(() {
+        _isReloading = false;
+      });
+    }
+  }
+
 void showDeleteDialog(BuildContext context, Object myObject) {
     showDialog(
       context: context,
@@ -185,7 +204,6 @@ void showDeleteDialog(BuildContext context, Object myObject) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const Text("Are you sure you wish to delete this object from storage?"),
               const Text("(Deleted Storage items can't be retrieved)"),
               const SizedBox(height: 10.0,),
@@ -200,7 +218,59 @@ void showDeleteDialog(BuildContext context, Object myObject) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                handleDelete(loggedUser.username.toLowerCase(), myObject);
+                handleDelete(userBucket, myObject);
+                },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showDeleteDirectoryDialog(BuildContext context, String myDir) {
+      String fullDirectory = "$myDir/";
+      List<Object> objectsFromDirectory = foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Warning"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const Text("Are you sure you wish to delete this directory from storage?"),
+              const Text("(All subdirectories will also be deleted.)"),
+              const SizedBox(height: 10.0,),
+              Text("Name: $myDir")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                
+                
+                
+
+                List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
+                _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
+                          .then((bool success) 
+                          { 
+                            if(success){
+                              _reloadObjects();
+                              SnackbarShower.showSnackbar(context: context, color: Colors.green.shade300, message: "Successfully deleted objects.");
+                            }
+                            else{
+                              SnackbarShower.showSnackbar(context: context, color: Colors.red.shade400, message: "Failed deleting objects.");
+                            }
+                           });
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -236,25 +306,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
     }
   }
 
-  // This method wraps loadObjects() with our loading logic.
-  Future<void> _reloadObjects() async {
-    if (_isReloading) return; // Guard against repeated presses.
-    setState(() {
-      _isReloading = true;
-    });
-    _animationController.repeat();
-    
-    try{
-      await loadObjects();
-    }
-    finally{
-      _animationController.stop();
-      setState(() {
-        _isReloading = false;
-      });
-    }
-    
-  }
+
 
 Future<void> _createDirectory(String directoryName) async {
     const String emptyFileName = ".bzEmpty";
@@ -586,7 +638,10 @@ Future<void> _createDirectory(String directoryName) async {
                                         MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: directoryName, foundFiles: foundFiles,))
                                        );
                         },
-                        onDelete: () {},
+                        onDelete: () // Cloud Directory on Delete function
+                        {
+                          showDeleteDirectoryDialog(context, directoryName);
+                        },
                         iconColor: Colors.yellow.shade300,
                         );
                       }   //  end of else

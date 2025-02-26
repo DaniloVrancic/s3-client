@@ -274,7 +274,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                           ),
                           child: Center(
                             child: _isLoading 
-                            ? const CircularProgressIndicator(color: Colors.orange,)
+                            ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
                             : Text(
                               "LOG IN",
                               style: TextStyle(

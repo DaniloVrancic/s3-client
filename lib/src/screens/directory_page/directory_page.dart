@@ -19,7 +19,7 @@ import 'package:path/path.dart' as path;
 class DirectoryPageWidget extends StatefulWidget {
 
   final String prefix;
-  final List<Object> foundFiles; 
+  List<Object> foundFiles; 
 
   DirectoryPageWidget({
     super.key,
@@ -139,7 +139,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                handleDelete(loggedUser.username.toLowerCase(), myObject);
+                handleDelete(userBucket, myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -312,6 +312,57 @@ Future<void> _createDirectory(String directoryName) async {
                 );
 }
 
+
+    void showDeleteDirectoryDialog(BuildContext context, String myDir) {
+      String fullDirectory = "${widget.prefix}/$myDir/";
+      List<Object> objectsFromDirectory = widget.foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Warning"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const Text("Are you sure you wish to delete this directory from storage?"),
+              const Text("(All subdirectories will also be deleted.)"),
+              const SizedBox(height: 10.0,),
+              Text("Name: $myDir")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
+                _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
+                          .then((bool success) 
+                          { 
+                            if(success){
+                              _reloadObjects();
+                              SnackbarShower.showSnackbar(context: context, color: Colors.green.shade300, message: "Successfully deleted objects.");
+                            }
+                            else{
+                              SnackbarShower.showSnackbar(context: context, color: Colors.red.shade400, message: "Failed deleting objects.");
+                            }
+                           });
+                },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+    
+    
+
 String getNameWithoutPrefix(String name){
   return name.replaceFirst(RegExp("${widget.prefix}/"), "");
 }
@@ -370,8 +421,7 @@ String getNameWithoutPrefix(String name){
     if(prefixTokens.length > 3){
       titleToShow = "${prefixTokens.first}/.../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
     }
-    
-    
+
     return Scaffold(
       appBar: AppBar(
           title: Text(
@@ -419,10 +469,10 @@ String getNameWithoutPrefix(String name){
             children: [
               Expanded(
             child: _isReloading 
-             ? const CircularProgressIndicator(color: Colors.orangeAccent, ) 
+             ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
              : (itemsToDisplay.isEmpty)
                 ? const Center(
-                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),), //TODO: Add another check here to see if the page is reloading, if it is reloading make a loading spinner active
+                    child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
                   )
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
@@ -479,6 +529,7 @@ String getNameWithoutPrefix(String name){
                         },
                         onDelete: () // Cloud Directory on Delete function
                         {
+                          showDeleteDirectoryDialog(context, directoryName);
                         },
                         iconColor: Colors.yellow.shade300,
                         );
