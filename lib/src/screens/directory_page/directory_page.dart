@@ -175,21 +175,19 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     }
   }
 
-  Future<void> requestPermission() async {
+Future<void> requestPermission() async {
   if (Platform.isAndroid) {
-    var storageStatus = await Permission.storage.status;
+      var storageStatus = await Permission.storage.status;
 
-    if (await Permission.manageExternalStorage.isDenied) {
-      await Permission.manageExternalStorage.request();
-    }
-    /*
-    if (!storageStatus.isGranted) {
-      await Permission.storage.request(); //  Deprecated on newer OS
-    }
-    */
-    
+      if (!storageStatus.isGranted) {
+        await Permission.storage.request();
+        }
+
+      if (await Permission.manageExternalStorage.isDenied) {
+        await Permission.manageExternalStorage.request();
+        }
+      }
   }
-}
 
   Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
