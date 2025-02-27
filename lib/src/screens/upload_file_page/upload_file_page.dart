@@ -10,8 +10,12 @@ import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/file_item/file_item.dart';
 
 class UploadFilePage extends StatefulWidget {
-  const UploadFilePage({super.key});
+  final String prefix;
 
+  const UploadFilePage({
+    super.key,
+    this.prefix = ""
+    });
 
   @override
   State<UploadFilePage> createState() => _UploadFilePageState();
@@ -50,7 +54,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
       }); 
     }
     else{
-      //User cancelled the picker
+      // User cancelled the picker
     }
   }
 
@@ -73,7 +77,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
       Future<bool> uploadTask = _b2Service.uploadFile(
         pFile.path!, 
         loggedUser.username.toLowerCase(), 
-        pFile.name)
+        widget.prefix + pFile.name)
       .then(
         (bool success) {
           if(success){
@@ -198,14 +202,14 @@ class _UploadFilePageState extends State<UploadFilePage> {
     children: [
       ElevatedButton.icon(
         onPressed: _isUploading ? null : _pickMultipleFiles,
-        icon: _isUploading 
+        icon: _isUploading
         ? 
         const SizedBox(
                     width: 18,
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
                     ),
                   )
         :
@@ -224,7 +228,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
         ),
       ),
       ElevatedButton.icon(
-        onPressed: _isUploading ? null : _startUploadProcess,
+        onPressed: (_isUploading || selectedFiles.isEmpty) ? null : _startUploadProcess,
         icon: _isUploading 
         ?
         const SizedBox(
@@ -232,7 +236,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
                     height: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
                     ),
                   ) 
         :

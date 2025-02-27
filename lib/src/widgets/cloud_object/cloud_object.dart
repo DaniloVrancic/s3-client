@@ -233,7 +233,7 @@ class _CloudObjectState extends State<CloudObject> {
                                 height: 18,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.0,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
                                 ),
                               )
                             : const Icon(Icons.download, color: Colors.white),

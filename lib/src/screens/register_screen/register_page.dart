@@ -38,8 +38,8 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     if (value == null || value.isEmpty) {
       return 'Username cannot be empty';
     }
-    if (value.length < 4) {
-      return 'Username must be at least 4 characters';
+    if (value.length < 6) {
+      return 'Username must be at least 6 characters';
     }
     if(value.contains('---'))
     {
@@ -329,7 +329,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
                           ),
                           child: Center(
                             child: _isLoading 
-                            ? const CircularProgressIndicator(color: Colors.white)
+                            ? const Center(child: CircularProgressIndicator(color: Colors.orangeAccent))
                             : const Text(
                                         "REGISTER",
                                         style: TextStyle(

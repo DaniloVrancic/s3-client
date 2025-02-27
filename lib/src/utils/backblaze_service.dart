@@ -80,9 +80,9 @@ class BackblazeService {
     }
   }
 
-  Future<ListObjectsResult?> fetchAllObjectsFromBucket(String bucketName) async {
+  Future<ListObjectsResult?> fetchAllObjectsFromBucket(String bucketName, {String prefix = ""}) async {
 
-    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName).toList();
+    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName, recursive: true, prefix: prefix).toList();
     if(listOfObjects.isNotEmpty)
     {
       ListObjectsResult result = listOfObjects.first;
@@ -161,11 +161,27 @@ class BackblazeService {
     Future<bool> deleteObject({required String bucket, required String objectName}) async {    
       try{
         await minio.removeObject(bucket, objectName);
-        print("File successfully deleted: $bucket/$objectName");
+        //print("File successfully deleted: $bucket/$objectName");
         return true;
       }
       catch(e){
         print("Error deleting object: $e");
+        return false;
+      }
+    }
+
+    Future<bool> deleteObjects({
+      required String bucket, 
+      required List<String> objectPaths
+    }) async {
+      try{
+        await minio.removeObjects(bucket, objectPaths);
+        print("Files successfully deleted!");
+        return true;
+      }
+      catch(e){
+        print("Error deleting objects:");
+        print(e);
         return false;
       }
     }

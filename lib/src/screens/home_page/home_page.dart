@@ -1,15 +1,18 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
-import 'package:s3_client/src/models/storage_item.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/directory_page/directory_page.dart';
+import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
@@ -17,11 +20,14 @@ import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
+import 'package:s3_client/src/widgets/cloud_directory/cloud_directory.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
 
 class HomePageWidget extends StatefulWidget {
-  const HomePageWidget({super.key});
+  const HomePageWidget({
+    super.key
+    });
   
 
   @override
@@ -31,7 +37,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
-  late List<StorageItem> foundFiles = [];
+  late List<Object> foundFiles = [];
   late String userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
@@ -72,33 +78,22 @@ void didChangeDependencies() {
 }
 
   Future<void> loadObjects() async {
-    List<StorageItem> objects = await getAllBucketObjects(userBucket);
+    List<Object> objects = await getAllBucketObjects(userBucket);
     
     setState(() {
       foundFiles = objects;
     });
   }
 
-  Future<List<StorageItem>> getAllBucketObjects(String bucket) async{
+  Future<List<Object>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
 
-      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket);
+      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
       list ??= ListObjectsResult(objects: [], prefixes: []); 
       
       List<Object> objectsList =  list.objects;
-      List<String> prefixList = list.prefixes;
 
-      List<StorageItem> storageItemList = []; // A combination of objects and prefixes
-
-      for(String prefix in prefixList){
-        StorageItem newStorageItem = StorageItem(key: prefix, type: StorageItemType.directory);
-        storageItemList.add(newStorageItem);
-      }
-      for(Object object in objectsList){
-        StorageItem newStorageItem = StorageItem(key: object.key!, type: StorageItemType.file, fileObject: object);
-        storageItemList.add(newStorageItem);
-      }
-
-      return storageItemList;
+    
+      return objectsList;
   }
 
 /*
@@ -126,7 +121,7 @@ Future<void> requestPermission() async {
 }
 
 
-Future<void> _downloadFile(String fileName, CloudObjectController controller) async {
+Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
 
   // Open file picker to select a directory
@@ -138,7 +133,7 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
     // Ensure path is correctly joined
     String savePath = path.join(directoryPath, fileName);
 
-    print("FINAL SELECTED PATH: $savePath");
+    // print("FINAL SELECTED PATH: $savePath");
 
     try {
       bool success = await _b2service.downloadFileWithProgress(
@@ -180,7 +175,26 @@ Future<void> _downloadFile(String fileName, CloudObjectController controller) as
   }
 }
 
-void _showDeleteDialog(BuildContext context, Object myObject) {
+  // This method wraps loadObjects() with our loading logic.
+  Future<void> _reloadObjects() async {
+    if (_isReloading) return; // Guard against repeated presses.
+    setState(() {
+      _isReloading = true;
+    });
+    _animationController.repeat();
+    
+    try{
+      await loadObjects();
+    }
+    finally{
+      _animationController.stop();
+      setState(() {
+        _isReloading = false;
+      });
+    }
+  }
+
+void showDeleteDialog(BuildContext context, Object myObject) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -190,7 +204,6 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
               const Text("Are you sure you wish to delete this object from storage?"),
               const Text("(Deleted Storage items can't be retrieved)"),
               const SizedBox(height: 10.0,),
@@ -205,7 +218,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                _handleDelete(loggedUser.username.toLowerCase(), myObject);
+                handleDelete(userBucket, myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -215,7 +228,59 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     );
   }
 
-  Future<bool> _handleDelete(String bucket, Object myObject) async{
+  void showDeleteDirectoryDialog(BuildContext context, String myDir) {
+      String fullDirectory = "$myDir/";
+      List<Object> objectsFromDirectory = foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Warning"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              const Text("Are you sure you wish to delete this directory from storage?"),
+              const Text("(All subdirectories will also be deleted.)"),
+              const SizedBox(height: 10.0,),
+              Text("Name: $myDir")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                
+                
+                
+
+                List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
+                _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
+                          .then((bool success) 
+                          { 
+                            if(success){
+                              _reloadObjects();
+                              SnackbarShower.showSnackbar(context: context, color: Colors.green.shade300, message: "Successfully deleted objects.");
+                            }
+                            else{
+                              SnackbarShower.showSnackbar(context: context, color: Colors.red.shade400, message: "Failed deleting objects.");
+                            }
+                           });
+                },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<bool> handleDelete(String bucket, Object myObject) async{
     bool success = await _b2service.deleteObject(
       bucket: bucket,
       objectName: myObject.key!
@@ -241,25 +306,73 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
     }
   }
 
-  // This method wraps loadObjects() with our loading logic.
-  Future<void> _reloadObjects() async {
-    if (_isReloading) return; // Guard against repeated presses.
-    setState(() {
-      _isReloading = true;
-    });
-    _animationController.repeat();
-    
-    try{
-      await loadObjects();
-    }
-    finally{
-      _animationController.stop();
-      setState(() {
-        _isReloading = false;
-      });
-    }
-    
-  }
+
+
+Future<void> _createDirectory(String directoryName) async {
+    const String emptyFileName = ".bzEmpty";
+    String fullFilePath = directoryName + emptyFileName;
+
+    Uint8List emptyList = Uint8List.fromList([]);
+
+    _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
+              .then((bool success) { 
+                if(success){
+                    _reloadObjects();
+                    SnackbarShower.showSnackbar(
+                      context: context, 
+                      color: Colors.green.shade300, 
+                      message: "Directory created.");
+                    }
+                  }
+                );
+}
+  Future<void> _showAddDirectoryDialog() async {
+  final TextEditingController directoryNameController = TextEditingController();
+  
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Add Directory"),
+        content: TextField(
+          controller: directoryNameController,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: "Enter directory name",
+          ),
+          inputFormatters: [
+            // Only allow alphanumeric characters
+            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cancel button: close the dialog.
+            },
+            child: const Text(
+              "Cancel",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              final String dirName = directoryNameController.text.trim();
+              if (dirName.isNotEmpty) {
+                await _createDirectory( dirName + '/');
+              }
+              Navigator.of(context).pop(); // Close the dialog after confirming.
+            },
+            child: const Text(
+              "Confirm",
+              style: TextStyle(color: Colors.green),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
   
 
   @override
@@ -270,9 +383,51 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
 
     if(changeFollower.needToGetObjects) {
       _reloadObjects();
-      print("FETCHING OBJECTS NOW!");
       changeFollower.needToGetObjects = false;
     }
+
+
+
+    // IN THIS PART I WANT TO FILTER OUT THE TOP LEVEL FILES AND DIRECTORIES OF MY HOME PAGE
+    List<Object> topLevelObjects = [];
+    Set<String> topLevelDirectories = {};
+
+
+    for(Object foundObject in foundFiles) {
+      
+      if(foundObject.key!.contains("/"))
+      {
+        topLevelDirectories.add(foundObject.key!.split("/").first);
+      }
+      else{
+          topLevelObjects.add(foundObject);
+      }
+    }
+    
+
+    topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+      return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
+    });
+
+
+    List<HomePageItem> itemsToDisplay = []; // Will Contain the List of All Top Level Entities to Print Out
+
+    itemsToDisplay.addAll(
+      topLevelDirectories
+          .map((directory) => HomePageItem.directory(directory))
+          .toList()
+          ..sort((a, b) => a.directoryName!.compareTo(b.directoryName!))
+    );
+
+    itemsToDisplay.addAll(
+      topLevelObjects
+        .map((Object object) => HomePageItem.object(object))
+        .toList()
+        ..sort((HomePageItem a, HomePageItem b) => a.object!.key!.compareTo(b.object!.key!))
+    );
+
+    
+    // END OF TOP LEVEL FILTERING
 
     return Scaffold(
       appBar: AppBar(
@@ -298,22 +453,34 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
               
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => {
-          //ScaffoldMessenger.of(context).showSnackBar(
-          //const SnackBar(content: Text('File successfully uploaded')),
-          //)
-
-          
+      floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'addFile',
+              onPressed: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=> const UploadFilePage())
-                )
-        },
-        tooltip: "Upload File",
-        backgroundColor: const Color.fromARGB(150, 210, 100, 10),
-        child: const Icon(Icons.add)
-      ),
+                          context,
+                          MaterialPageRoute(builder: (context)=> UploadFilePage())
+                          );
+                        },
+                      tooltip: 'Add File',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.attach_file),
+                    ),
+                    const SizedBox(height: 16),
+                    FloatingActionButton(
+                      heroTag: 'addDirectory',
+                      onPressed: () {
+                        _showAddDirectoryDialog();
+                      },
+                      tooltip: 'Add Directory',
+                      backgroundColor: const Color.fromARGB(150, 210, 100, 10),
+                      child: const Icon(Icons.create_new_folder),
+                    ),
+                  ],
+        ),
       
       drawer: Drawer(
         child: Column(
@@ -327,7 +494,11 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       color: Colors.orange,
                       gradient: LinearGradient(colors: [
                   Color.fromARGB(255, 228, 58, 11),
-                              (theme.brightness == Brightness.light) ? Color.fromARGB(235, 245, 145, 30) : Color.fromARGB(174, 50, 20, 5),
+                              (
+                                theme.brightness == Brightness.light) ? 
+                                Color.fromARGB(235, 245, 145, 30) 
+                                : 
+                                Color.fromARGB(174, 50, 20, 5),
                 ])
                     ),
                     child: Text("Menu",
@@ -410,7 +581,7 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-            child: foundFiles.isEmpty
+            child: (itemsToDisplay.isEmpty)
                 ? const Center(
                     child: Text("No files found.", style: TextStyle(fontSize: 20.0),),
                   )
@@ -422,44 +593,59 @@ void _showDeleteDialog(BuildContext context, Object myObject) {
                       crossAxisSpacing: 10.0,
                       childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
                     ),
-                    itemCount: foundFiles.length,
+                    itemCount: itemsToDisplay.length,
                     itemBuilder: (context, index) {
- 
-                      String thisFileName = foundFiles[index].key;
-
-                      if(foundFiles[index].type == StorageItemType.file)
+                      
+                      if(itemsToDisplay[index].type == HomePageItemType.object)
                       {
-                        Object fileObject = foundFiles[index].fileObject!;
+                        String thisFileName = itemsToDisplay[index].object!.key!;
+
+                        Object fileObject = itemsToDisplay[index].object!;
                         String fileKey = fileObject.key.toString();
 
-                      // Ensure that the controller is created for this file if not already done
-                      if (!_controllers.containsKey(fileKey)) {
-                        _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
-                      }
+                        // Ensure that the controller is created for this file if not already done
+                        if (!_controllers.containsKey(fileKey)) {
+                          _controllers[fileKey] = CloudObjectController();  // Initialize a new controller
+                        }
+                        CloudObjectController controller = _controllers[fileKey]!; // For measuring download progress
 
-                      CloudObjectController controller = _controllers[fileKey]!;
                         return CloudObject(
-                        controller: controller,
-                        eTag: fileObject.eTag,
-                        size: fileObject.size,
-                        owner: fileObject.owner,
-                        lastModified: fileObject.lastModified,
-                        fileName: fileObject.key.toString(),
-                        iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
-                        onDownload: () => _downloadFile(thisFileName, controller),
-                        onDelete: () async {
-                          _showDeleteDialog(context, fileObject);
+                          controller: controller,
+                          eTag: fileObject.eTag,
+                          size: fileObject.size,
+                          owner: fileObject.owner,
+                          lastModified: fileObject.lastModified,
+                          fileName: fileObject.key.toString(),
+                          iconColor: listOfIconColors[fileObject.key.hashCode % listOfIconColors.length],
+                          onDownload: () => downloadFile(thisFileName, controller),
+                          onDelete: () async {
+                            showDeleteDialog(context, fileObject);
+                          },
+                          border: Border.all(
+                            color: const Color.fromARGB(125, 226, 158, 11),
+                            width: 1.25,
+                          ),
+                          borderRadius: BorderRadius.circular(20.0),
+                        );
+                      } // end of if(type is Object)
+                      else{  //  In case the next item is a directory, do this segment
+                        String directoryName = itemsToDisplay[index].directoryName!;
+
+                        return CloudDirectory(fileName: directoryName, 
+                        onClick: () {
+                         Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=> DirectoryPageWidget(prefix: directoryName, foundFiles: foundFiles,))
+                                       );
                         },
-                        border: Border.all(
-                          color: const Color.fromARGB(125, 226, 158, 11),
-                          width: 1.25,
-                        ),
-                        borderRadius: BorderRadius.circular(20.0),
-                      );
-                      }
-                      else{
-                        //TODO: IMplement a widget for displaying directories and return it here
-                      }
+                        onDelete: () // Cloud Directory on Delete function
+                        {
+                          showDeleteDirectoryDialog(context, directoryName);
+                        },
+                        iconColor: Colors.yellow.shade300,
+                        );
+                      }   //  end of else
+                      
                       
                     },
                   ),
