@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:amplify_core/amplify_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
@@ -14,7 +13,6 @@ import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 
-final AmplifyLogger _logger = AmplifyLogger('MyStorageApp');
 void main() async {
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -23,10 +21,6 @@ void main() async {
   // Load the user's preferred theme while the splash screen is displayed.
   // This prevents a sudden theme change when the app is first displayed.
   await settingsController.loadSettings();
-
-  // Amplify is the package that has been used for all S3 complatible operations.
-  // Logging in the debugging level has been enabled here.
-  _logger.logLevel = LogLevel.debug;
 
   //Load flutter_dotenv
 
@@ -44,15 +38,16 @@ void main() async {
   final String userbaseBucket = dotenv.env['USER_DATABASE_BUCKET'].toString();
   final String userbaseObject = dotenv.env['USER_DATABASE_OBJECT'].toString();
 
+/*
   final awsSigner = AwsSignatureV4Factory(
     apiKeyId, //The KeyID
     secretKey, //The ApplicationKey
     myRegion, //region
     serviceName, //service
     );
+*/
   
-  
-  final S3Service s3Service = S3Service(awsSigner, myEndpoint);
+ // final S3Service s3Service = S3Service(awsSigner, myEndpoint);
   final BackblazeService b2Service = BackblazeService(
     keyId: apiKeyId, 
     applicationKey: secretKey, 

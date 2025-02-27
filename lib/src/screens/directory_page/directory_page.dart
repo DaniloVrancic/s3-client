@@ -312,6 +312,11 @@ Future<void> _createDirectory(String directoryName) async {
                       color: Colors.green.shade300, 
                       message: "Directory created.");
                     }
+                  else{
+                    SnackbarShower.showSnackbar(context: context,
+                    color: Colors.red.shade400,
+                    message: "Error establishing connection to the server.");
+                  }
                   }
                 );
 }
