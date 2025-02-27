@@ -89,12 +89,12 @@ class _FileItemState extends State<FileItem> {
       );
     } else if (widget.file.extension != null && ['mp4', 'mov', 'avi'].contains(widget.file.extension!.toLowerCase())) {
       preview = const Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        padding: EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
         child: Icon(Icons.video_file, size: 100, color: Colors.blue),
       );
     } else {
       preview = Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
         child: Icon(Icons.insert_drive_file, size: 100, color: Colors.orange.shade300),
       );
     }
@@ -122,6 +122,8 @@ class _FileItemState extends State<FileItem> {
           splashColor: Colors.orangeAccent.withValues(alpha: 0.6),
           borderRadius: widget.borderRadius,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               preview,
               const SizedBox(height: 8.0),
