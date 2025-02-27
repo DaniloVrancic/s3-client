@@ -234,7 +234,9 @@ class BackblazeService {
   Future<bool> createBucket(String bucketName) async {
     try{
       await minio.makeBucket(
-        bucketName, region);
+        bucketName, 
+        region,
+        );
       return true;
       }
       on MinioError catch (e) {
