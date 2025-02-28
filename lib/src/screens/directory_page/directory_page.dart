@@ -426,7 +426,12 @@ String getNameWithoutPrefix(String name){
     List<String> prefixTokens = widget.prefix.split("/");
     String titleToShow = widget.prefix;
     if(prefixTokens.length > 3){
-      titleToShow = "${prefixTokens.first}/.../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
+      titleToShow = ".../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
+
+      if(titleToShow.length > 23)
+      {
+        titleToShow = ".../${prefixTokens.last}";
+      }
     }
 
     return Scaffold(
