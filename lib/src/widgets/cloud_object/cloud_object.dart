@@ -123,8 +123,7 @@ class _CloudObjectState extends State<CloudObject> {
               const SizedBox(height: 10.0),
               widget.size == null
                   ? const Text("N/A")
-                  : Text(
-                      "Size: ${sizeNorm > 1000 ? "${(sizeNorm / 1000.0).toStringAsFixed(2)}KB" : "$sizeNorm bytes"}"),
+                  : Text("Size: ${sizeNorm > 1000000 ? "${(sizeNorm / 1000000.0).toStringAsFixed(2)}MB" : sizeNorm > 1000 ? "${(sizeNorm / 1000.0).toStringAsFixed(2)}KB" : "$sizeNorm bytes"}"),
               const SizedBox(height: 10.0),
               Text("File Extension: ${fileExtension.isNotEmpty ? fileExtension : "N/A"}"),
             ],
@@ -206,7 +205,7 @@ class _CloudObjectState extends State<CloudObject> {
                         value: _downloadProgress > 0.0 ? _downloadProgress : null,
                         minHeight: 4,
                         backgroundColor: Colors.grey,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.orangeAccent),
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.greenAccent),
                       ),
                     ),
                   Flexible(child: preview),
