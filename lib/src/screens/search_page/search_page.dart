@@ -46,6 +46,9 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
     _controllers = {};
 
     allObjects = widget.objects;
+    allObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+      return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
+    });
     foundObjects = allObjects;
   }
 
@@ -147,9 +150,10 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
 
   if (directoryPath != null) {
     // Ensure path is correctly joined
-    String savePath = path.join(directoryPath, fileName);
+    String nameToSave = (fileName.contains('/') ? fileName.split("/").last : fileName);
+    String savePath = path.join(directoryPath, nameToSave);
 
-    print("FINAL SELECTED PATH: $savePath");
+    
 
     try {
       bool success = await _b2service.downloadFileWithProgress(
@@ -193,15 +197,15 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
 
 Future<void> requestPermission() async {
   if (Platform.isAndroid) {
-    var storageStatus = await Permission.storage.status;
+      var storageStatus = await Permission.storage.status;
 
-    if (!storageStatus.isGranted) {
-      await Permission.storage.request();
-    }
+      if (!storageStatus.isGranted) {
+        await Permission.storage.request();
+        }
 
-    if (await Permission.manageExternalStorage.isDenied) {
-      await Permission.manageExternalStorage.request();
-    }
+      if (await Permission.manageExternalStorage.isDenied) {
+        await Permission.manageExternalStorage.request();
+        }
+      }
   }
-}
 }

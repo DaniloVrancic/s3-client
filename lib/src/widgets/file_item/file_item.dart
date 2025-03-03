@@ -23,7 +23,9 @@ class FileItem extends StatefulWidget {
 class _FileItemState extends State<FileItem> {
   bool _isPressed = false;
 
+
   void _showFileDetails(BuildContext context) {
+  int sizeNorm = widget.file.size; 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -34,7 +36,7 @@ class _FileItemState extends State<FileItem> {
             children: [
               Text("File Path: ${widget.file.path ?? 'N/A'}"),
               const SizedBox(height: 10.0),
-              Text("Size: ${(widget.file.size) > 1000 ? "${widget.file.size.toDouble() / 1000.00}KB" : "${widget.file.size} bytes"}"),
+              Text("Size: ${sizeNorm > 1000000 ? "${(sizeNorm / 1000000.0).toStringAsFixed(2)}MB" : sizeNorm > 1000 ? "${(sizeNorm / 1000.0).toStringAsFixed(2)}KB" : "$sizeNorm bytes"}"),
               const SizedBox(height: 10.0),
               Text("File Extension: ${widget.file.extension ?? 'N/A'}"),
             ],
@@ -89,12 +91,12 @@ class _FileItemState extends State<FileItem> {
       );
     } else if (widget.file.extension != null && ['mp4', 'mov', 'avi'].contains(widget.file.extension!.toLowerCase())) {
       preview = const Padding(
-        padding: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        padding: EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
         child: Icon(Icons.video_file, size: 100, color: Colors.blue),
       );
     } else {
       preview = Padding(
-        padding: const EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+        padding: const EdgeInsets.fromLTRB(20.0, 5.0, 20.0, 5.0),
         child: Icon(Icons.insert_drive_file, size: 100, color: Colors.orange.shade300),
       );
     }
@@ -122,6 +124,8 @@ class _FileItemState extends State<FileItem> {
           splashColor: Colors.orangeAccent.withValues(alpha: 0.6),
           borderRadius: widget.borderRadius,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               preview,
               const SizedBox(height: 8.0),

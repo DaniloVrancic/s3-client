@@ -175,21 +175,19 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     }
   }
 
-  Future<void> requestPermission() async {
+Future<void> requestPermission() async {
   if (Platform.isAndroid) {
-    var storageStatus = await Permission.storage.status;
+      var storageStatus = await Permission.storage.status;
 
-    if (await Permission.manageExternalStorage.isDenied) {
-      await Permission.manageExternalStorage.request();
-    }
-    /*
-    if (!storageStatus.isGranted) {
-      await Permission.storage.request(); //  Deprecated on newer OS
-    }
-    */
-    
+      if (!storageStatus.isGranted) {
+        await Permission.storage.request();
+        }
+
+      if (await Permission.manageExternalStorage.isDenied) {
+        await Permission.manageExternalStorage.request();
+        }
+      }
   }
-}
 
   Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
@@ -312,6 +310,11 @@ Future<void> _createDirectory(String directoryName) async {
                       color: Colors.green.shade300, 
                       message: "Directory created.");
                     }
+                  else{
+                    SnackbarShower.showSnackbar(context: context,
+                    color: Colors.red.shade400,
+                    message: "Error establishing connection to the server.");
+                  }
                   }
                 );
 }
@@ -423,7 +426,12 @@ String getNameWithoutPrefix(String name){
     List<String> prefixTokens = widget.prefix.split("/");
     String titleToShow = widget.prefix;
     if(prefixTokens.length > 3){
-      titleToShow = "${prefixTokens.first}/.../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
+      titleToShow = ".../${prefixTokens[prefixTokens.length - 2]}/${prefixTokens.last}";
+
+      if(titleToShow.length > 23)
+      {
+        titleToShow = ".../${prefixTokens.last}";
+      }
     }
 
     return Scaffold(

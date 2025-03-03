@@ -10,7 +10,6 @@ environment:
   sdk: ^3.5.4
 
 dependencies:
-  amplify_core: ^2.2.0
   bcrypt: ^1.1.3
   crypto: ^3.0.6
   dio: ^5.7.0
@@ -18,6 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_dotenv: ^5.2.1
+  flutter_launcher_icons: ^0.14.3
   flutter_localizations:
     sdk: flutter
   flutter_secure_storage: ^9.2.4
@@ -57,3 +57,12 @@ flutter:
   - family: cursive
     fonts:
       - asset: assets/fonts/cursive.ttf
+
+flutter_launcher_icons:
+  android:  "ic_launcher"
+  ios: "AppIcon"
+  image_path: "assets/icons/icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#c37022"
+  background_color_android: "#c37022"
