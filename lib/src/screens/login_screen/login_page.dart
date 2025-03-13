@@ -150,7 +150,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         return;
       }
 
-      this.userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
+      this.userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
 
       await b2service.bucketExists(userBucket) //Make sure the bucket exists if the user is logging in
       .then((bool exists) async {

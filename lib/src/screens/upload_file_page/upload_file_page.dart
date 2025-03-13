@@ -70,7 +70,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
             _isUploading = true;
           });
 
-    String userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
+    String userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
     for(PlatformFile pFile in filesToUpload)
     {
 

@@ -138,7 +138,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     List<int> listOfUsersCodeUnits = utf8.encode(listOfUsersString); //Used to create a proper Uint8List to send to method
 
     bool isUserCreated = false;
-    userBucket = "${userToRegister.username.toLowerCase()}-b2---${userToRegister.hashCode}";
+    userBucket = "${userToRegister.username.toLowerCase()}-b2---${userToRegister.username.toLowerCase()}";
      
      await b2service.bucketExists(userBucket).then((bool exists) async {
       if(exists){
