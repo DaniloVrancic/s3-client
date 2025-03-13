@@ -23,7 +23,9 @@ class FileItem extends StatefulWidget {
 class _FileItemState extends State<FileItem> {
   bool _isPressed = false;
 
+
   void _showFileDetails(BuildContext context) {
+  int sizeNorm = widget.file.size; 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -34,7 +36,7 @@ class _FileItemState extends State<FileItem> {
             children: [
               Text("File Path: ${widget.file.path ?? 'N/A'}"),
               const SizedBox(height: 10.0),
-              Text("Size: ${(widget.file.size) > 1000 ? "${widget.file.size.toDouble() / 1000.00}KB" : "${widget.file.size} bytes"}"),
+              Text("Size: ${sizeNorm > 1000000 ? "${(sizeNorm / 1000000.0).toStringAsFixed(2)}MB" : sizeNorm > 1000 ? "${(sizeNorm / 1000.0).toStringAsFixed(2)}KB" : "$sizeNorm bytes"}"),
               const SizedBox(height: 10.0),
               Text("File Extension: ${widget.file.extension ?? 'N/A'}"),
             ],

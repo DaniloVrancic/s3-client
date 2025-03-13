@@ -4,10 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
-import 'package:s3_client/src/utils/aws_signature_v4_factory.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
-import 'package:s3_client/src/utils/s3_service.dart';
-
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
@@ -55,7 +52,7 @@ void main() async {
     userbaseBucket: userbaseBucket,
     userbaseObject: userbaseObject);
 
-  final ChangeFollower changeFollower = ChangeFollower();
+  //final ChangeFollower changeFollower = ChangeFollower();
 
 
   // Run the app and pass in the SettingsController. The app listens to the
