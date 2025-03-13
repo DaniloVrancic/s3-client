@@ -70,13 +70,13 @@ class _UploadFilePageState extends State<UploadFilePage> {
             _isUploading = true;
           });
 
-    
+    String userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
     for(PlatformFile pFile in filesToUpload)
     {
 
       Future<bool> uploadTask = _b2Service.uploadFile(
         pFile.path!, 
-        loggedUser.username.toLowerCase(), 
+        userBucket, 
         widget.prefix + pFile.name)
       .then(
         (bool success) {

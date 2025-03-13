@@ -20,6 +20,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  late String userBucket;
+
   bool _isLoading = false;
 
   String? validateUsername(String? value) {
@@ -148,13 +150,15 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         return;
       }
 
-      await b2service.bucketExists(loginUsername.toLowerCase()) //Make sure the bucket exists if the user is logging in
+      this.userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
+
+      await b2service.bucketExists(userBucket) //Make sure the bucket exists if the user is logging in
       .then((bool exists) async {
       if(exists){
         return;
       }
       else{
-        await b2service.createBucket(loginUsername.toLowerCase()).then((bool isCreated) {
+        await b2service.createBucket(userBucket).then((bool isCreated) {
           print("Is Bucket now successfully created? : $isCreated}");
           setState(() => _isLoading = false);
           });

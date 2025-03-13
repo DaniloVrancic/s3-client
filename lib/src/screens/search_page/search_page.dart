@@ -42,7 +42,7 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
     _b2service = context.read<BackblazeService>();
     
     loggedUser = context.read<User>();
-    userBucket = loggedUser.username.toLowerCase();
+    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
     _controllers = {};
 
     allObjects = widget.objects;

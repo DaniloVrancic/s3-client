@@ -58,7 +58,7 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
     _b2service = context.read<BackblazeService>();
     
     loggedUser = context.read<User>();
-    userBucket = loggedUser.username.toLowerCase();
+    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _reloadObjects(); // Initial loading of objects

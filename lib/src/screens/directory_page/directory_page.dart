@@ -54,7 +54,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     _b2service = context.read<BackblazeService>();
     
     loggedUser = context.read<User>();
-    userBucket = loggedUser.username.toLowerCase();
+    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.hashCode}";
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     
