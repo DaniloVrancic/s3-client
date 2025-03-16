@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:minio/models.dart';
-
+import 'package:s3_client/src/models/proxy_object_owner.dart';
 class CloudObject extends StatefulWidget {
   final String fileName;
   final Color? iconColor;

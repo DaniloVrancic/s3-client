@@ -6,27 +6,39 @@ import 'dart:typed_data';
 
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
+import 'package:s3_client/src/models/proxy_object.dart';
+import 'package:s3_client/src/utils/proxy_client.dart';
 
 class BackblazeService {
+
+  // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   String keyId = "YOUR_KEY_ID";
   String applicationKey = "YOUR_APPLICATION_KEY";
   String region = "YOUR_REGION";
+  String proxyAddress = "YOUR_PROXY_SERVER_ADDRESS";
+  int? proxyPort = null;
+  // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   String? _userbaseBucket = "YOUR_BUCKET";
   String? _userbaseObject = "YOUR_OBJECT";
 
   
   
-
+  // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   final Minio minio;
+  // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  final ProxyClient proxyClient;
 
   BackblazeService(
     {
       required this.keyId, 
       required this.applicationKey, 
       required this.region, 
+      required this.proxyAddress,
+      required this.proxyPort,
       required userbaseBucket, 
-      required userbaseObject
+      required userbaseObject,
+
     }) 
       :
       _userbaseBucket = userbaseBucket,
@@ -37,74 +49,59 @@ class BackblazeService {
         secretKey: applicationKey,
         region: region,
         useSSL: true
-      );
+      ),
+      proxyClient = ProxyClient(address: proxyAddress, port: proxyPort);
   
   String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
   String get userbaseObject => _userbaseObject ?? "a---user-repository";
     
   Future<List<String>> fetchUserbase() async {
 
-    try{
-      dynamic stream;
-      if(_userbaseBucket != null && _userbaseObject != null)
-      {
-       stream = await minio.getObject(_userbaseBucket.toString(), _userbaseObject.toString());
-      }
-      else{
-       stream = await minio.getObject("a---user-repository", "my_userbase.csv");
-      }
+    try {
+    // Get the streamed response from the proxy client
+    final streamedResponse = _userbaseBucket != null && _userbaseObject != null
+        ? await proxyClient.downloadFile(
+            bucket: _userbaseBucket.toString(),
+            object: _userbaseObject.toString(),
+          )
+        : await proxyClient.downloadFile(
+            bucket: "a---user-repository",
+            object: "my_userbase.csv",
+          );
 
-      // Correct the fold function to decode the byte array and concatenate the result
-      var content = await stream.fold<String>("", (String prev, List<int> element) {
-        return prev + utf8.decode(element);
-      });
-       // Split content by newlines
+    // Use the stream property of the response to fold the byte chunks into a single string
+    var content = await streamedResponse.stream.fold<String>(
+      "",
+      (String prev, List<int> element) => prev + utf8.decode(element),
+    );
+
+    // Split content by newlines
     final List<String> result = content.isNotEmpty ? content.split("\n") : [];
 
     // Process each line
     List<String> processedLines = [];
     for (String line in result) {
-      // Split each line by comma and trim each token
-      List<String> tokens = line.split(",").map((token) {
-        return token.trim();  // Trim whitespace from each token
-      }).toList();
-
-      // Rejoin the tokens into a single line using commas
+      // Split each line by comma, trim each token, and rejoin the tokens with commas
+      List<String> tokens = line.split(",").map((token) => token.trim()).toList();
       processedLines.add(tokens.join(","));
     }
     return processedLines;
-    }
-    catch (e) {
-      print("Error fetching userbase: $e");
-      return [];
-    }
-  }
-
-  Future<ListObjectsResult?> fetchAllObjectsFromBucket(String bucketName, {String prefix = ""}) async {
-
-    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName, recursive: true, prefix: prefix).toList();
-    if(listOfObjects.isNotEmpty)
-    {
-      ListObjectsResult result = listOfObjects.first;
-      return result;
-    }
-    else{
-      return null;
+  } catch (e) {
+    print("Error fetching userbase: $e");
+    return [];
     }
   }
 
-  Future<ListObjectsResult?> fetchAllObjects(String bucketName) async {
+  Future<List<ProxyObject>> fetchAllObjectsFromBucket(String bucketName, {String prefix = ""}) async {
 
-    List<ListObjectsResult> listOfObjects = await minio.listObjects(bucketName).toList();
-    
-    if(listOfObjects.isNotEmpty)
-    {
-      ListObjectsResult result = listOfObjects.first;
-      return result;
-    }
-    else{
-      return null;
-    }
+    //List<Object> listOfObjects = await minio.listObjects(bucketName, recursive: true, prefix: prefix).toList();
+    List<ProxyObject> listOfObjects = await proxyClient.listObjects(bucket: bucketName, prefix: prefix);
+      return listOfObjects;
+  }
+
+  Future<List<ProxyObject>> fetchAllObjects(String bucketName) async {
+
+    return await fetchAllObjectsFromBucket(bucketName, prefix: "");
   }
 
    /// Uploads a new version of the user database, the List has a user in each line
