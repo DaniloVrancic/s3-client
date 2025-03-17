@@ -12,9 +12,9 @@ import 'package:s3_client/src/utils/proxy_client.dart';
 class BackblazeService {
 
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  String keyId = "YOUR_KEY_ID";
-  String applicationKey = "YOUR_APPLICATION_KEY";
-  String region = "YOUR_REGION";
+  //String keyId = "YOUR_KEY_ID";
+  //String applicationKey = "YOUR_APPLICATION_KEY";
+  //String region = "YOUR_REGION";
   String proxyAddress = "YOUR_PROXY_SERVER_ADDRESS";
   int? proxyPort = null;
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -31,9 +31,9 @@ class BackblazeService {
 
   BackblazeService(
     {
-      required this.keyId, 
-      required this.applicationKey, 
-      required this.region, 
+      //required this.keyId, 
+      //required this.applicationKey, 
+      //required this.region, 
       required this.proxyAddress,
       required this.proxyPort,
       required userbaseBucket, 

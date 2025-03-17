@@ -643,7 +643,7 @@ Future<void> _createDirectory(String directoryName) async {
                         {
                           showDeleteDirectoryDialog(context, directoryName);
                         },
-                        iconColor: Colors.yellow.shade300,
+                        iconColor: (theme.brightness == Brightness.dark) ? Colors.yellow.shade300 : Colors.yellow.shade800,
                         );
                       }   //  end of else
                       

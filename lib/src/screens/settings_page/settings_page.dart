@@ -175,12 +175,14 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   await settingsController.updateFontFamily(newFontFamily);
                 },
               ),
+              const Divider(),
               const SizedBox(height: 24),
               // New Setting: Proxy IP/Domain Input
               const Text(
                 'Proxy IP/Domain:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
+              SizedBox(height: 15,),
               Row(
                 children: [
                   Checkbox(
@@ -204,6 +206,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   const Text("Enable custom proxy"),
                 ],
               ),
+              SizedBox(height: 10,),
               TextField(
                 controller: _proxyController,
                 enabled: _proxyEnabled,
@@ -212,6 +215,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   border: OutlineInputBorder(),
                 ),
               ),
+              
               const SizedBox(height: 8),
              Align(
                 alignment: Alignment.centerRight,
@@ -245,7 +249,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                     child: const Text("Apply"),
                   ),
                 ),
-),
+              ),
 
             ],
           ),

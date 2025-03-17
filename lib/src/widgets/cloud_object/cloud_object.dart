@@ -1,6 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/proxy_object_owner.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
+import 'package:share_plus/share_plus.dart';
 class CloudObject extends StatefulWidget {
   final String fileName;
   final Color? iconColor;
@@ -156,6 +160,93 @@ class _CloudObjectState extends State<CloudObject> {
     );
   }
 
+    /// Opens a dialog to select the presigned link type (GET or PUT), retrieves the link,
+  /// and then opens the sharing screen.
+  Future<void> _handleShare() async {
+    // Show a dialog to choose between GET and PUT.
+    final selectedMethod = await showDialog<String>(
+      context: context,
+      builder: (context) {
+        String method = "GET";
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text("Share Presigned Link"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Text("Select link type:"),
+                  RadioListTile<String>(
+                    title: const Text("GET"),
+                    value: "GET",
+                    groupValue: method,
+                    
+                    onChanged: (value) {
+                      setState(() {
+                        method = value!;
+                      });
+                    },
+                  ),
+                  RadioListTile<String>(
+                    title: const Text("PUT"),
+                    value: "PUT",
+                    groupValue: method,
+                    onChanged: (value) {
+                      setState(() {
+                        method = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(null),
+                  child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(method),
+                  child: const Text("Confirm", style: TextStyle(color: Colors.green),),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (selectedMethod == null) return; // User cancelled the dialog.
+
+    try {
+      // Retrieve the Backblaze service instance.
+      final BackblazeService backblazeService = context.read<BackblazeService>();
+      // Use the userbaseBucket from the service (or change this to the appropriate bucket).
+      final bucket = backblazeService.userbaseBucket;
+      String link;
+      if (selectedMethod == "GET") {
+        link = await backblazeService.proxyClient.getPresignedGetUrl(
+          bucket: bucket,
+          object: widget.fileName,
+        );
+      } else {
+        link = await backblazeService.proxyClient.getPresignedPutUrl(
+          bucket: bucket,
+          object: widget.fileName,
+        );
+      }
+      // Now open the system sharing screen.
+      Share.share(link, subject: "Here is the link to access the cloud object.");
+    } catch (e) {
+      SnackbarShower.showSnackbar(
+          message: "Failed to retrieve link! ($e)",
+          context: context,
+          color: Colors.red.shade300
+        );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -185,7 +276,7 @@ class _CloudObjectState extends State<CloudObject> {
         transform: Matrix4.translationValues(0, _isTapped ? 8 : 0, 0),
         child: Card(
           elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(width: 1.3, color: Colors.orangeAccent.withValues(alpha: 0.6), style: BorderStyle.solid)),
           child: InkWell(
             onTap: _onTap,
             splashColor: Colors.orangeAccent.withAlpha(60),
@@ -252,6 +343,16 @@ class _CloudObjectState extends State<CloudObject> {
                         onPressed: widget.onDelete,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        ),
+                      ),
+                       ElevatedButton.icon(
+                        icon: const Icon(Icons.share, color: Colors.white),
+                        label: const Text("Share", style: TextStyle(color: Colors.white)),
+                        onPressed: _handleShare,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                         ),

@@ -21,6 +21,7 @@ class CloudDirectory extends StatefulWidget {
 
 class _CloudDirectoryState extends State<CloudDirectory> {
   bool _isTapped = false;
+  
 
   void _onTap() {
     setState(() {
@@ -63,6 +64,7 @@ class _CloudDirectoryState extends State<CloudDirectory> {
                     color: Colors.orangeAccent.withValues(alpha: 0.6),
                     blurRadius: 10,
                     spreadRadius: 2,
+                    offset: Offset(10, 10)
                   ),
                 ]
               : null,
