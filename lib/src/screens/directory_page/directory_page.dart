@@ -192,7 +192,7 @@ Future<void> requestPermission() async {
 
   Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
-  print(fileName);
+  
   // Open file picker to select a directory
   String? directoryPath = await FilePicker.platform.getDirectoryPath(
     dialogTitle: "Select a Download Directory",
@@ -204,7 +204,7 @@ Future<void> requestPermission() async {
       directoryPath, 
       fileName.split("/").last  //Gets only the file name (filters out the nested directory names (prefixes))
       );
-    print("SAVE PATH: $savePath" );
+    // print("SAVE PATH: $savePath" );
 
     // print("FINAL SELECTED PATH: $savePath");
 

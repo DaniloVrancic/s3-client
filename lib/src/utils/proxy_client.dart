@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
-import 'package:minio/models.dart';
 import 'package:s3_client/src/models/proxy_object.dart';
 
 /// A custom client that communicates with your proxy server to perform
@@ -72,6 +72,7 @@ class ProxyClient {
       queryParameters['prefix'] = prefix;
     }
     final url = Uri.parse('$baseUrl/objects').replace(queryParameters: queryParameters);
+   
     final response = await http.get(url);
     
     if (response.statusCode == 200) {
@@ -122,6 +123,67 @@ class ProxyClient {
       throw Exception('Failed to upload file: ${response.body}');
     }
   }
+
+  /// Uploads a file to the specified [bucket] with the given [objectName].
+  /// The file data is read from the [stream] with the given byte [length]
+  /// The file is uploaded using a multipart/form-data request.
+  /// On success, it returns the response string from the proxy server.
+ Future<void> putObject(
+  String bucket,
+  String object,
+  Stream<Uint8List> data, {
+  int? size,
+  int? chunkSize,
+  Map<String, String>? metadata,
+  void Function(int)? onProgress, // Keep onProgress callback as void
+}) async {
+  final url = Uri.parse('$baseUrl/upload?bucket=$bucket&objectName=$object');
+  
+  // Create a MultipartRequest for the file upload
+  final request = http.MultipartRequest('PUT', url);
+
+  // Add metadata if provided as headers
+  metadata?.forEach((key, value) {
+    request.headers[key] = value;
+  });
+
+  // Create a multipart file from the stream of data
+  request.files.add(http.MultipartFile(
+    'file', // This should match the name in the Spring Boot controller (@RequestParam("file"))
+    data,
+    size ?? 0, // Size of the file, optional
+    filename: object, // Provide the filename here
+  ));
+
+  // Optionally track progress if the onProgress callback is provided
+  int bytesSent = 0;
+  final monitoredStream = data.map((chunk) {
+    bytesSent += chunk.length;
+    if (onProgress != null) {
+      onProgress(bytesSent);  // Call the onProgress with updated bytesSent
+    }
+    return chunk;
+  });
+
+  // Send the file as a stream with the content length if provided
+  request.files[0] = http.MultipartFile(
+    'file',
+    monitoredStream,
+    size ?? 0,
+    filename: object,
+  );
+
+  // Perform the actual upload
+  final streamedResponse = await request.send();
+
+  // Check for the response
+  final response = await http.Response.fromStream(streamedResponse);
+  if (response.statusCode == 200) {
+    print('File uploaded successfully');
+  } else {
+    throw Exception('Failed to upload object: ${response.statusCode}');
+  }
+}
 
   /// Downloads a file from the specified [bucket] with the given [object] name.
   ///

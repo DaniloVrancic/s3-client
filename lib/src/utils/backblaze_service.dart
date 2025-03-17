@@ -5,7 +5,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:minio/minio.dart';
-import 'package:minio/models.dart';
 import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/utils/proxy_client.dart';
 
@@ -94,7 +93,6 @@ class BackblazeService {
 
   Future<List<ProxyObject>> fetchAllObjectsFromBucket(String bucketName, {String prefix = ""}) async {
 
-    //List<Object> listOfObjects = await minio.listObjects(bucketName, recursive: true, prefix: prefix).toList();
     List<ProxyObject> listOfObjects = await proxyClient.listObjects(bucket: bucketName, prefix: prefix);
       return listOfObjects;
   }
@@ -113,12 +111,22 @@ class BackblazeService {
 
       String newUserData = updatedUserList.join("\n");
 
+      /*
       await minio.putObject(
         _userbaseBucket!,
         _userbaseObject!,
         Stream.value(utf8.encode(newUserData)),
         metadata: {'Content-Type': 'text/csv'},
       );
+      */
+      await proxyClient.putObject(
+        _userbaseBucket!,
+        _userbaseObject!,
+        Stream.value(utf8.encode(newUserData)),
+        metadata: {'Content-Type': 'text/csv'},
+      );
+
+      
 
       print("User database updated successfully.");
       return true;
@@ -138,8 +146,16 @@ class BackblazeService {
 
       int fileSize = await file.length();
       Stream<Uint8List> fileStream = file.openRead().map((chunk) => Uint8List.fromList(chunk));
-
+      /*
       await minio.putObject(
+        bucket,
+        objectName,
+        fileStream,
+        size: fileSize,
+        metadata: {'Content-Type': 'application/octet-stream'},
+      );
+      */
+      await proxyClient.putObject(
         bucket,
         objectName,
         fileStream,
