@@ -21,6 +21,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  late String userBucket; 
 
   bool _isLoading = false; // Loading state
 
@@ -137,13 +138,14 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     List<int> listOfUsersCodeUnits = utf8.encode(listOfUsersString); //Used to create a proper Uint8List to send to method
 
     bool isUserCreated = false;
-
-     await b2service.bucketExists(username.toLowerCase()).then((bool exists) async {
+    userBucket = "${userToRegister.username.toLowerCase()}-b2---${userToRegister.username.toLowerCase()}";
+     
+     await b2service.bucketExists(userBucket).then((bool exists) async {
       if(exists){
         print("Bucket already exists");
       }
       else{
-        return await b2service.createBucket(username.toLowerCase());
+        return await b2service.createBucket(userBucket);
       }
     },
     onError: (e) => {
