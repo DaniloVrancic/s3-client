@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
+import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/directory_page/directory_page.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
@@ -35,7 +35,7 @@ class HomePageWidget extends StatefulWidget {
 class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
-  late List<Object> foundFiles = [];
+  late List<ProxyObject> foundFiles = [];
   late String userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
@@ -76,21 +76,24 @@ void didChangeDependencies() {
 }
 
   Future<void> loadObjects() async {
-    List<Object> objects = await getAllBucketObjects(userBucket);
+    List<ProxyObject> objects = await getAllBucketObjects(userBucket);
     
     setState(() {
       foundFiles = objects;
     });
   }
 
-  Future<List<Object>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
+  Future<List<ProxyObject>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
 
-      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
-      list ??= ListObjectsResult(objects: [], prefixes: []); 
+      List<ProxyObject>? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
       
-      List<Object> objectsList =  list.objects;
+      
+      List<ProxyObject> objectsList =  list ?? [];
 
     
+     // print("THESE ARE ALL OBJECTS!!!\n");
+     // objectsList.forEach((object) => print("$object\n"));
+
       return objectsList;
   }
 
@@ -192,7 +195,7 @@ Future<void> downloadFile(String fileName, CloudObjectController controller) asy
     }
   }
 
-void showDeleteDialog(BuildContext context, Object myObject) {
+void showDeleteDialog(BuildContext context, ProxyObject myObject) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -228,7 +231,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
 
   void showDeleteDirectoryDialog(BuildContext context, String myDir) {
       String fullDirectory = "$myDir/";
-      List<Object> objectsFromDirectory = foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
+      List<ProxyObject> objectsFromDirectory = foundFiles.where((ProxyObject myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -257,7 +260,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
                 
                 
 
-                List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
+                List<String> objectPaths = objectsFromDirectory.map((ProxyObject myObject) { return myObject.key!; }).toList();
                 _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
                           .then((bool success) 
                           { 
@@ -278,7 +281,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
     );
   }
 
-  Future<bool> handleDelete(String bucket, Object myObject) async{
+  Future<bool> handleDelete(String bucket, ProxyObject myObject) async{
     bool success = await _b2service.deleteObject(
       bucket: bucket,
       objectName: myObject.key!
@@ -387,11 +390,11 @@ Future<void> _createDirectory(String directoryName) async {
 
 
     // IN THIS PART I WANT TO FILTER OUT THE TOP LEVEL FILES AND DIRECTORIES OF MY HOME PAGE
-    List<Object> topLevelObjects = [];
+    List<ProxyObject> topLevelObjects = [];
     Set<String> topLevelDirectories = {};
 
 
-    for(Object foundObject in foundFiles) {
+    for(ProxyObject foundObject in foundFiles) {
       
       if(foundObject.key!.contains("/"))
       {
@@ -403,7 +406,7 @@ Future<void> _createDirectory(String directoryName) async {
     }
     
 
-    topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+    topLevelObjects.removeWhere((ProxyObject foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
       return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
     });
 
@@ -419,7 +422,7 @@ Future<void> _createDirectory(String directoryName) async {
 
     itemsToDisplay.addAll(
       topLevelObjects
-        .map((Object object) => HomePageItem.object(object))
+        .map((ProxyObject object) => HomePageItem.object(object))
         .toList()
         ..sort((HomePageItem a, HomePageItem b) => a.object!.key!.compareTo(b.object!.key!))
     );
@@ -598,7 +601,7 @@ Future<void> _createDirectory(String directoryName) async {
                       {
                         String thisFileName = itemsToDisplay[index].object!.key!;
 
-                        Object fileObject = itemsToDisplay[index].object!;
+                        ProxyObject fileObject = itemsToDisplay[index].object!;
                         String fileKey = fileObject.key.toString();
 
                         // Ensure that the controller is created for this file if not already done

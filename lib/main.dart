@@ -32,6 +32,10 @@ void main() async {
   final String secretKey = dotenv.env['APPLICATION_KEY'].toString();
   final String serviceName = dotenv.env['SERVICE_NAME'].toString();
 
+  final String proxyAddress = dotenv.env['PROXY_ADDRESS'].toString();
+  final int? proxyPort = int.tryParse(dotenv.env["PROXY_PORT"].toString());
+  
+
   final String userbaseBucket = dotenv.env['USER_DATABASE_BUCKET'].toString();
   final String userbaseObject = dotenv.env['USER_DATABASE_OBJECT'].toString();
 
@@ -49,8 +53,11 @@ void main() async {
     keyId: apiKeyId, 
     applicationKey: secretKey, 
     region: myRegion,
+    proxyAddress: proxyAddress,
+    proxyPort: proxyPort,
     userbaseBucket: userbaseBucket,
-    userbaseObject: userbaseObject);
+    userbaseObject: userbaseObject
+    );
 
   //final ChangeFollower changeFollower = ChangeFollower();
 

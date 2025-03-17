@@ -6,6 +6,7 @@ import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
+import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
@@ -19,7 +20,7 @@ import 'package:path/path.dart' as path;
 class DirectoryPageWidget extends StatefulWidget {
 
   final String prefix;
-  final List<Object> foundFiles; 
+  final List<ProxyObject> foundFiles; 
 
   DirectoryPageWidget({
     super.key,
@@ -34,7 +35,7 @@ class DirectoryPageWidget extends StatefulWidget {
 class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTickerProviderStateMixin  {
 
   late BackblazeService _b2service;
-  late List<Object> foundFiles = [];
+  late List<ProxyObject> foundFiles = [];
   late String userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
@@ -75,19 +76,19 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     super.dispose();
   }
 
-    Future<List<Object>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
+    Future<List<ProxyObject>> getAllBucketObjects(String bucket, {String prefix = ""}) async{
 
-      ListObjectsResult? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
-      list ??= ListObjectsResult(objects: [], prefixes: []); 
+      List<ProxyObject>? list = await _b2service.fetchAllObjectsFromBucket(bucket, prefix: prefix);
       
-      List<Object> objectsList =  list.objects;
+      
+      List<ProxyObject> objectsList =  list ?? [];
 
     
       return objectsList;
   }
 
     Future<void> loadObjects() async {
-    List<Object> objects = await getAllBucketObjects(userBucket, prefix: widget.prefix);
+    List<ProxyObject> objects = await getAllBucketObjects(userBucket, prefix: widget.prefix);
     
     setState(() {
       foundFiles = objects;
@@ -114,7 +115,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     
   }
 
-  void showDeleteDialog(BuildContext context, Object myObject) async {
+  void showDeleteDialog(BuildContext context, ProxyObject myObject) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -149,7 +150,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     );
   }
 
-  Future<bool> handleDelete(String bucket, Object myObject) async{
+  Future<bool> handleDelete(String bucket, ProxyObject myObject) async{
     bool success = await _b2service.deleteObject(
       bucket: bucket,
       objectName: myObject.key!
@@ -191,7 +192,7 @@ Future<void> requestPermission() async {
 
   Future<void> downloadFile(String fileName, CloudObjectController controller) async {
   await requestPermission(); // Ensure permissions
-  print(fileName);
+  
   // Open file picker to select a directory
   String? directoryPath = await FilePicker.platform.getDirectoryPath(
     dialogTitle: "Select a Download Directory",
@@ -203,7 +204,7 @@ Future<void> requestPermission() async {
       directoryPath, 
       fileName.split("/").last  //Gets only the file name (filters out the nested directory names (prefixes))
       );
-    print("SAVE PATH: $savePath" );
+    // print("SAVE PATH: $savePath" );
 
     // print("FINAL SELECTED PATH: $savePath");
 
@@ -322,7 +323,7 @@ Future<void> _createDirectory(String directoryName) async {
 
     void showDeleteDirectoryDialog(BuildContext context, String myDir) async {
       String fullDirectory = "${widget.prefix}/$myDir/";
-      List<Object> objectsFromDirectory = widget.foundFiles.where((Object myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
+      List<ProxyObject> objectsFromDirectory = widget.foundFiles.where((ProxyObject myObject) { return myObject.key!.startsWith(fullDirectory);}).toList();
      showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -347,7 +348,7 @@ Future<void> _createDirectory(String directoryName) async {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
+                List<String> objectPaths = objectsFromDirectory.map((ProxyObject myObject) { return myObject.key!; }).toList();
                 _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
                           .then((bool success) 
                           { 
@@ -386,10 +387,10 @@ String getNameWithoutPrefix(String name){
       changeFollower.needToGetObjects = false;
     }
 
-    List<Object> topLevelObjects = [];
+    List<ProxyObject> topLevelObjects = [];
     Set<String> topLevelDirectories = {};
 
-    for(Object foundObject in foundFiles) {
+    for(ProxyObject foundObject in foundFiles) {
       String foundObjectString = foundObject.key!;
       String pathWithoutPrefix = getNameWithoutPrefix(foundObjectString);
       
@@ -402,7 +403,7 @@ String getNameWithoutPrefix(String name){
       }
     }
 
-    topLevelObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+    topLevelObjects.removeWhere((ProxyObject foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
       return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
     });
 
@@ -418,7 +419,7 @@ String getNameWithoutPrefix(String name){
 
       itemsToDisplay.addAll(
         topLevelObjects
-          .map((Object object) => HomePageItem.object(object))
+          .map((ProxyObject object) => HomePageItem.object(object))
           .toList()
           ..sort((HomePageItem a, HomePageItem b) => a.object!.key!.compareTo(b.object!.key!))
       );
@@ -512,7 +513,7 @@ String getNameWithoutPrefix(String name){
                       {
                         String thisFileName = itemsToDisplay[index].object!.key!;
 
-                        Object fileObject = itemsToDisplay[index].object!;
+                        ProxyObject fileObject = itemsToDisplay[index].object!;
                         String fileKey = fileObject.key.toString();
 
                         // Ensure that the controller is created for this file if not already done
