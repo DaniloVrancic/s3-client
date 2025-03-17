@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:http/http.dart' as http;
+import 'package:s3_client/src/models/exception/proxy_errors.dart';
 import 'package:s3_client/src/models/proxy_object.dart';
+import 'package:s3_client/src/models/proxy_stat_object_result.dart';
 
 /// A custom client that communicates with your proxy server to perform
 /// S3 operations. The methods map to the endpoints defined in your
@@ -188,24 +190,54 @@ class ProxyClient {
   /// Downloads a file from the specified [bucket] with the given [object] name.
   ///
   /// Returns a [http.StreamedResponse] that provides access to the file's byte stream.
-  Future<http.StreamedResponse> downloadFile({
-    required String bucket,
-    required String object,
-  }) async {
+  Future<Stream<List<int>>> downloadFile({
+  required String bucket,
+  required String object,
+  int? offset,
+  int? length,
+}) async {
+  try {
     final url = Uri.parse('$baseUrl/download?bucket=$bucket&object=$object');
+
+    // Build the range header if partial download is required
+    String? range;
+    if (offset != null || length != null) {
+      if (offset != null) {
+        range = 'bytes=$offset-';
+      } else {
+        range = 'bytes=0-';
+        offset = 0;
+      }
+      if (length != null) {
+        range += '${(length + offset) - 1}';
+      }
+    }
+
+    // Send the request with range if it's provided
     final request = http.Request('GET', url);
+    if (range != null) {
+      request.headers['Range'] = range;
+    }
+
+    // Perform the request and get the streamed response
     final streamedResponse = await request.send();
-    if (streamedResponse.statusCode == 200) {
-      return streamedResponse;
+
+    // Check if response status is 200 (OK) or 206 (Partial Content)
+    if (streamedResponse.statusCode == 200 || streamedResponse.statusCode == 206) {
+      // Return the stream of bytes from the response
+      return streamedResponse.stream;
     } else {
       throw Exception('Failed to download file: status ${streamedResponse.statusCode}');
     }
+  } catch (e) {
+    throw Exception('Error downloading file: $e');
   }
+}
 
   /// Deletes a file from the specified [bucket] with the given [object] name.
   ///
   /// Returns a string message from the proxy server.
-  Future<String> deleteFile({
+  Future<String> deleteObject({
     required String bucket,
     required String object,
   }) async {
@@ -214,7 +246,7 @@ class ProxyClient {
     if (response.statusCode == 200) {
       return response.body;
     } else {
-      throw Exception('Failed to delete file: ${response.body}');
+      throw ProxyError('Failed to delete file: ${response.body}');
     }
   }
 
@@ -225,11 +257,10 @@ class ProxyClient {
     required String bucket,
   }) async {
     final url = Uri.parse('$baseUrl/bucket/exists?bucket=$bucket');
-    final response = await http.get(url);
+    final response = await http.head(url);
     // The proxy returns 200 with {"exists": true} or 404 with {"exists": false}.
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      return data['exists'] == true;
+      return true;
     } else if (response.statusCode == 404) {
       return false;
     } else {
@@ -251,6 +282,47 @@ class ProxyClient {
       throw Exception('Failed to create bucket: ${response.body}');
     }
   }
+
+  /// Deletes multiple files from the specified [bucket] with the given list of [objects].
+/// 
+/// Returns a success message or throws an exception if the deletion fails.
+Future<String> deleteObjects({
+  required String bucket,
+  required List<String> objects,
+}) async {
+  final url = Uri.parse('$baseUrl/objects?bucket=$bucket');
+
+  final response = await http.delete(
+    url,
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode(objects),
+  );
+
+  if (response.statusCode == 200) {
+    return response.body;
+  } else {
+    throw ProxyError('Failed to delete files: ${response.body}');
+  }
+}
+
+
+ /// Retrieves metadata for the given object in the specified bucket.
+  Future<ProxyStatObjectResult> statObject(
+    {
+      required String bucket, 
+      required String object
+    }
+    ) async {
+    final url = Uri.parse('$baseUrl/statObject?bucket=$bucket&object=$object');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body) as Map<String, dynamic>;
+      return ProxyStatObjectResult.fromJson(data);
+    } else {
+      throw Exception('Failed to retrieve object metadata: ${response.body}');
+    }
+  }
+  
 
   /// Gets a presigned GET URL for the object in the specified [bucket].
   ///

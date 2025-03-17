@@ -4,8 +4,9 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:minio/minio.dart';
+import 'package:s3_client/src/models/exception/proxy_errors.dart';
 import 'package:s3_client/src/models/proxy_object.dart';
+import 'package:s3_client/src/models/proxy_stat_object_result.dart';
 import 'package:s3_client/src/utils/proxy_client.dart';
 
 class BackblazeService {
@@ -24,7 +25,7 @@ class BackblazeService {
   
   
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  final Minio minio;
+  //  final Minio minio;
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   final ProxyClient proxyClient;
 
@@ -42,6 +43,7 @@ class BackblazeService {
       :
       _userbaseBucket = userbaseBucket,
       _userbaseObject = userbaseObject, 
+      /*
       minio = Minio(
         endPoint: "s3.$region.backblazeb2.com",
         accessKey: keyId,
@@ -49,6 +51,7 @@ class BackblazeService {
         region: region,
         useSSL: true
       ),
+      */
       proxyClient = ProxyClient(address: proxyAddress, port: proxyPort);
   
   String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
@@ -58,7 +61,7 @@ class BackblazeService {
 
     try {
     // Get the streamed response from the proxy client
-    final streamedResponse = _userbaseBucket != null && _userbaseObject != null
+    final stream = _userbaseBucket != null && _userbaseObject != null
         ? await proxyClient.downloadFile(
             bucket: _userbaseBucket.toString(),
             object: _userbaseObject.toString(),
@@ -69,7 +72,7 @@ class BackblazeService {
           );
 
     // Use the stream property of the response to fold the byte chunks into a single string
-    var content = await streamedResponse.stream.fold<String>(
+    var content = await stream.fold<String>(
       "",
       (String prev, List<int> element) => prev + utf8.decode(element),
     );
@@ -173,7 +176,8 @@ class BackblazeService {
 
     Future<bool> deleteObject({required String bucket, required String objectName}) async {    
       try{
-        await minio.removeObject(bucket, objectName);
+        //await minio.removeObject(bucket, objectName);
+        await proxyClient.deleteObject(bucket: bucket, object: objectName);
         //print("File successfully deleted: $bucket/$objectName");
         return true;
       }
@@ -188,7 +192,8 @@ class BackblazeService {
       required List<String> objectPaths
     }) async {
       try{
-        await minio.removeObjects(bucket, objectPaths);
+        //  await minio.removeObjects(bucket, objectPaths);
+        await proxyClient.deleteObjects(bucket: bucket, objects: objectPaths);
         print("Files successfully deleted!");
         return true;
       }
@@ -205,7 +210,17 @@ class BackblazeService {
   Future<bool> uploadFileFromBytes(Uint8List fileBytes, String bucket, String objectName, {String contentType = 'application/octet-stream'}) async {
   try {
     Stream<Uint8List> fileStream = Stream.value(fileBytes);
+    /*
     await minio.putObject(
+      bucket,
+      objectName,
+      fileStream,
+      size: fileBytes.length,
+      metadata: {'Content-Type': contentType},
+    );
+    */
+
+    await proxyClient.putObject(
       bucket,
       objectName,
       fileStream,
@@ -223,7 +238,8 @@ class BackblazeService {
 
   Future<bool> bucketExists(String bucketName) async {
     try{
-      bool exists = await minio.bucketExists(bucketName);
+      //bool exists = await minio.bucketExists(bucketName);
+      bool exists = await proxyClient.bucketExists(bucket: bucketName);
       if(exists){
         return true;
         }
@@ -231,11 +247,11 @@ class BackblazeService {
         return false;
         }
       }
-        on MinioError catch (e) {
+        on ProxyError catch (e) {
           print(e);
         return false;
       } on SocketException {
-          print("Network error: Unable to connect to Backblaze B2.");
+          print("Network error: Unable to connect to Application Gateway.");
         return false;
       } catch (e) {
           print("Unexpected error while creating bucket ");
@@ -246,14 +262,11 @@ class BackblazeService {
 
   Future<bool> createBucket(String bucketName) async {
     try{
-      await minio.makeBucket(
-        bucketName, 
-        region,
-        );
+      await proxyClient.makeBucket(bucket: bucketName);
       return true;
       }
-      on MinioError catch (e) {
-      print("MinioError: Failed to create bucket '$bucketName' - ${e.message}");
+      on ProxyError catch (e) {
+      print("ProxyError: Failed to create bucket '$bucketName' - ${e.message}");
       return false;
     } on SocketException {
       print("Network error: Unable to connect to Backblaze B2.");
@@ -274,11 +287,14 @@ class BackblazeService {
   Future<bool> downloadFileWithProgress({required String bucketName, required String objectName, required String savePath, Function(double progress)? onProgress}) async {
     try {
       // Get the file stream
-      final stream = await minio.getObject(bucketName, objectName);
+      //final stream = await minio.getObject(bucketName, objectName);
+      final stream = await proxyClient.downloadFile(bucket: bucketName, object: objectName);
 
       // Get the file size (in bytes) for progress calculation
-      final fileSize = await minio.statObject(bucketName, objectName);
-      final totalSize = fileSize.size;
+      final ProxyStatObjectResult fileStats = await proxyClient.statObject(bucket: bucketName, object: objectName);
+      print("FILE STATS MATE:");
+      print(fileStats);
+      final totalSize = fileStats.size;
 
       // Open the file to save the data
       final file = File(savePath);

@@ -81,3 +81,7 @@ class MinioIncorrectSizeError extends ProxyError {
 class MinioInvalidXMLError extends ProxyError {
   MinioInvalidXMLError(super.message);
 }
+
+class MinioInvalidJSONError extends ProxyError {
+  MinioInvalidJSONError(super.message);
+}
