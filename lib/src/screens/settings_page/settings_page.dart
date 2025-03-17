@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/settings/settings_controller.dart';
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/proxy_client.dart';
 
 class SettingsPageWidget extends StatefulWidget {
   const SettingsPageWidget({Key? key}) : super(key: key);
@@ -17,7 +19,13 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
   // Example state variables for additional settings.
   bool _notificationsEnabled = true;
   late double _textSizeFactor; // 1.0 = normal text size
-   late String _selectedFontFamily; // new: font family selection
+  late String _selectedFontFamily; // new: font family selection
+  late BackblazeService b2service = context.read<BackblazeService>();
+
+
+    // New state for proxy settings.
+  bool _proxyEnabled = false;
+  final TextEditingController _proxyController = TextEditingController();
 
   @override
   void initState() {
@@ -27,6 +35,22 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
     _selectedTheme = settingsController.themeMode;
     _textSizeFactor = settingsController.textScaleFactor;
     _selectedFontFamily = settingsController.fontFamily;
+  }
+
+   /// Validate the proxy input.
+  /// Returns true if the input is either a valid IPv4 (with optional port) or a valid domain (with optional port).
+  bool validateProxyInput(String input) {
+    // Pattern for IPv4 address with optional port.
+    final ipPattern =
+        r'^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}(:\d{1,5})?$';
+    // Simple pattern for a domain name with optional port.
+    final domainPattern =
+        r'^(?!\-)(?:[a-zA-Z0-9\-]{1,63}\.)+[a-zA-Z]{2,6}(:\d{1,5})?$|^$|^localhost(:(\d{1,5}))?$';
+
+    final ipRegex = RegExp(ipPattern);
+    final domainRegex = RegExp(domainPattern);
+
+    return ipRegex.hasMatch(input) || domainRegex.hasMatch(input);
   }
   
 
@@ -151,6 +175,78 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   await settingsController.updateFontFamily(newFontFamily);
                 },
               ),
+              const SizedBox(height: 24),
+              // New Setting: Proxy IP/Domain Input
+              const Text(
+                'Proxy IP/Domain:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _proxyEnabled,
+                    onChanged: (bool? value) {
+                     setState(() {
+                        _proxyEnabled = value ?? false;
+                        if (_proxyEnabled) {
+                          // Retrieve the current proxy address and port.
+                          final address = b2service.proxyClient.address;
+                          final port = b2service.proxyClient.port;
+                          // Set the controller text to the address and port, if available.
+                          _proxyController.text = port != null ? "$address:$port" : address;
+                        } else {
+                          // Optionally clear the text when disabling.
+                          _proxyController.clear();
+                        }
+                      });
+                    },
+                  ),
+                  const Text("Enable custom proxy"),
+                ],
+              ),
+              TextField(
+                controller: _proxyController,
+                enabled: _proxyEnabled,
+                decoration: const InputDecoration(
+                  hintText: "Enter IP:port or domain",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 8),
+             Align(
+                alignment: Alignment.centerRight,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.33,
+                  child: ElevatedButton(
+                    onPressed: !_proxyEnabled
+                        ? null
+                        : () {
+                            final input = _proxyController.text.trim();
+                            if (validateProxyInput(input)) {
+                              List<String> tokens = input.split(':');
+                              if (tokens.length == 2) {
+                                b2service.updateProxyAddress(tokens[0],
+                                    newPort: int.tryParse(tokens[1]));
+                              } else {
+                                b2service.updateProxyAddress(input);
+                              }
+                              final String newBaseUrl = b2service.proxyClient.baseUrl;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        "Proxy updated successfully to $newBaseUrl")),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text("Invalid proxy address")),
+                              );
+                            }
+                          },
+                    child: const Text("Apply"),
+                  ),
+                ),
+),
+
             ],
           ),
         ),

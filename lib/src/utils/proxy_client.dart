@@ -16,11 +16,11 @@ class ProxyClient {
   /// [port] is optional (default is 80 for HTTP and 443 for HTTPS).
   /// [useSSL] determines if the connection should use HTTPS.
   ProxyClient({
-    required address,
-    this.port,
+    required String address,
+    int? port,
     this.useSSL = false,
-  }) :
-    _address = address;
+  })  : _address = address,
+        _port = port;
 
    // Private variable to store the address.
   String _address;
@@ -33,7 +33,12 @@ class ProxyClient {
     _address = newAddress;
   }
 
-  final int? port;
+  int? _port;
+  int? get port => _port;
+   set port(int? newPort) {
+    _port = newPort;
+  }
+
   final bool useSSL;
 
 

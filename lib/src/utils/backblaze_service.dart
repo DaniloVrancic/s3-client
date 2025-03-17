@@ -56,6 +56,15 @@ class BackblazeService {
   
   String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
   String get userbaseObject => _userbaseObject ?? "a---user-repository";
+
+  updateProxyAddress(String newProxyAddress, {int? newPort})
+  {
+      proxyAddress = newProxyAddress;
+      proxyClient.address = newProxyAddress;
+      proxyClient.port = newPort;
+      proxyPort = newPort;    
+    
+  }
     
   Future<List<String>> fetchUserbase() async {
 
