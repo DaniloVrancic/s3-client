@@ -337,4 +337,14 @@ class BackblazeService {
       return false;
     }
   }
+
+  Future<String> getPresignedGetUrl({required String bucket, required String object, int? hoursUntilExpire})
+  {
+    return proxyClient.getPresignedGetUrl(bucket: bucket, object: object, hoursUntilExpire: hoursUntilExpire);
+  }
+
+  Future<String> getPresignedPutUrl({required String bucket, required String object, int? hoursUntilExpire})
+  {
+    return proxyClient.getPresignedPutUrl(bucket: bucket, object: object, hoursUntilExpire: hoursUntilExpire);
+  }
 }

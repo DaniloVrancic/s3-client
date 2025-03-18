@@ -17,6 +17,7 @@ import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_directory/cloud_directory.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
 import 'package:path/path.dart' as path;
+import 'package:share_plus/share_plus.dart';
 
 class DirectoryPageWidget extends StatefulWidget {
 
@@ -176,6 +177,31 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
       return false;
     }
   }
+
+  Future<void> handlePresignedPutUrl(int hours, {String prefix = ""}) async {
+  final String? selectedObjectName = await _showInputObjectNameDialog(context, prefix: prefix);
+
+  if(selectedObjectName == null) return;
+
+  try{
+    final BackblazeService backblazeService = context.read<BackblazeService>();
+     
+    final String userBucket = AppUtils.getBucketFromContext(context);
+    String link;
+
+    link = await backblazeService.getPresignedPutUrl(bucket: userBucket, object: (prefix.isNotEmpty) ? "$prefix/$selectedObjectName" : selectedObjectName);
+
+    Share.share(link, subject: "Upload your file here!");
+  } 
+  catch (e) {
+      SnackbarShower.showSnackbar(
+          message: "Failed to retrieve link! ($e)",
+          context: context,
+          color: Colors.red.shade300
+        );
+    }
+}
+
 
 Future<void> requestPermission() async {
   if (Platform.isAndroid) {
@@ -369,6 +395,84 @@ Future<void> _createDirectory(String directoryName) async {
       },
     );
   }
+
+  Future<String?> _showInputObjectNameDialog(
+              BuildContext context, {
+              String prefix = "",
+          }) async {
+          final TextEditingController _controller = TextEditingController();
+          String? errorText;
+
+          return showDialog<String>(
+            context: context,
+            barrierDismissible: false, // Prevents dismissing by tapping outside.
+            builder: (context) {
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return AlertDialog(
+                    title: const Text("Please input desired object name to Share for PUT:"),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(
+                            labelText: "Object Name",
+                            hintText: "Enter Object Name",
+                            errorText: errorText,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              errorText = null;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(null);
+                        },
+                        child: const Text("Cancel", style: TextStyle(color: Colors.red)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          try{
+
+                          final input = _controller.text.trim();
+                          // Validate input.
+                          if (input.isEmpty) {
+                            setState(() {
+                              errorText = "Object name cannot be empty.";
+                            });
+                            return;
+                          }
+                          if (input.contains('/')) {
+                            setState(() {
+                              errorText = "Object name must not contain '/'.";
+                            });
+                            return;
+                          }
+                          // Return the validated input.
+                          Navigator.of(context).pop(input);
+                          }
+                          catch(e){
+                            SnackbarShower.showSnackbar(context: context, message: "Invalid object name", color: Colors.red);
+                            return;
+                          }
+                          
+                          
+                        },
+                        child: const Text("Share", style: TextStyle(color: Colors.blue)),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          );
+    }
     
     
 
@@ -380,6 +484,7 @@ String getNameWithoutPrefix(String name){
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
     List<Color> listOfIconColors = MyColorsList.listOfIconColors;
+    final int HOURS_FOR_PRESIGNED_URL = 72;
 
 
     if(changeFollower.needToGetObjects) {
@@ -443,6 +548,11 @@ String getNameWithoutPrefix(String name){
             overflow: TextOverflow.ellipsis,
                 ),
           actions: [
+            IconButton(onPressed: () => {
+            handlePresignedPutUrl(HOURS_FOR_PRESIGNED_URL, prefix: widget.prefix)
+          },
+              icon: const Icon(Icons.share_sharp)
+            ),
           IconButton(onPressed: () async { await _reloadObjects(); },
               
               icon: _isReloading 

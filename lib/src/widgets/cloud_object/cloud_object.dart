@@ -166,7 +166,7 @@ class _CloudObjectState extends State<CloudObject> {
     /// Opens a dialog to select the presigned link type (GET or PUT), retrieves the link,
   /// and then opens the sharing screen.
   Future<void> _handleShare(int hours) async {
-    // Show a dialog to choose between GET and PUT.
+    
     final String? selectedMethod = await showDialog<String>(
       context: context,
       builder: (context) {
