@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 
@@ -150,7 +151,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         return;
       }
 
-      this.userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
+      this.userBucket = AppUtils.getBucketFromContext(context);
 
       await b2service.bucketExists(userBucket) //Make sure the bucket exists if the user is logging in
       .then((bool exists) async {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -42,7 +43,7 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
     _b2service = context.read<BackblazeService>();
     
     loggedUser = context.read<User>();
-    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
+    userBucket = AppUtils.getBucketFromContext(context);
     _controllers = {};
 
     allObjects = widget.objects;
@@ -83,10 +84,10 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1 : 2) : 3,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1.07 : 0.9) : 0.7,
                     ),
                     itemCount: foundObjects.length,
                     itemBuilder: (context, index) {

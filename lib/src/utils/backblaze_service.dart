@@ -12,9 +12,9 @@ import 'package:s3_client/src/utils/proxy_client.dart';
 class BackblazeService {
 
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  String keyId = "YOUR_KEY_ID";
-  String applicationKey = "YOUR_APPLICATION_KEY";
-  String region = "YOUR_REGION";
+  //String keyId = "YOUR_KEY_ID";
+  //String applicationKey = "YOUR_APPLICATION_KEY";
+  //String region = "YOUR_REGION";
   String proxyAddress = "YOUR_PROXY_SERVER_ADDRESS";
   int? proxyPort = null;
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -31,9 +31,9 @@ class BackblazeService {
 
   BackblazeService(
     {
-      required this.keyId, 
-      required this.applicationKey, 
-      required this.region, 
+      //required this.keyId, 
+      //required this.applicationKey, 
+      //required this.region, 
       required this.proxyAddress,
       required this.proxyPort,
       required userbaseBucket, 
@@ -56,6 +56,15 @@ class BackblazeService {
   
   String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
   String get userbaseObject => _userbaseObject ?? "a---user-repository";
+
+  updateProxyAddress(String newProxyAddress, {int? newPort})
+  {
+      proxyAddress = newProxyAddress;
+      proxyClient.address = newProxyAddress;
+      proxyClient.port = newPort;
+      proxyPort = newPort;    
+    
+  }
     
   Future<List<String>> fetchUserbase() async {
 
@@ -327,5 +336,15 @@ class BackblazeService {
       print("Error downloading file: $e");
       return false;
     }
+  }
+
+  Future<String> getPresignedGetUrl({required String bucket, required String object, int? hoursUntilExpire})
+  {
+    return proxyClient.getPresignedGetUrl(bucket: bucket, object: object, hoursUntilExpire: hoursUntilExpire);
+  }
+
+  Future<String> getPresignedPutUrl({required String bucket, required String object, int? hoursUntilExpire})
+  {
+    return proxyClient.getPresignedPutUrl(bucket: bucket, object: object, hoursUntilExpire: hoursUntilExpire);
   }
 }

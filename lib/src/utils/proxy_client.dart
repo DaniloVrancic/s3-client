@@ -16,11 +16,11 @@ class ProxyClient {
   /// [port] is optional (default is 80 for HTTP and 443 for HTTPS).
   /// [useSSL] determines if the connection should use HTTPS.
   ProxyClient({
-    required address,
-    this.port,
+    required String address,
+    int? port,
     this.useSSL = false,
-  }) :
-    _address = address;
+  })  : _address = address,
+        _port = port;
 
    // Private variable to store the address.
   String _address;
@@ -33,7 +33,12 @@ class ProxyClient {
     _address = newAddress;
   }
 
-  final int? port;
+  int? _port;
+  int? get port => _port;
+   set port(int? newPort) {
+    _port = newPort;
+  }
+
   final bool useSSL;
 
 
@@ -330,10 +335,21 @@ Future<String> deleteObjects({
   Future<String> getPresignedGetUrl({
     required String bucket,
     required String object,
+    int? hoursUntilExpire
   }) async {
-    final url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object');
+    final Uri url;
+    if(hoursUntilExpire == null)
+    {
+
+      url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object');
+    }
+    else{
+      url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object&hoursUntilExpire=$hoursUntilExpire');
+    }
     final response = await http.get(url);
     if (response.statusCode == 200) {
+      print("PRESIGNED GET URL:");
+      print(response.body);
       return response.body;
     } else {
       throw Exception('Failed to get presigned GET URL: ${response.body}');
@@ -346,10 +362,20 @@ Future<String> deleteObjects({
   Future<String> getPresignedPutUrl({
     required String bucket,
     required String object,
+    int? hoursUntilExpire
   }) async {
-    final url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object');
+    final Uri url;
+    if(hoursUntilExpire == null)
+    {
+      url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object');
+    }
+    else{
+      url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object&hoursUntilExpire=$hoursUntilExpire');
+    }
     final response = await http.get(url);
     if (response.statusCode == 200) {
+      print("PRESIGNED PUT URL:");
+      print(response.body);
       return response.body;
     } else {
       throw Exception('Failed to get presigned PUT URL: ${response.body}');

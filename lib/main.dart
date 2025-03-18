@@ -25,12 +25,12 @@ void main() async {
 
   
   //Instantiate the S3Client for sending requests and working with the cloud:
-  final String myRegion = dotenv.env['REGION_NAME'].toString();
-  final String myProvider = dotenv.env['PROVIDER_NAME'].toString();
-  final String myEndpoint = "https://s3.$myRegion.$myProvider.com";
-  final String apiKeyId = dotenv.env['API_KEY_ID'].toString();
-  final String secretKey = dotenv.env['APPLICATION_KEY'].toString();
-  final String serviceName = dotenv.env['SERVICE_NAME'].toString();
+  //final String myRegion = dotenv.env['REGION_NAME'].toString();
+  //final String myProvider = dotenv.env['PROVIDER_NAME'].toString();
+  //final String myEndpoint = "https://s3.$myRegion.$myProvider.com";
+  //final String apiKeyId = dotenv.env['API_KEY_ID'].toString();
+  //final String secretKey = dotenv.env['APPLICATION_KEY'].toString();
+  //final String serviceName = dotenv.env['SERVICE_NAME'].toString();
 
   final String proxyAddress = dotenv.env['PROXY_ADDRESS'].toString();
   final int? proxyPort = int.tryParse(dotenv.env["PROXY_PORT"].toString());
@@ -50,9 +50,9 @@ void main() async {
   
  // final S3Service s3Service = S3Service(awsSigner, myEndpoint);
   final BackblazeService b2Service = BackblazeService(
-    keyId: apiKeyId, 
-    applicationKey: secretKey, 
-    region: myRegion,
+    //keyId: apiKeyId, 
+    //applicationKey: secretKey, 
+    //region: myRegion,
     proxyAddress: proxyAddress,
     proxyPort: proxyPort,
     userbaseBucket: userbaseBucket,

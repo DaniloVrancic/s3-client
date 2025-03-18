@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 
@@ -138,7 +139,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
     List<int> listOfUsersCodeUnits = utf8.encode(listOfUsersString); //Used to create a proper Uint8List to send to method
 
     bool isUserCreated = false;
-    userBucket = "${userToRegister.username.toLowerCase()}-b2---${userToRegister.username.toLowerCase()}";
+    this.userBucket = AppUtils.getBucketFromContext(context);
      
      await b2service.bucketExists(userBucket).then((bool exists) async {
       if(exists){

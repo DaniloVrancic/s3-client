@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/file_item/file_item.dart';
@@ -70,7 +71,7 @@ class _UploadFilePageState extends State<UploadFilePage> {
             _isUploading = true;
           });
 
-    String userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
+    String userBucket = AppUtils.getBucketFromContext(context);
     for(PlatformFile pFile in filesToUpload)
     {
 
