@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:s3_client/src/screens/login_screen/login_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
+import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 
 class StartPageWidget extends StatelessWidget {
   const StartPageWidget({super.key});
@@ -8,7 +9,21 @@ class StartPageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      floatingActionButton: IconButton(
+                    icon: const Icon(Icons.settings),
+                    tooltip: "Settings",
+                    iconSize: 30.0,
+                    color: Colors.deepOrange,
+                    splashColor: Colors.white,
+                    highlightColor: Colors.white,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
+                      );
+                    },
+                  ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startTop,
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,

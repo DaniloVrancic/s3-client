@@ -335,10 +335,21 @@ Future<String> deleteObjects({
   Future<String> getPresignedGetUrl({
     required String bucket,
     required String object,
+    int? hoursUntilExpire
   }) async {
-    final url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object');
+    final Uri url;
+    if(hoursUntilExpire == null)
+    {
+
+      url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object');
+    }
+    else{
+      url = Uri.parse('$baseUrl/presigned_get?bucket=$bucket&object=$object&hoursUntilExpire=$hoursUntilExpire');
+    }
     final response = await http.get(url);
     if (response.statusCode == 200) {
+      print("PRESIGNED GET URL:");
+      print(response.body);
       return response.body;
     } else {
       throw Exception('Failed to get presigned GET URL: ${response.body}');
@@ -351,10 +362,20 @@ Future<String> deleteObjects({
   Future<String> getPresignedPutUrl({
     required String bucket,
     required String object,
+    int? hoursUntilExpire
   }) async {
-    final url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object');
+    final Uri url;
+    if(hoursUntilExpire == null)
+    {
+      url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object');
+    }
+    else{
+      url = Uri.parse('$baseUrl/presigned_put?bucket=$bucket&object=$object&hoursUntilExpire=$hoursUntilExpire');
+    }
     final response = await http.get(url);
     if (response.statusCode == 200) {
+      print("PRESIGNED PUT URL:");
+      print(response.body);
       return response.body;
     } else {
       throw Exception('Failed to get presigned PUT URL: ${response.body}');

@@ -15,6 +15,7 @@ import 'package:s3_client/src/screens/search_page/search_page.dart';
 import 'package:s3_client/src/screens/settings_page/settings_page.dart';
 import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -56,7 +57,7 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
     _b2service = context.read<BackblazeService>();
     
     loggedUser = context.read<User>();
-    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
+    userBucket = AppUtils.getBucketFromContext(context);
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _reloadObjects(); // Initial loading of objects
@@ -520,7 +521,7 @@ Future<void> _createDirectory(String directoryName) async {
                     },
                   ),
                   ListTile(
-                      leading: const Icon(Icons.upload_file),
+                    leading: const Icon(Icons.upload_file),
                     title: const Text("Upload File"),
                     onTap: () {
                       Navigator.pop(context);
@@ -589,10 +590,10 @@ Future<void> _createDirectory(String directoryName) async {
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1 : 2) : 3,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1.1 : 0.9) : 0.7,
                     ),
                     itemCount: itemsToDisplay.length,
                     itemBuilder: (context, index) {

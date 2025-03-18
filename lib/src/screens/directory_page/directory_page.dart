@@ -10,6 +10,7 @@ import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
+import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -37,7 +38,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
   late BackblazeService _b2service;
   late List<ProxyObject> foundFiles = [];
   late String userBucket;
-  late User loggedUser;
+  
   late ChangeFollower changeFollower;
 
   List<HomePageItem> itemsToDisplay = []; // Will Contain the List of All Top Level Entities to Print Out
@@ -54,8 +55,8 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     
     _b2service = context.read<BackblazeService>();
     
-    loggedUser = context.read<User>();
-    userBucket = "${loggedUser.username.toLowerCase()}-b2---${loggedUser.username.toLowerCase()}";
+    
+    userBucket = AppUtils.getBucketFromContext(context);
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     
@@ -501,10 +502,10 @@ String getNameWithoutPrefix(String name){
                 : GridView.builder(
                     padding: const EdgeInsets.all(8.0),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1 : 2) : 3,
+                      crossAxisCount:  MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1 : 2) : 3,
                       mainAxisSpacing: 5.0,
                       crossAxisSpacing: 10.0,
-                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 565 ? 1.5 : 0.9) : 0.7,
+                      childAspectRatio: MediaQuery.of(context).size.width <= 830 ? (MediaQuery.of(context).size.width <= 506 ? 1.1 : 1.0) : 0.7,
                     ),
                     itemCount: itemsToDisplay.length,
                     itemBuilder: (context, index) {
@@ -534,6 +535,7 @@ String getNameWithoutPrefix(String name){
                           onDelete: () async {
                             showDeleteDialog(context, fileObject);
                           },
+                          prefix: widget.prefix,
                           border: Border.all(
                             color: const Color.fromARGB(125, 226, 158, 11),
                             width: 1.25,
@@ -555,7 +557,7 @@ String getNameWithoutPrefix(String name){
                         {
                           showDeleteDirectoryDialog(context, directoryName);
                         },
-                        iconColor: Colors.yellow.shade300,
+                        iconColor: (theme.brightness == Brightness.dark) ? Colors.yellow.shade300 : Colors.yellow.shade800,
                         );
                       }   //  end of else
                     },
