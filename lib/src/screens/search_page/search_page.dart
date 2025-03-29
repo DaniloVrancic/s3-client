@@ -3,10 +3,11 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:s3_client/src/models/proxy_object.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:minio/models.dart';
+
 import 'package:s3_client/src/utils/list_of_colors.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_object/cloud_object.dart';
@@ -14,7 +15,7 @@ import 'package:provider/provider.dart';
 import 'package:path/path.dart' as path;
 
 class SearchPageWidget extends StatefulWidget {
-  final List<ProxyObject> objects;
+  final List<Object> objects;
 
     const SearchPageWidget({
     super.key,
@@ -27,8 +28,8 @@ class SearchPageWidget extends StatefulWidget {
 
 class _SearchPageWidgetState extends State<SearchPageWidget> {
 
-  late List<ProxyObject> foundObjects = []; //for display which objects to show
-  late List<ProxyObject> allObjects = []; // to keep in memory all the existing files
+  late List<Object> foundObjects = []; //for display which objects to show
+  late List<Object> allObjects = []; // to keep in memory all the existing files
   late BackblazeService _b2service;
   late String userBucket;
   late User loggedUser;
@@ -47,7 +48,7 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
     _controllers = {};
 
     allObjects = widget.objects;
-    allObjects.removeWhere((ProxyObject foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
+    allObjects.removeWhere((Object foundObject) {  // BackBlaze Specific Implementation that Will Omit the .bzEmpty File that is Created Automatically as a Mechanism for Creating Folders
       return foundObject.key!.endsWith(".bzEmpty") && foundObject.size == 0;
     });
     foundObjects = allObjects;
@@ -131,7 +132,7 @@ class _SearchPageWidgetState extends State<SearchPageWidget> {
   }
 
   Future<void> findObjects(String searchString) async {
-    List<ProxyObject> tempObjects = allObjects;
+    List<Object> tempObjects = allObjects;
     tempObjects = tempObjects.where((object) => object.key!.contains(searchString)).toList();
     
 

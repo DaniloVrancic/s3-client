@@ -192,10 +192,12 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                         _proxyEnabled = value ?? false;
                         if (_proxyEnabled) {
                           // Retrieve the current proxy address and port.
-                          final address = b2service.proxyClient.address;
-                          final port = b2service.proxyClient.port;
+                          // MAYBE FIX LATER
+                          //final address = b2service.proxyClient.address;
+                          //final port = b2service.proxyClient.port;
                           // Set the controller text to the address and port, if available.
-                          _proxyController.text = port != null ? "$address:$port" : address;
+                          //_proxyController.text = port != null ? "$address:$port" : address;
+                          //TODO: MAYBE FIX THIS LATER IF IT IS NECESSARY!!!
                         } else {
                           // Optionally clear the text when disabling.
                           _proxyController.clear();
@@ -217,6 +219,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
               ),
               
               const SizedBox(height: 8),
+              /*
              Align(
                 alignment: Alignment.centerRight,
                 child: SizedBox(
@@ -250,7 +253,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   ),
                 ),
               ),
-
+            */
             ],
           ),
         ),
