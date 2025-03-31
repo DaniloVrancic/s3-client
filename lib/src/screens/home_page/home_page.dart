@@ -10,6 +10,7 @@ import 'package:s3_client/src/models/change_follower.dart';
 
 import 'package:minio/models.dart';
 import 'package:s3_client/src/models/user.dart';
+import 'package:s3_client/src/screens/buckets_page/buckets_page.dart';
 import 'package:s3_client/src/screens/directory_page/directory_page.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/search_page/search_page.dart';
@@ -643,7 +644,7 @@ Future<void> _createDirectory(String directoryName) async {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
+                        MaterialPageRoute(builder: (context)=> const BucketsPage())
                       );
                     },
                   ),

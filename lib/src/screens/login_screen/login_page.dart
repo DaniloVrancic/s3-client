@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/bucket_notifier.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
@@ -56,6 +57,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
 
     BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
     User loggedUser = context.read<User>();
+    BucketNotifier bucketNotifier = context.read<BucketNotifier>();
     
     
     /*
@@ -156,6 +158,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         print("LOADED BUCKETS!");
         print(buckets);
         loggedUser.setUser(newUsername: loginUsername, newEmail: loginUsername, newPassword: loginPassword);
+        
             SnackbarShower.showSnackbar(
                             context: context,
                             message: 'Login successful!',
@@ -180,6 +183,15 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       }
 
       this.userBucket = AppUtils.getBucketFromContext(context);
+      Bucket? foundBucket = buckets.firstWhere(
+      (Bucket o) => o.name == userBucket,
+      orElse: () => buckets.isNotEmpty ? buckets.first : throw Exception("No buckets available"),
+      );
+        bucketNotifier.setBucket(foundBucket);
+     
+
+      print("FOUND BUCKET!:");
+      print(foundBucket);
 
       await b2service.bucketExists(userBucket) //Make sure the bucket exists if the user is logging in
       .then((bool exists) async {

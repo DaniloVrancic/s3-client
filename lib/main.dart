@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/bucket_notifier.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
@@ -56,7 +57,7 @@ void main() async {
     userbaseObject: userbaseObject);
 
   //final ChangeFollower changeFollower = ChangeFollower();
-
+  
 
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
@@ -66,6 +67,7 @@ void main() async {
     providers: [
       Provider<BackblazeService>.value(value: b2Service),
       ChangeNotifierProvider<SettingsController>.value(value: settingsController),
+      ChangeNotifierProvider<BucketNotifier>(create: (_) => BucketNotifier()),
       ChangeNotifierProvider<ChangeFollower>(create: (_) => ChangeFollower()),
       ChangeNotifierProvider<User>(create: (_) => User()), // The User that I will use anywhere in the application
     ],
