@@ -95,6 +95,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     bool foundUser = false;
     List<String> listOfUsers = [];
+    /*
     await b2service.fetchUserbase().then((List<String> userStringList) {
       for(String line in userStringList)
       {
@@ -114,7 +115,7 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
         }
       }
     });
-
+  */
     if(foundUser) //  If the User already exists in the users file on the cloud
     {
       SnackbarShower.showSnackbar(
@@ -169,8 +170,10 @@ class _RegisterPageWidgetState extends State<RegisterPageWidget> {
 
     await b2service.uploadFileFromBytes(
       Uint8List.fromList(listOfUsersCodeUnits),
-      b2service.userbaseBucket.toString(),
-      b2service.userbaseObject.toString(),
+      "placeholder",
+      "placeholder",
+     // b2service.userbaseBucket.toString(),
+     // b2service.userbaseObject.toString(),
       contentType: "text/csv"
     ).then(
       (bool value) => {

@@ -6,13 +6,9 @@ import 'dart:typed_data';
 
 import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
-import 'package:s3_client/src/models/exception/proxy_errors.dart';
-import 'package:s3_client/src/models/proxy_object.dart';
-import 'package:s3_client/src/models/proxy_stat_object_result.dart';
-import 'package:s3_client/src/utils/proxy_client.dart';
 
 class BackblazeService {
-
+  static final String DEFAULT_ADDRESS = "10.99.167.45";
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   String keyId = "YOUR_KEY_ID";
   String applicationKey = "YOUR_APPLICATION_KEY";
@@ -25,10 +21,13 @@ class BackblazeService {
   String? _userbaseBucket = "YOUR_BUCKET";
   String? _userbaseObject = "YOUR_OBJECT";
 
+  String address  = DEFAULT_ADDRESS;
+  int?   port     = 9000;
+
   
   
   
-  final Minio minio;
+  Minio minio;
 
 
 
@@ -36,11 +35,13 @@ class BackblazeService {
     {
       required this.keyId, 
       required this.applicationKey, 
-      required this.region, 
+      required this.region,
+      required this.address,
+      this.port,
       //required this.proxyAddress,
       //required this.proxyPort,
-      required userbaseBucket, 
-      required userbaseObject,
+      userbaseBucket, 
+      userbaseObject,
 
     }) 
       :
@@ -48,16 +49,16 @@ class BackblazeService {
       _userbaseObject = userbaseObject,
       
       minio = Minio(
-        endPoint: "s3.$region.backblazeb2.com",
+        endPoint: address,
         accessKey: keyId,
         secretKey: applicationKey,
         region: region,
-        useSSL: true
+        port: port,
+        useSSL: false
       );
-  
+  /*
   String get userbaseBucket => _userbaseBucket ?? "a---user-repository";
   String get userbaseObject => _userbaseObject ?? "a---user-repository";
-
     
   Future<List<String>> fetchUserbase() async {
 
@@ -95,6 +96,77 @@ class BackblazeService {
       print("Error fetching userbase: $e");
       return [];
     }
+  }
+  */
+
+  void updateKeys(String keyId, String applicationKey){
+    this.keyId = keyId;
+    this.applicationKey = applicationKey;
+
+   this.minio = Minio(
+      endPoint: address,
+      region: region,
+      accessKey: keyId,
+      secretKey: applicationKey,
+      useSSL: false,
+      port: (port != null) ? port : null
+    );
+
+  }
+  void updateRegion(String region){
+    this.region = region;
+
+    this.minio = Minio(
+      endPoint: address,
+      region: region,
+      accessKey: keyId,
+      secretKey: applicationKey,
+      useSSL: false,
+      port: (port != null) ? port : null
+    );
+  }
+
+   void updateAddress({required String address, int? port}){
+    this.address = address;
+    if(port != null)
+    {
+      this.port = port;
+    }
+
+    this.minio = Minio(
+      endPoint: address,
+      region: region,
+      accessKey: keyId,
+      secretKey: applicationKey,
+      useSSL: false,
+      port: (port != null) ? port : null
+    );
+  }
+
+  void updateMinioClient({
+    required String address,
+    int? port,
+    required String region,
+    bool useSSL = false,
+    required String accessKey,
+    required String secretKey
+  })
+  {
+    this.address = address;
+    if(port != null){
+      this.port = port;
+    }
+    this.region = region;
+    this.keyId = accessKey;
+    this.applicationKey = secretKey;
+    this.minio = Minio(
+      endPoint: address,
+      region: region,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      useSSL: useSSL,
+      port: (port != null) ? port : null
+    );
   }
 
   Future<ListObjectsResult?> fetchAllObjectsFromBucket(String bucketName, {String prefix = ""}) async {
@@ -319,11 +391,11 @@ class BackblazeService {
 
   Future<String> getPresignedGetUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedUrl('GET', bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedGetObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
   }
 
   Future<String> getPresignedPutUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedUrl('POST', bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedPutObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
   }
 }

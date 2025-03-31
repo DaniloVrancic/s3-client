@@ -50,6 +50,8 @@ void main() async {
     keyId: apiKeyId, 
     applicationKey: secretKey, 
     region: myRegion,
+    address: BackblazeService.DEFAULT_ADDRESS,
+    port: 9000,
     userbaseBucket: userbaseBucket,
     userbaseObject: userbaseObject);
 

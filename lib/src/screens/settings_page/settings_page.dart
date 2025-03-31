@@ -179,7 +179,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
               const SizedBox(height: 24),
               // New Setting: Proxy IP/Domain Input
               const Text(
-                'Proxy IP/Domain:',
+                'Cloud provider IP/Domain:',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 15,),
@@ -193,11 +193,11 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                         if (_proxyEnabled) {
                           // Retrieve the current proxy address and port.
                           // MAYBE FIX LATER
-                          //final address = b2service.proxyClient.address;
-                          //final port = b2service.proxyClient.port;
+                          final address = b2service.address;
+                          int? port = b2service.port;
                           // Set the controller text to the address and port, if available.
-                          //_proxyController.text = port != null ? "$address:$port" : address;
-                          //TODO: MAYBE FIX THIS LATER IF IT IS NECESSARY!!!
+                          _proxyController.text = port != null ? "$address:$port" : address;
+                          
                         } else {
                           // Optionally clear the text when disabling.
                           _proxyController.clear();
@@ -219,7 +219,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
               ),
               
               const SizedBox(height: 8),
-              /*
+              
              Align(
                 alignment: Alignment.centerRight,
                 child: SizedBox(
@@ -232,20 +232,20 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                             if (validateProxyInput(input)) {
                               List<String> tokens = input.split(':');
                               if (tokens.length == 2) {
-                                b2service.updateProxyAddress(tokens[0],
-                                    newPort: int.tryParse(tokens[1]));
+                                b2service.updateAddress(address: tokens[0],
+                                    port: int.tryParse(tokens[1]));
                               } else {
-                                b2service.updateProxyAddress(input);
+                                b2service.updateAddress(address: input);
                               }
-                              final String newBaseUrl = b2service.proxyClient.baseUrl;
+                              final String newBaseUrl = b2service.address + ((b2service.port == null) ? "" : ":${b2service.port}");
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                     content: Text(
-                                        "Proxy updated successfully to $newBaseUrl")),
+                                        "Cloud provider address updated successfully to $newBaseUrl")),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Invalid proxy address")),
+                                const SnackBar(content: Text("Invalid cloud provider address")),
                               );
                             }
                           },
@@ -253,7 +253,7 @@ class _SettingsPageWidgetState extends State<SettingsPageWidget> {
                   ),
                 ),
               ),
-            */
+            
             ],
           ),
         ),

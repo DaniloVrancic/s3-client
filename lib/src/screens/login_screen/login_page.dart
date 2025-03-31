@@ -56,6 +56,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     User loggedUser = context.read<User>();
     
     List<String> listOfUsers = [];
+    /*
     await b2service.fetchUserbase()
     .then<List<String>?>((List<String> userStringList) { //Parses through all the users in the listOfUsers, return the tokens of the found user, or null if the user hasn't been found
       for(String line in userStringList)
@@ -144,7 +145,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         );
         return;
     });
-
+  */
       if(!loggedUser.isLoggedIn())
       {
         setState(() => _isLoading = false);
