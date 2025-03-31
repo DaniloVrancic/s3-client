@@ -637,12 +637,24 @@ Future<void> _createDirectory(String directoryName) async {
                     },
                   ),
                   ListTile(
+                    leading: const Icon(Icons.margin),
+                    title: const Text("Buckets"),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)=> const SettingsPageWidget())
+                      );
+                    },
+                  ),
+                  ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text("Log Out"),
                     onTap: () {
                       loggedUser.logout();
-                      Navigator.pop(context);
-                      Navigator.push(
+                      _b2service.updateKeys("", "");
+                     
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context)=> const StartPageWidget())
                       );

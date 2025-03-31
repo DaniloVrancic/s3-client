@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
 import 'package:s3_client/src/models/user.dart';
 import 'package:s3_client/src/screens/home_page/home_page.dart';
 import 'package:s3_client/src/screens/register_screen/register_page.dart';
+import 'package:s3_client/src/screens/start_page/start_page_view.dart';
 import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -55,7 +57,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     BackblazeService b2service = context.read<BackblazeService>(); //Gets the S3 Compatible Service From the context (Initialized at Start in main method)
     User loggedUser = context.read<User>();
     
-    List<String> listOfUsers = [];
+    
     /*
     await b2service.fetchUserbase()
     .then<List<String>?>((List<String> userStringList) { //Parses through all the users in the listOfUsers, return the tokens of the found user, or null if the user hasn't been found
@@ -146,6 +148,31 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
         return;
     });
   */
+      List<Bucket> buckets = [];
+      try{
+        print("TRYING TO LOGIN");
+        b2service.updateKeys(loginUsername, loginPassword);
+        buckets = await b2service.minio.listBuckets();
+        print("LOADED BUCKETS!");
+        print(buckets);
+        loggedUser.setUser(newUsername: loginUsername, newEmail: loginUsername, newPassword: loginPassword);
+            SnackbarShower.showSnackbar(
+                            context: context,
+                            message: 'Login successful!',
+                            color: Colors.green.shade300
+                            );
+                 
+                 Future.delayed(Duration(seconds: 1), () {
+                    Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (context)=> const HomePageWidget())); // Assuming previous screen is Starting Screen
+                  });
+      } catch(e)
+      {
+        print("ERROR WHEN LOGGING IN!");
+        print(e);
+        SnackbarShower.showSnackbar(context: context, message: "Invalid username or password", color: Colors.red.shade300);
+      }
       if(!loggedUser.isLoggedIn())
       {
         setState(() => _isLoading = false);
@@ -309,11 +336,11 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
                             ),
                           GestureDetector(
                             onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPageWidget()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const StartPageWidget()));
                             },
-                            child: Text("SIGN UP",
+                            child: Text("Ask an Admin to Sign you Up",
                             style: TextStyle(
-                              color: (theme.brightness == Brightness.dark) ? Colors.lightBlue : Colors.blue.shade700,
+                              color: (theme.brightness == Brightness.dark) ? theme.hintColor : theme.hintColor,
                             fontSize: 14.0, 
                             fontWeight: FontWeight.bold
                             ),),
