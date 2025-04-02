@@ -149,7 +149,7 @@ class _BucketsPageState extends State<BucketsPage> with SingleTickerProviderStat
                             creationDate: creationDate,
                             isSelected: _selectedBucket!.selectedBucket.name == bucketName,
                             onTap: () => _selectBucket(bucketName, creationDate),
-                            onDelete: () => _deleteBucket(bucketName),
+                            onDelete: () => showDeleteDialog(context, bucketName),
                           );
                         },
                       ),
@@ -158,6 +158,41 @@ class _BucketsPageState extends State<BucketsPage> with SingleTickerProviderStat
           ),
         ),
       ),
+    );
+  }
+
+  void showDeleteDialog(BuildContext context, String bucketName) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Warning"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Are you sure you wish to delete this bucket from storage?"),
+              const Text("(Deleted Buckets can't be retrieved)"),
+              const Text("(Buckets must not contain any objects to be deleted.)"),
+              const SizedBox(height: 10.0,),
+              Text("Name: ${bucketName}")
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteBucket(bucketName);
+                },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
     );
   }
 }
