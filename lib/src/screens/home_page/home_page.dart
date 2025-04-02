@@ -62,6 +62,7 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
     super.initState();
     
     _b2service = context.read<BackblazeService>();
+  
     
     loggedUser = context.read<User>();
     userBucket = AppUtils.getSelectedBucketFromContext(context);
@@ -79,13 +80,15 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
 
   @override
 void didChangeDependencies() {
-  super.didChangeDependencies();
-  changeFollower = context.watch<ChangeFollower>();
-  bucketFollower = context.watch<BucketNotifier>();
+    super.didChangeDependencies();
 
-  if(bucketFollower!.selectedBucket.name != userBucket.name ){
-    userBucket = bucketFollower!.selectedBucket;
-  }
+    changeFollower = context.watch<ChangeFollower>();
+    bucketFollower = context.watch<BucketNotifier>();
+
+    if(bucketFollower.selectedBucket.name != userBucket.name ){
+      userBucket = bucketFollower.selectedBucket;
+      _reloadObjects();
+    }
 
 }
 

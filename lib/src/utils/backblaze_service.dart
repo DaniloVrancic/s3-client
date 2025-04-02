@@ -402,11 +402,11 @@ class BackblazeService {
 
   Future<String> getPresignedGetUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedGetObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedGetObject( bucket, object, expires: (hoursUntilExpire != null) ? hoursUntilExpire * 60 * 24 : hoursUntilExpire);
   }
 
   Future<String> getPresignedPutUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedPutObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedPutObject( bucket, object, expires: (hoursUntilExpire != null) ? hoursUntilExpire * 60 * 24 : hoursUntilExpire);
   }
 }
