@@ -99,6 +99,10 @@ class BackblazeService {
   }
   */
 
+  Future<List<Bucket>> listAllBuckets() async {
+    return await minio.listBuckets();
+  }
+
   void updateKeys(String keyId, String applicationKey){
     this.keyId = keyId;
     this.applicationKey = applicationKey;
@@ -273,6 +277,13 @@ class BackblazeService {
         print(e);
         return false;
       }
+    }
+
+    Future<void> deleteBucket({required String bucket}) async {    
+     
+        await minio.removeBucket(bucket);
+        //print("File successfully deleted: $bucket/$objectName");
+      
     }
 
     

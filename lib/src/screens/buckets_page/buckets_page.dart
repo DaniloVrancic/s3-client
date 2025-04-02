@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:minio/minio.dart';
+import 'package:minio/models.dart';
+import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/bucket_notifier.dart';
+
+import 'package:s3_client/src/utils/backblaze_service.dart';
+import 'package:s3_client/src/utils/snackbar_shower.dart';
 import 'package:s3_client/src/widgets/cloud_bucket/cloud_bucket.dart';
 
 class BucketsPage extends StatefulWidget {
@@ -8,39 +15,82 @@ class BucketsPage extends StatefulWidget {
   State<BucketsPage> createState() => _BucketsPageState();
 }
 
-class _BucketsPageState extends State<BucketsPage> {
-  List<Map<String, dynamic>> foundBuckets = [];
-  String? selectedBucket;
+class _BucketsPageState extends State<BucketsPage> with SingleTickerProviderStateMixin {
+  //List<Map<String, dynamic>> foundBuckets = [];
+  List<Bucket> myFoundBuckets = [];
+  BucketNotifier? _selectedBucket;
+  late BackblazeService _b2service;
+
+  bool _isReloading = false;
+  late AnimationController _animationController;
+
+
 
   @override
   void initState() {
     super.initState();
-    _fetchBuckets();
+    _b2service = context.read<BackblazeService>();
+    _selectedBucket = context.read<BucketNotifier>();
+    _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
+    _reloadBuckets();
   }
 
-  void _fetchBuckets() {
+  Future<void> _fetchBuckets() async {
+    List<Bucket> tempFoundBuckets = await _b2service.listAllBuckets();
     setState(() {
-      foundBuckets = [
-        {"name": "Bucket A", "creationDate": DateTime.now().subtract(const Duration(days: 10))},
-        {"name": "Bucket B", "creationDate": DateTime.now().subtract(const Duration(days: 20))},
-        {"name": "Bucket C", "creationDate": DateTime.now().subtract(const Duration(days: 30))},
-      ];
+      myFoundBuckets = tempFoundBuckets;
     });
   }
 
-  void _selectBucket(String bucketName) {
+  Future<void> _reloadBuckets() async {
+    if (_isReloading) return; // Guard against repeated presses.
     setState(() {
-      selectedBucket = bucketName;
+      _isReloading = true;
+    });
+    _animationController.repeat();
+    
+    try{
+      await _fetchBuckets();
+    }
+    finally{
+      _animationController.stop();
+      setState(() {
+        _isReloading = false;
+      });
+    }
+  }
+
+  void _selectBucket(String bucketName, DateTime? creationDate) {
+    setState(() {
+      Bucket newBucket = Bucket(creationDate, bucketName);
+      _selectedBucket!.setBucket(newBucket);
     });
   }
 
-  void _deleteBucket(String bucketName) {
+  void _deleteBucket(String bucketName) async {
+    try{
+    await _b2service.deleteBucket(bucket: bucketName);
     setState(() {
-      foundBuckets.removeWhere((bucket) => bucket["name"] == bucketName);
-      if (selectedBucket == bucketName) {
-        selectedBucket = null;
+      myFoundBuckets.removeWhere((bucket) => bucket.name == bucketName);
+      if (_selectedBucket!.selectedBucket.name == bucketName) {
+        Bucket newBucket = Bucket(DateTime.now(), "");
+        _selectedBucket!.setBucket(newBucket);
       }
     });
+      SnackbarShower.showSnackbar(context: context, message: "Bucket deleted.", color: Colors.green.shade300);
+    }
+    on MinioError catch(e){
+      if(e.message!.contains("bucket you tried to delete is not empty"))
+      {
+        SnackbarShower.showSnackbar(context: context, message: "The bucked you tried to delete is not empty.", color: Colors.red.shade400);
+      }
+      else{
+        SnackbarShower.showSnackbar(context: context, message: "An error happened.", color: Colors.red.shade400);
+      }
+    }
+    catch(e){
+      SnackbarShower.showSnackbar(context: context, message: "An error happened.", color: Colors.red.shade400);
+    }
   }
 
   @override
@@ -49,6 +99,17 @@ class _BucketsPageState extends State<BucketsPage> {
       appBar: AppBar(
         title: const Text("Select Bucket"),
         backgroundColor: Colors.orange[700],
+        actions: [
+          IconButton(onPressed: () async { await _reloadBuckets(); },
+              
+              icon: _isReloading 
+                ? RotationTransition(
+                    turns: _animationController,
+                    child: const Icon(Icons.refresh),
+                  )
+                : const Icon(Icons.refresh),
+              ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -58,7 +119,7 @@ class _BucketsPageState extends State<BucketsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
-                child: foundBuckets.isEmpty
+                child: myFoundBuckets.isEmpty
                     ? const Center(
                         child: Text(
                           "No buckets found.",
@@ -77,17 +138,17 @@ class _BucketsPageState extends State<BucketsPage> {
                               ? (MediaQuery.of(context).size.width <= 506 ? 1.1 : 0.9)
                               : 0.7,
                         ),
-                        itemCount: foundBuckets.length,
+                        itemCount: myFoundBuckets.length,
                         itemBuilder: (context, index) {
-                          var bucket = foundBuckets[index];
-                          String bucketName = bucket["name"];
-                          DateTime? creationDate = bucket["creationDate"];
+                          Bucket bucket = myFoundBuckets[index];
+                          String bucketName = bucket.name;
+                          DateTime? creationDate = bucket.creationDate;
 
                           return CloudBucket(
                             bucketName: bucketName,
                             creationDate: creationDate,
-                            isSelected: selectedBucket == bucketName,
-                            onTap: () => _selectBucket(bucketName),
+                            isSelected: _selectedBucket!.selectedBucket.name == bucketName,
+                            onTap: () => _selectBucket(bucketName, creationDate),
                             onDelete: () => _deleteBucket(bucketName),
                           );
                         },
