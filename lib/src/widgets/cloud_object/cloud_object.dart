@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:minio/models.dart';
 import 'package:provider/provider.dart';
-import 'package:s3_client/src/models/proxy_object_owner.dart';
 import 'package:s3_client/src/utils/app_utils.dart';
 import 'package:s3_client/src/utils/backblaze_service.dart';
 import 'package:s3_client/src/utils/snackbar_shower.dart';
@@ -229,12 +229,12 @@ class _CloudObjectState extends State<CloudObject> {
       final String userBucket = AppUtils.getBucketFromContext(context);
       String link;
       if (selectedMethod == "GET") {
-        link = await backblazeService.proxyClient.getPresignedGetUrl(
+        link = await backblazeService.getPresignedGetUrl(
           bucket: userBucket,
           object: (widget.prefix.isNotEmpty) ? "${widget.prefix}/${widget.fileName}" : widget.fileName,
         );
       } else {
-        link = await backblazeService.proxyClient.getPresignedPutUrl(
+        link = await backblazeService.getPresignedPutUrl(
           bucket: userBucket,
           object: (widget.prefix.isNotEmpty) ? "${widget.prefix}/${widget.fileName}" : widget.fileName,
         );

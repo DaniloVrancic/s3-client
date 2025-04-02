@@ -1,10 +1,10 @@
-import 'package:s3_client/src/models/proxy_object.dart';
+import 'package:minio/models.dart';
 
 enum HomePageItemType { directory, object }
 
 class HomePageItem {
   final HomePageItemType type;
-  final ProxyObject? object;
+  final Object? object;
   final String? directoryName;
 
   HomePageItem.directory(this.directoryName)

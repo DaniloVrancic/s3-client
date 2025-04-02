@@ -108,6 +108,7 @@ class StartPageWidget extends StatelessWidget {
                    
                  ),
                  const SizedBox(height: 30),
+                /*
                  Padding(
                   padding: const EdgeInsets.all(20),
                    child: 
@@ -137,6 +138,7 @@ class StartPageWidget extends StatelessWidget {
                         color: Colors.white
                       ),)),
                  ),
+                 */
                 ],
               ),
             )
