@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:minio/models.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/bucket_notifier.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 import 'package:s3_client/src/screens/home_page/home_page_item.dart';
 import 'package:s3_client/src/screens/upload_file_page/upload_file_page.dart';
@@ -36,9 +37,10 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
 
   late BackblazeService _b2service;
   late List<Object> foundFiles = [];
-  late String userBucket;
+  late Bucket userBucket;
   
   late ChangeFollower changeFollower;
+  late BucketNotifier bucketFollower;
 
   List<HomePageItem> itemsToDisplay = []; // Will Contain the List of All Top Level Entities to Print Out
 
@@ -55,7 +57,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
     _b2service = context.read<BackblazeService>();
     
     
-    userBucket = AppUtils.getBucketFromContext(context);
+    userBucket = AppUtils.getSelectedBucketFromContext(context);
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     
@@ -68,6 +70,13 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
   void didChangeDependencies() {
     super.didChangeDependencies();
     changeFollower = context.watch<ChangeFollower>();
+    bucketFollower = context.watch<BucketNotifier>();
+
+    if(userBucket != bucketFollower.selectedBucket.name)
+    {
+      userBucket = bucketFollower.selectedBucket;
+      _reloadObjects();
+    }
   }
 
   @override
@@ -88,7 +97,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
   }
 
     Future<void> loadObjects() async {
-    List<Object> objects = await getAllBucketObjects(userBucket, prefix: widget.prefix);
+    List<Object> objects = await getAllBucketObjects(userBucket.name, prefix: widget.prefix);
     
     setState(() {
       foundFiles = objects;
@@ -140,7 +149,7 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                handleDelete(userBucket, myObject);
+                handleDelete(userBucket.name, myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -235,7 +244,7 @@ Future<void> requestPermission() async {
 
     try {
       bool success = await _b2service.downloadFileWithProgress(
-        bucketName: userBucket,
+        bucketName: userBucket.name,
         objectName: fileName,
         savePath: savePath,
         onProgress: (progress) {
@@ -327,7 +336,7 @@ Future<void> _createDirectory(String directoryName) async {
 
     Uint8List emptyList = Uint8List.fromList([]);
 
-    _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
+    _b2service.uploadFileFromBytes(emptyList, userBucket.name, fullFilePath)
               .then((bool success) { 
                 if(success){
                     _reloadObjects();
@@ -374,7 +383,7 @@ Future<void> _createDirectory(String directoryName) async {
               onPressed: () {
                 Navigator.of(context).pop();
                 List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
-                _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
+                _b2service.deleteObjects(bucket: userBucket.name, objectPaths: objectPaths)
                           .then((bool success) 
                           { 
                             if(success){
