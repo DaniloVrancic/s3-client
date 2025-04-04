@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
+import 'package:s3_client/src/models/bucket_notifier.dart';
 import 'package:s3_client/src/models/change_follower.dart';
 
 import 'package:minio/models.dart';
@@ -42,9 +43,10 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
 
   late BackblazeService _b2service;
   late List<Object> foundFiles = [];
-  late String userBucket;
+  late Bucket userBucket;
   late User loggedUser;
   late ChangeFollower changeFollower;
+  late BucketNotifier bucketFollower;
 
   void requestFileUpload() {
     
@@ -60,9 +62,10 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
     super.initState();
     
     _b2service = context.read<BackblazeService>();
+  
     
     loggedUser = context.read<User>();
-    userBucket = AppUtils.getBucketFromContext(context);
+    userBucket = AppUtils.getSelectedBucketFromContext(context);
     _controllers = {};
     _animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 500));
     _reloadObjects(); // Initial loading of objects
@@ -77,12 +80,20 @@ class _HomePageWidgetState extends State<HomePageWidget> with SingleTickerProvid
 
   @override
 void didChangeDependencies() {
-  super.didChangeDependencies();
-  changeFollower = context.watch<ChangeFollower>();
+    super.didChangeDependencies();
+
+    changeFollower = context.watch<ChangeFollower>();
+    bucketFollower = context.watch<BucketNotifier>();
+
+    if(bucketFollower.selectedBucket.name != userBucket.name ){
+      userBucket = bucketFollower.selectedBucket;
+      _reloadObjects();
+    }
+
 }
 
   Future<void> loadObjects() async {
-    List<Object> objects = await getAllBucketObjects(userBucket);
+    List<Object> objects = await getAllBucketObjects(userBucket.name);
     
     setState(() {
       foundFiles = objects;
@@ -141,7 +152,7 @@ Future<void> downloadFile(String fileName, CloudObjectController controller) asy
 
     try {
       bool success = await _b2service.downloadFileWithProgress(
-        bucketName: userBucket,
+        bucketName: userBucket.name,
         objectName: fileName,
         savePath: savePath,
         onProgress: (progress) {
@@ -222,7 +233,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                handleDelete(userBucket, myObject);
+                handleDelete(userBucket.name, myObject);
                 },
               child: const Text("Delete", style: TextStyle(color: Colors.red)),
             ),
@@ -264,7 +275,7 @@ void showDeleteDialog(BuildContext context, Object myObject) {
                 
 
                 List<String> objectPaths = objectsFromDirectory.map((Object myObject) { return myObject.key!; }).toList();
-                _b2service.deleteObjects(bucket: userBucket, objectPaths: objectPaths)
+                _b2service.deleteObjects(bucket: userBucket.name, objectPaths: objectPaths)
                           .then((bool success) 
                           { 
                             if(success){
@@ -341,7 +352,7 @@ Future<void> _createDirectory(String directoryName) async {
 
     Uint8List emptyList = Uint8List.fromList([]);
 
-    _b2service.uploadFileFromBytes(emptyList, userBucket, fullFilePath)
+    _b2service.uploadFileFromBytes(emptyList, userBucket.name, fullFilePath)
               .then((bool success) { 
                 if(success){
                     _reloadObjects();
@@ -490,6 +501,8 @@ Future<void> _createDirectory(String directoryName) async {
       _reloadObjects();
       changeFollower.needToGetObjects = false;
     }
+
+    
 
 
 

@@ -99,6 +99,10 @@ class BackblazeService {
   }
   */
 
+  Future<List<Bucket>> listAllBuckets() async {
+    return await minio.listBuckets();
+  }
+
   void updateKeys(String keyId, String applicationKey){
     this.keyId = keyId;
     this.applicationKey = applicationKey;
@@ -275,6 +279,13 @@ class BackblazeService {
       }
     }
 
+    Future<void> deleteBucket({required String bucket}) async {    
+     
+        await minio.removeBucket(bucket);
+        //print("File successfully deleted: $bucket/$objectName");
+      
+    }
+
     
   
 
@@ -326,6 +337,7 @@ class BackblazeService {
         bucketName, 
         region,
         );
+
       return true;
       }
       on MinioError catch (e) {
@@ -391,11 +403,11 @@ class BackblazeService {
 
   Future<String> getPresignedGetUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedGetObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedGetObject( bucket, object, expires: (hoursUntilExpire != null) ? hoursUntilExpire * 60 * 24 : hoursUntilExpire);
   }
 
   Future<String> getPresignedPutUrl({required String bucket, required String object, int? hoursUntilExpire})
   {
-    return minio.presignedPutObject( bucket, object, expires: hoursUntilExpire! * 60 * 24);
+    return minio.presignedPutObject( bucket, object, expires: (hoursUntilExpire != null) ? hoursUntilExpire * 60 * 24 : hoursUntilExpire);
   }
 }

@@ -48,6 +48,8 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
     return null;
   }
 
+  
+
   Future<void> _loginUser() async {
     setState(() => _isLoading = true);
 
@@ -154,7 +156,7 @@ class _LoginPageWidgetState extends State<LoginPageWidget> {
       try{
         print("TRYING TO LOGIN");
         b2service.updateKeys(loginUsername, loginPassword);
-        buckets = await b2service.minio.listBuckets();
+        buckets = await b2service.listAllBuckets();
         print("LOADED BUCKETS!");
         print(buckets);
         loggedUser.setUser(newUsername: loginUsername, newEmail: loginUsername, newPassword: loginPassword);
