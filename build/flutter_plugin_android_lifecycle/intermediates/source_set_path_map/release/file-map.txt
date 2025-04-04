@@ -18,8 +18,8 @@ io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-startup-runtime-1.1
 io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-annotation-experimental-1.4.0-17 C:\Users\Ognjen\.gradle\caches\transforms-3\c4537ab9015740d05f09a422063523a5\transformed\jetified-annotation-experimental-1.4.0\res
 io.flutter.plugins.flutter_plugin_android_lifecycle-fragment-1.7.1-18 C:\Users\Ognjen\.gradle\caches\transforms-3\ca4d40f38b71d4c621d36eba6fe2f4a4\transformed\fragment-1.7.1\res
 io.flutter.plugins.flutter_plugin_android_lifecycle-jetified-tracing-1.2.0-19 C:\Users\Ognjen\.gradle\caches\transforms-3\e896b9ac412a8814559a776dc7b5a420\transformed\jetified-tracing-1.2.0\res
-io.flutter.plugins.flutter_plugin_android_lifecycle-main-20 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.24\android\src\main\res
-io.flutter.plugins.flutter_plugin_android_lifecycle-release-21 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.24\android\src\release\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-main-20 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.27\android\src\main\res
+io.flutter.plugins.flutter_plugin_android_lifecycle-release-21 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.27\android\src\release\res
 io.flutter.plugins.flutter_plugin_android_lifecycle-pngs-22 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\flutter_plugin_android_lifecycle\generated\res\pngs\release
 io.flutter.plugins.flutter_plugin_android_lifecycle-resValues-23 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\flutter_plugin_android_lifecycle\generated\res\resValues\release
 io.flutter.plugins.flutter_plugin_android_lifecycle-mergeReleaseResources-24 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\flutter_plugin_android_lifecycle\intermediates\incremental\release\mergeReleaseResources\merged.dir

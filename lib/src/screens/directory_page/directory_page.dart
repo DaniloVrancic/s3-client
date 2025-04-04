@@ -193,10 +193,10 @@ class _DirectoryPageWidgetState extends State<DirectoryPageWidget> with SingleTi
   try{
     final BackblazeService backblazeService = context.read<BackblazeService>();
      
-    final String userBucket = AppUtils.getBucketFromContext(context);
+    final Bucket userBucket = AppUtils.getSelectedBucketFromContext(context);
     String link;
 
-    link = await backblazeService.getPresignedPutUrl(bucket: userBucket, object: (prefix.isNotEmpty) ? "$prefix/$selectedObjectName" : selectedObjectName);
+    link = await backblazeService.getPresignedPutUrl(bucket: userBucket.name, object: (prefix.isNotEmpty) ? "$prefix/$selectedObjectName" : selectedObjectName);
 
     Share.share(link, subject: "Upload your file here!");
   } 

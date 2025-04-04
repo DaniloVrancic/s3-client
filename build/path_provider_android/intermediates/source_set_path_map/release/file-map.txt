@@ -18,8 +18,8 @@ io.flutter.plugins.pathprovider.path_provider_android-jetified-startup-runtime-1
 io.flutter.plugins.pathprovider.path_provider_android-jetified-annotation-experimental-1.4.0-17 C:\Users\Ognjen\.gradle\caches\transforms-3\c4537ab9015740d05f09a422063523a5\transformed\jetified-annotation-experimental-1.4.0\res
 io.flutter.plugins.pathprovider.path_provider_android-fragment-1.7.1-18 C:\Users\Ognjen\.gradle\caches\transforms-3\ca4d40f38b71d4c621d36eba6fe2f4a4\transformed\fragment-1.7.1\res
 io.flutter.plugins.pathprovider.path_provider_android-jetified-tracing-1.2.0-19 C:\Users\Ognjen\.gradle\caches\transforms-3\e896b9ac412a8814559a776dc7b5a420\transformed\jetified-tracing-1.2.0\res
-io.flutter.plugins.pathprovider.path_provider_android-main-20 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.15\android\src\main\res
-io.flutter.plugins.pathprovider.path_provider_android-release-21 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.15\android\src\release\res
+io.flutter.plugins.pathprovider.path_provider_android-main-20 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.16\android\src\main\res
+io.flutter.plugins.pathprovider.path_provider_android-release-21 C:\Users\Ognjen\AppData\Local\Pub\Cache\hosted\pub.dev\path_provider_android-2.2.16\android\src\release\res
 io.flutter.plugins.pathprovider.path_provider_android-pngs-22 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\path_provider_android\generated\res\pngs\release
 io.flutter.plugins.pathprovider.path_provider_android-resValues-23 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\path_provider_android\generated\res\resValues\release
 io.flutter.plugins.pathprovider.path_provider_android-mergeReleaseResources-24 C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\path_provider_android\intermediates\incremental\release\mergeReleaseResources\merged.dir
