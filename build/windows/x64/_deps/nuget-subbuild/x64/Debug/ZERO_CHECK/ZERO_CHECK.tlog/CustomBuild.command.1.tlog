@@ -1,0 +1,10 @@
+^C:\USERS\OGNJEN\DESKTOP\DIPLOMSKI_RAD\PROJEKAT\S3_CLIENT\BUILD\WINDOWS\X64\_DEPS\NUGET-SUBBUILD\CMAKEFILES\9E7CFC3FDC4EF11E9CFDB93030A876E5\GENERATE.STAMP.RULE
+setlocal
+"E:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild -BC:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/nuget-populate.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

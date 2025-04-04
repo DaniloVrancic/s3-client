@@ -1,0 +1,49 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/nuget-populate"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/9e7cfc3fdc4ef11e9cfdb93030a876e5/nuget-populate.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/6dec6674559300c0aa4ae5b96c3a2d7f/nuget-populate-complete.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-build.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-configure.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-copyfile.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-download.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-install.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-mkdir.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-patch.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-test.rule"
+		},
+		{
+			"file" : "C:/Users/Ognjen/Desktop/Diplomski_rad/projekat/s3_client/build/windows/x64/_deps/nuget-subbuild/CMakeFiles/2454b43cf5216767086d85469478fafa/nuget-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"nuget-populate"
+		],
+		"name" : "nuget-populate"
+	}
+}

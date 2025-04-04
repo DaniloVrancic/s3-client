@@ -1,0 +1,231 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.unibl.etf.s3_client"
+4    android:versionCode="1"
+5    android:versionName="1.0.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="21"
+9        android:targetSdkVersion="35" />
+10    <!--
+11         The INTERNET permission is required for development. Specifically,
+12         the Flutter tool needs it to communicate with the running application
+13         to allow setting breakpoints, to provide hot reload, etc.
+14    -->
+15    <uses-permission android:name="android.permission.INTERNET" />
+15-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:2:6-68
+15-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:2:23-65
+16    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+16-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:4:6-80
+16-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:4:23-78
+17    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+17-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:3:6-81
+17-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:3:23-79
+18    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+18-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:9:5-76
+18-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:9:22-73
+19    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+19-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:10:5-75
+19-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:10:22-72
+20    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+20-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:11:5-75
+20-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\debug\AndroidManifest.xml:11:22-72
+21
+22    <!--
+23     Required to query activities that can process text, see:
+24         https://developer.android.com/training/package-visibility and
+25         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+26
+27         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin.
+28    -->
+29    <queries>
+29-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:43:5-48:15
+30        <intent>
+30-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:44:9-47:18
+31            <action android:name="android.intent.action.PROCESS_TEXT" />
+31-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:45:13-72
+31-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:45:21-70
+32
+33            <data android:mimeType="text/plain" />
+33-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:46:13-50
+33-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:46:19-48
+34        </intent>
+35        <intent>
+35-->[:file_picker] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:8:9-12:18
+36            <action android:name="android.intent.action.GET_CONTENT" />
+36-->[:file_picker] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:9:13-72
+36-->[:file_picker] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\file_picker\intermediates\merged_manifest\debug\AndroidManifest.xml:9:21-69
+37
+38            <data android:mimeType="*/*" />
+38-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:46:13-50
+38-->C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\android\app\src\main\AndroidManifest.xml:46:19-48
+39        </intent>
+40    </queries>
+41
+42    <permission
+42-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:22:5-24:47
+43        android:name="com.unibl.etf.s3_client.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+43-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:23:9-81
+44        android:protectionLevel="signature" />
+44-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:24:9-44
+45
+46    <uses-permission android:name="com.unibl.etf.s3_client.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+46-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:26:5-97
+46-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:26:22-94
+47
+48    <application
+49        android:name="android.app.Application"
+50        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+50-->[androidx.core:core:1.13.1] C:\Users\Ognjen\.gradle\caches\transforms-3\889ae3adf7a24645889ee22f4dad2cac\transformed\core-1.13.1\AndroidManifest.xml:28:18-86
+51        android:debuggable="true"
+52        android:extractNativeLibs="true"
+53        android:icon="@mipmap/ic_launcher"
+54        android:label="S3 Browser App"
+55        android:requestLegacyExternalStorage="true" >
+56        <activity
+57            android:name="com.example.s3_client.MainActivity"
+58            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+59            android:exported="true"
+60            android:hardwareAccelerated="true"
+61            android:launchMode="singleTop"
+62            android:taskAffinity=""
+63            android:theme="@style/LaunchTheme"
+64            android:windowSoftInputMode="adjustResize" >
+65
+66            <!--
+67                 Specifies an Android theme to apply to this Activity as soon as
+68                 the Android process has started. This theme is visible to the user
+69                 while the Flutter UI initializes. After that, this theme continues
+70                 to determine the Window background behind the Flutter UI.
+71            -->
+72            <meta-data
+73                android:name="io.flutter.embedding.android.NormalTheme"
+74                android:resource="@style/NormalTheme" />
+75
+76            <intent-filter>
+77                <action android:name="android.intent.action.MAIN" />
+78
+79                <category android:name="android.intent.category.LAUNCHER" />
+80            </intent-filter>
+81        </activity>
+82        <!--
+83             Don't delete the meta-data below.
+84             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java
+85        -->
+86        <meta-data
+87            android:name="flutterEmbedding"
+88            android:value="2" />
+89        <!--
+90           Declares a provider which allows us to store files to share in
+91           '.../caches/share_plus' and grant the receiving action access
+92        -->
+93        <provider
+93-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:13:9-21:20
+94            android:name="dev.fluttercommunity.plus.share.ShareFileProvider"
+94-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-77
+95            android:authorities="com.unibl.etf.s3_client.flutter.share_provider"
+95-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-74
+96            android:exported="false"
+96-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:16:13-37
+97            android:grantUriPermissions="true" >
+97-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:17:13-47
+98            <meta-data
+98-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:18:13-20:68
+99                android:name="android.support.FILE_PROVIDER_PATHS"
+99-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:19:17-67
+100                android:resource="@xml/flutter_share_file_paths" />
+100-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:20:17-65
+101        </provider>
+102        <!--
+103           This manifest declared broadcast receiver allows us to use an explicit
+104           Intent when creating a PendingItent to be informed of the user's choice
+105        -->
+106        <receiver
+106-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:26:9-32:20
+107            android:name="dev.fluttercommunity.plus.share.SharePlusPendingIntent"
+107-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:27:13-82
+108            android:exported="false" >
+108-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:28:13-37
+109            <intent-filter>
+109-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:29:13-31:29
+110                <action android:name="EXTRA_CHOSEN_COMPONENT" />
+110-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:30:17-65
+110-->[:share_plus] C:\Users\Ognjen\Desktop\Diplomski_rad\projekat\s3_client\build\share_plus\intermediates\merged_manifest\debug\AndroidManifest.xml:30:25-62
+111            </intent-filter>
+112        </receiver>
+113
+114        <uses-library
+114-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:23:9-25:40
+115            android:name="androidx.window.extensions"
+115-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:24:13-54
+116            android:required="false" />
+116-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:25:13-37
+117        <uses-library
+117-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:26:9-28:40
+118            android:name="androidx.window.sidecar"
+118-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:27:13-51
+119            android:required="false" />
+119-->[androidx.window:window:1.2.0] C:\Users\Ognjen\.gradle\caches\transforms-3\8859fd2468ade3ef2655d1f63d6737f2\transformed\jetified-window-1.2.0\AndroidManifest.xml:28:13-37
+120
+121        <provider
+121-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:24:9-32:20
+122            android:name="androidx.startup.InitializationProvider"
+122-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:25:13-67
+123            android:authorities="com.unibl.etf.s3_client.androidx-startup"
+123-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:26:13-68
+124            android:exported="false" >
+124-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:27:13-37
+125            <meta-data
+125-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:29:13-31:52
+126                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+126-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:30:17-78
+127                android:value="androidx.startup" />
+127-->[androidx.lifecycle:lifecycle-process:2.7.0] C:\Users\Ognjen\.gradle\caches\transforms-3\40a1bd5ff2ce65cd1fad055cc690d356\transformed\jetified-lifecycle-process-2.7.0\AndroidManifest.xml:31:17-49
+128            <meta-data
+128-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:29:13-31:52
+129                android:name="androidx.profileinstaller.ProfileInstallerInitializer"
+129-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:30:17-85
+130                android:value="androidx.startup" />
+130-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:31:17-49
+131        </provider>
+132
+133        <receiver
+133-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:34:9-52:20
+134            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+134-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:35:13-76
+135            android:directBootAware="false"
+135-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:36:13-44
+136            android:enabled="true"
+136-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:37:13-35
+137            android:exported="true"
+137-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:38:13-36
+138            android:permission="android.permission.DUMP" >
+138-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:39:13-57
+139            <intent-filter>
+139-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:40:13-42:29
+140                <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE" />
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:17-91
+140-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:41:25-88
+141            </intent-filter>
+142            <intent-filter>
+142-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:43:13-45:29
+143                <action android:name="androidx.profileinstaller.action.SKIP_FILE" />
+143-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:17-85
+143-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:44:25-82
+144            </intent-filter>
+145            <intent-filter>
+145-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:46:13-48:29
+146                <action android:name="androidx.profileinstaller.action.SAVE_PROFILE" />
+146-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:17-88
+146-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:47:25-85
+147            </intent-filter>
+148            <intent-filter>
+148-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:49:13-51:29
+149                <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION" />
+149-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:17-95
+149-->[androidx.profileinstaller:profileinstaller:1.3.1] C:\Users\Ognjen\.gradle\caches\transforms-3\408a642162969e960684d9c16b2f116a\transformed\jetified-profileinstaller-1.3.1\AndroidManifest.xml:50:25-92
+150            </intent-filter>
+151        </receiver>
+152    </application>
+153
+154</manifest>
