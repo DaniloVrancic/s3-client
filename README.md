@@ -1,29 +1,20 @@
-# s3_client
+# S3 Client App — Cross-Platform Object Storage Manager
 
-A new Flutter project.
+> A cross-platform Flutter application for managing files and buckets on **S3-compatible storage systems**, developed as part of my diploma thesis.  
 
-## Getting Started
+## Overview
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/to/state-management-sample).
+This project showcases a **complete S3-compatible client ecosystem**, composed of three main components:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. **MinIO Server** – acts as the S3-compatible object storage backend (hosted locally, can be replaced by any other provider that supports S3 compatible APIs).  
+2. **Spring Boot Backend App** – acts as a proxy layer, targeting S3-compatible providers (see my [Spring Boot S3 Backend Project](https://github.com/DaniloVrancic/s3-backend)).  
+3. **Flutter Frontend App (this repo)** – the mobile and desktop client used to view, upload, download, and manage objects and buckets stored in the S3 backend.
 
-## Assets
+<p style="align-items:center">
+  <img 
+    src="assets/docs/System-Components.drawio.png"
+    style="min-width: 80%; width: 100%"
+    alt="System Components" />
+</p>
 
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
-
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/to/resolution-aware-images).
-
-## Localization
-
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
-
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter apps](https://flutter.dev/to/internationalization).
+---
