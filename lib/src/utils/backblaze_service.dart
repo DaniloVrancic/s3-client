@@ -8,7 +8,7 @@ import 'package:minio/minio.dart';
 import 'package:minio/models.dart';
 
 class BackblazeService {
-  static final String DEFAULT_ADDRESS = "10.99.167.45";
+  static final String DEFAULT_ADDRESS = "192.168.100.3";
   // FOR REMOVAL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   String keyId = "YOUR_KEY_ID";
   String applicationKey = "YOUR_APPLICATION_KEY";
