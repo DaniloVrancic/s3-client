@@ -127,3 +127,20 @@ You can run it on:
 - Web Browser (`flutter run -d chrome`)
 - Desktop (`flutter run -d` `windows` / `macos` / `linux`)
 
+---
+
+## 📸 Screenshots
+
+A quick visual overview of the app’s main features and use cases:
+
+| Use Case | Screenshot |
+|-----------|-------------|
+| **Connection Setup** — Enter credentials | ![Connection Setup](assets/docs/login_sample.jfif) |
+| **Object Browser** — Browse, filter and search objects inside buckets | ![Object Browser](assets/docs/object_browser_sample.jpg) |
+| **Search Files** — Search files based on the text that their full path name consists of | ![Search Files](assets/docs/search_sample.jfif) |
+
+
+
+<p style="text-align: center">
+  <em>Enjoy exploring this or any of my other projects 👾</em>
+</p>
