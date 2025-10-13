@@ -24,6 +24,7 @@ A practical part of the work includes developing a Flutter application for manag
 ✅ Connect to any **S3-compatible** service (MinIO, Wasabi, Backblaze B2, AWS S3, etc.)  
 ✅ View, create, and delete **buckets**  
 ✅ Upload, download, and delete **objects**  
+✅ Share objects with anonymous users using **_Presigned URLs_**  
 ✅ Generate and view **object metadata**  
 ✅ Works on **Android**, **iOS**, **Web** and **Desktop** (thanks to Flutter)  
 ✅ Switch between **different providers** through the app’s settings.
@@ -137,7 +138,12 @@ A quick visual overview of the app’s main features and use cases:
 |-----------|-------------|
 | **Connection Setup** — Enter credentials | ![Connection Setup](assets/docs/login_sample.jfif) |
 | **Object Browser** — Browse, filter and search objects inside buckets | ![Object Browser](assets/docs/object_browser_sample.jpg) |
-| **Search Files** — Search files based on the text that their full path name consists of | ![Search Files](assets/docs/search_sample.jfif) |
+| **Bucket Selection** — Select current bucket to work with | ![Bucket Selection](assets/docs/bucket-selection.gif) |
+| **Search Objects** — Search files based on the text that their full path name consists of | ![Search Files](assets/docs/search_sample.jfif) |
+| **Upload Objects and Create Directories** — Delete an entire directory or a specific object | ![Directory Creation and Object Upload](assets/docs/directory-and-object-upload.gif) |
+| **Delete Objects and Directories** — Delete an entire directory or a specific object | ![Directory and Object Deletion](assets/docs/directory-and-object-deletion.gif) |
+| **Sharing Presigned URLs** — Share a presigned URL with any user to let them download content or upload without needing to explicitly create an account for that cloud storage provider | ![Settings Page](assets/docs/presigned-url-showcase.gif) |
+| **Settings Page** — Delete an entire directory or a specific object | ![Settings Page](assets/docs/settings-showcase.gif) |
 
 
 
